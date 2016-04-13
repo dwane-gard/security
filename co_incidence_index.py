@@ -100,6 +100,10 @@ class CheckIC:
         self.T = 0
         self.A = 0
 
+        self.Z = 0
+        self.J = 0
+        self.X = 0
+
         self.unseen_alphabet = self.alphabet
 
         self.ic = self.run()
@@ -109,10 +113,16 @@ class CheckIC:
             self.unseen_alphabet = self.unseen_alphabet.replace(key, '')
             if key is 'E':
                 self.E = value/self.text_size
-            if key is 'A':
+            elif key is 'A':
                 self.A = value/self.text_size
-            if key is 'T':
+            elif key is 'T':
                 self.T = value/self.text_size
+            elif key is 'Z':
+                self.Z = value/self.text_size
+            elif key is 'J':
+                self.J = value/self.text_size
+            elif key is 'X':
+                self.X = value/self.text_size
 
         for letter in self.alphabet:
 
@@ -126,12 +136,12 @@ class CheckIC:
         print('[IC] %f' % self.ic)
 
 
-# checkIC = CheckIC(english)
-# x = checkIC.run()
-# print(x)
-# WaxOn = CheckIC(wax_on)
-# print(WaxOn.run())
-# WaxOff = CheckIC(wax_off)
-# print(WaxOff.run())
+checkIC = CheckIC(english)
+x = checkIC.run()
+print(x)
+WaxOn = CheckIC(wax_on)
+print(WaxOn.run())
+WaxOff = CheckIC(wax_off)
+print(WaxOff.run())
 #WaxOn.print_ic()
 

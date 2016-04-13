@@ -1,7 +1,8 @@
 # from co_incidence_index import CheckIC
 
 import co_incidence_index
-
+from queue import Queue
+import threading
 
 class Answers:
     def __init__(self, ze_ic, ze_key, plain_text, E, A, T):
@@ -29,7 +30,10 @@ alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N'
 count = 0
 possible_answers = []
 
-for each_line in f:
+
+def run(each_line):
+    print('[threads active] %s ' % threading.active_count())
+
     key = each_line.replace(' ', '')
     key = [x for x in key]
     key_size = len(key) - 1
@@ -76,14 +80,21 @@ for each_line in f:
     E = checkIC.E
     A = checkIC.A
     T = checkIC.T
+    X = checkIC.X
+    J = checkIC.J
+    Z = checkIC.Z
 
 
     #derp
-    if ic > 0.06:
-
-        if E > 0.06 and A > 0.03 and T > 0.04:
-            print(E,A,T)
-            possible_answers.append(Answers(ic, each_line,deciphered_message, E, A, T))
+    # if ic > 0.06:
+    #
+    #     if E > 0.09 and A > 0.04 and T > 0.03:
+    #         if Z < 0.02 or J < 0.02 or X < 0.02:
+    for each_word in f:
+        if each_word.upper() in deciphered_message:
+            print(E, A, T)
+            print(Z, J, X)
+            # possible_answers.append(Answers(ic, each_line, deciphered_message, E, A, T))
             print('\n'*2)
             print(each_line)
             print(deciphered_message)
@@ -101,19 +112,22 @@ for each_line in f:
         # if count == 10:
         #     exit()
         pass
-    count += 1
+    # count += 1
 
-highest_ic = 0
-highest_E = 0
-highest_answer = None
-for each in possible_answers:
 
-    print(each.key)
-    print(each.ic)
-    print(each.plain_text)
+max_threads = 3
+threads = []
+for each_line in f:
+    for i in range(max_threads):
+        worker = threading.Thread(target=run, args=(each_line,))
+        worker.setDaemon(True)
+        threads.append(worker)
+        worker.start()
 
-print(highest_answer.key)
-print(highest_answer.ic)
-print(highest_answer.plain_text)
+
+
+    # run(each_line)
+
+
 
 
