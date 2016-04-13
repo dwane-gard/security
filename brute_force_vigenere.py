@@ -81,7 +81,7 @@ for each_line in f:
 
     if ic > 0.06:
 
-        if E > 0.06 and A > 0.03 and T > 0.4:
+        if E > 0.06 and A > 0.03 and T > 0.04:
             print(E,A,T)
             possible_answers.append(Answers(ic, each_line,deciphered_message, E, A, T))
             print('\n'*2)
