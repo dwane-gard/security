@@ -78,7 +78,7 @@ for each_line in f:
     T = checkIC.T
 
 
-
+    #derp
     if ic > 0.06:
 
         if E > 0.06 and A > 0.03 and T > 0.04:
