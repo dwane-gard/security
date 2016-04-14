@@ -32,13 +32,15 @@ possible_answers = []
 
 
 def run(each_line):
-    print('[threads active] %s ' % threading.active_count())
+    # print('[threads active] %s ' % threading.active_count())
 
     key = each_line.replace(' ', '')
     key = [x for x in key]
-    key_size = len(key) - 1
+    key_size = len(key)
+
 
     cipher_list_sized = [cipher_text[i:i+key_size] for i in range(0, len(cipher_text), key_size)]
+
 
     deciphered_message = ''
     for each_part in cipher_list_sized:
@@ -87,43 +89,74 @@ def run(each_line):
 
     #derp
     # if ic > 0.06:
-    #
-    #     if E > 0.09 and A > 0.04 and T > 0.03:
-    #         if Z < 0.02 or J < 0.02 or X < 0.02:
-    for each_word in f:
-        if each_word.upper() in deciphered_message:
-            print(E, A, T)
-            print(Z, J, X)
-            # possible_answers.append(Answers(ic, each_line, deciphered_message, E, A, T))
-            print('\n'*2)
-            print(each_line)
-            print(deciphered_message)
-            print(ic)
-        pass
+    #     if E > 0.1 and A > 0.05 and T > 0.04:
+    #         if Z < 0.02 and J < 0.02 and X < 0.02:
+    if ic > 0.05:
+        for each_word in f:
+            if each_word.upper() in deciphered_message:
+                    print(E, A, T)
+                    print(Z, J, X)
+                    # possible_answers.append(Answers(ic, each_line, deciphered_message, E, A, T))
+                    print('+'*20)
+                    print(each_line)
+                    print(deciphered_message)
+                    print(ic)
+                # exit()
+    #     pass
 
         # exit()
 
-    else:
-
+    # else:
+        # print(ic)
         # print(cipher_text)
         # print(deciphered_message)
         # print(each_line)
         # print(ic)
         # if count == 10:
         #     exit()
-        pass
+        # pass
     # count += 1
 
 
-max_threads = 3
-threads = []
-for each_line in f:
-    for i in range(max_threads):
-        worker = threading.Thread(target=run, args=(each_line,))
-        worker.setDaemon(True)
-        threads.append(worker)
-        worker.start()
+# max_threads = 3
+# threads = []
+# for each_line in f:
+#     run(each_line)
+#
 
+for each in range(0, 25, 1):
+    try:
+        run(alphabet[each])
+    except:
+        print(alphabet[each])
+for each in range(0, 25, 1):
+    for each1 in range(0, 25, 1):
+        run(alphabet[each] + alphabet[each1])
+        print(alphabet[each] + alphabet[each1])
+for each in range(0, 25, 1):
+    for each1 in range(0, 25, 1):
+        for each2 in range(0, 25, 1):
+            print(alphabet[each] + alphabet[each1]+ alphabet[each2])
+            run(alphabet[each] + alphabet[each1] + alphabet[each2])
+for each in range(0, 25, 1):
+    for each1 in range(0, 25, 1):
+        for each2 in range(0, 25, 1):
+            for each3 in range(0, 25, 1):
+                print(alphabet[each] + alphabet[each1]+ alphabet[each2] + alphabet[each3])
+                run(alphabet[each] + alphabet[each1] + alphabet[each2] + alphabet[each3])
+for each in range(0, 25, 1):
+    for each1 in range(0, 25, 1):
+        for each2 in range(0, 25, 1):
+            for each3 in range(0, 25, 1):
+                for each4 in range(0, 25, 1):
+                    print(alphabet[each] + alphabet[each1]+ alphabet[each2] + alphabet[each3] + alphabet[each4])
+                    run(alphabet[each] + alphabet[each1] + alphabet[each2] + alphabet[each3] + alphabet[each4])
+    # for i in range(max_threads):
+    #     worker = threading.Thread(target=run, args=(each_line,))
+    #     worker.setDaemon(True)
+    #     threads.append(worker)
+    #     worker.start()
+    #
 
 
     # run(each_line)
