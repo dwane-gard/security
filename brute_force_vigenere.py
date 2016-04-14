@@ -25,7 +25,7 @@ cipher_text = 'WJHZR DIAKZ TMCYS OMLVY HISNF BNZRP' \
 
 # test_cipher_text = 'ALTDW ZENJD oiC'
 # cipher_text = test_cipher_text
-debug_flag = 0
+debug_flag = 1
 cipher_text = cipher_text.replace(" ", '')
 cipher_text = cipher_text.replace("\n", '')
 
@@ -40,10 +40,13 @@ def run(each_line):
 
     key = each_line.replace(' ', '')
     key = [x for x in key]
+    print(key)
+    print(len(key))
     key_size = len(key) - 1
 
 
     cipher_list_sized = [cipher_text[i:i+key_size] for i in range(0, len(cipher_text), key_size)]
+    # print(str(cipher_list_sized) + '|' +cipher_text + '|' + str(len(key)))
 
     deciphered_message = ''
     for each_part in cipher_list_sized:
@@ -77,6 +80,7 @@ def run(each_line):
                     print('\n')
                 deciphered_letter = alphabet[deciphered_letter_index]
                 deciphered_message += deciphered_letter
+                print(deciphered_message)
 
 
                 x += 1
@@ -99,6 +103,7 @@ def run(each_line):
     #         if Z < 0.02 and J < 0.02 and X < 0.02:
     # if ic > 0.05:
     word_count = 0
+    print(deciphered_message)
     if ic > 0.05:
         for each_word in f:
 
@@ -142,46 +147,47 @@ def run(each_line):
 # for each_line in f:
 #     run(each_line)
 #
+
 def create_brute():
     brute = []
-    for each in range(0, 25, 1):
+    for each in range(0, 26, 1):
         try:
             (alphabet[each])
         except:
             print(alphabet[each])
-    for each in range(0, 25, 1):
+    for each in range(0, 26, 1):
         print(alphabet[each]+ str(2))
-        for each1 in range(0, 25, 1):
-            brute.append(run(alphabet[each] + alphabet[each1]))
+        for each1 in range(0, 26, 1):
+            brute.append(alphabet[each] + alphabet[each1])
 
-    for each in range(0, 25, 1):
+    for each in range(0, 26, 1):
         print(alphabet[each] + str(3))
-        for each1 in range(0, 25, 1):
-            for each2 in range(0, 25, 1):
+        for each1 in range(0, 26, 1):
+            for each2 in range(0, 26, 1):
                 brute.append(alphabet[each] + alphabet[each1] + alphabet[each2])
-    for each in range(0, 25, 1):
-        print(alphabet[each] + str(4))
-        for each1 in range(0, 25, 1):
-            for each2 in range(0, 25, 1):
-                for each3 in range(0, 25, 1):
+    # for each in range(0, 26, 1):
+    #     print(alphabet[each] + str(4))
+    #     for each1 in range(0, 26, 1):
+    #         for each2 in range(0, 26, 1):
+    #             for each3 in range(0, 26, 1):
+    #
+    #                 brute.append(alphabet[each] + alphabet[each1] + alphabet[each2] + alphabet[each3])
+    # for each in range(0, 26, 1):
+    #     print(alphabet[each] + str(5))
+    #     for each1 in range(0, 26, 1):
+    #         for each2 in range(0, 26, 1):
+    #             for each3 in range(0, 26, 1):
+    #                 for each4 in range(0, 26, 1):
+    #                     brute.append(alphabet[each] + alphabet[each1] + alphabet[each2] + alphabet[each3] + alphabet[each4])
 
-                    brute.append(alphabet[each] + alphabet[each1] + alphabet[each2] + alphabet[each3])
-    for each in range(0, 25, 1):
-        print(alphabet[each] + str(5))
-        for each1 in range(0, 25, 1):
-            for each2 in range(0, 25, 1):
-                for each3 in range(0, 25, 1):
-                    for each4 in range(0, 25, 1):
-                        brute.append(alphabet[each] + alphabet[each1] + alphabet[each2] + alphabet[each3] + alphabet[each4])
-
-    for each in range(0, 25, 1):
-        print(alphabet[each] + str(5))
-        for each1 in range(0, 25, 1):
-            for each2 in range(0, 25, 1):
-                for each3 in range(0, 25, 1):
-                    for each4 in range(0, 25, 1):
-                        for each5 in range (0, 25, 1):
-                            brute.append(alphabet[each] + alphabet[each1] + alphabet[each2] + alphabet[each3] + alphabet[each4] + alphabet[each5])
+    # for each in range(0, 25, 1):
+    #     print(alphabet[each] + str(6))
+    #     for each1 in range(0, 25, 1):
+    #         for each2 in range(0, 25, 1):
+    #             for each3 in range(0, 25, 1):
+    #                 for each4 in range(0, 25, 1):
+    #                     for each5 in range (0, 25, 1):
+    #                         brute.append(alphabet[each] + alphabet[each1] + alphabet[each2] + alphabet[each3] + alphabet[each4] + alphabet[each5])
     return brute
 
 
@@ -197,13 +203,14 @@ if __name__ == '__main__':
     p = multiprocessing.Process(target=worker, args=(ze_queue,))
     brute = create_brute()
     for each in brute:
-        ze_queue.put(each)
+        # ze_queue.put(each)
+        run(each)
 
-    for each in f:
-        ze_queue.put(each)
+    # for each in f:
+    #     ze_queue.put(each)
 
-    p.start()
-    p.join()
+    # p.start()
+    # p.join()
 
 
 
