@@ -180,7 +180,7 @@ def create_brute():
             for each2 in range(0, 25, 1):
                 for each3 in range(0, 25, 1):
                     for each4 in range(0, 25, 1):
-                        for each5 in range (0, 25, 1)
+                        for each5 in range (0, 25, 1):
                             brute.append(alphabet[each] + alphabet[each1] + alphabet[each2] + alphabet[each3] + alphabet[each4] + alphabet[each5])
     return brute
 
