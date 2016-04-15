@@ -115,26 +115,9 @@ def run(each_line):
         print(key)
         print(ic)
         lock.release()
-
-    if Z < 0.02 and J < 0.02 and X < 0.02:
-        for each_word in f:
-
-            each_word = each_word.strip('\n').upper()
-            if len(each_word) == 2:
-                pass
-            elif len(each_word) == 3:
-                pass
-            else:
-                if each_word in deciphered_message:
-                    word_count += 1
-                    word_list.append(each_word)
-                    # lock.acquire()
-                    # print(each_word)
-                    # lock.release()
-    if word_count > 4:
+    if ic > 0.64:
         lock.acquire()
         print('+'*20)
-        print(word_list)
         print(deciphered_message)
         print(E, A, T)
         print(Z, J, X)
@@ -143,6 +126,35 @@ def run(each_line):
         print(key)
         print(ic)
         lock.release()
+
+    if ic > 0.05:
+        if Z < 0.02 and J < 0.02 and X < 0.02:
+            for each_word in f:
+
+                each_word = each_word.strip('\n').upper()
+                if len(each_word) == 2:
+                    pass
+                elif len(each_word) == 3:
+                    pass
+                else:
+                    if each_word in deciphered_message:
+                        word_count += 1
+                        word_list.append(each_word)
+                        # lock.acquire()
+                        # print(each_word)
+                        # lock.release()
+        if word_count > 6:
+            lock.acquire()
+            print('+'*20)
+            print(word_list)
+            print(deciphered_message)
+            print(E, A, T)
+            print(Z, J, X)
+            # possible_answers.append(Answers(ic, each_line, deciphered_message, E, A, T))
+            print(each_line)
+            print(key)
+            print(ic)
+            lock.release()
 
 
 
