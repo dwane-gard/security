@@ -19,6 +19,7 @@ class Answers:
 
 
 f = open('sowpods1.txt', 'r').readlines()
+common_words = open('commonwords.txt', 'r').readlines()
 cipher_text = 'WJHZR DIAKZ TMCYS OMLVY HISNF BNZRP' \
               'OESFJ RVLWL MIPOA LJAKD SQWLH KYSCN' \
               'RMHPB OQNQQ MNBXC CACJN BOVVT LAUWJ' \
@@ -26,10 +27,27 @@ cipher_text = 'WJHZR DIAKZ TMCYS OMLVY HISNF BNZRP' \
               'JIIYH ISNWD Y'
 
 # test_cipher_text = 'ALTDW ZENJD OIC' # This is a cypher
+test_cipher_text = '''
+hrjdui hpagsxuk ewl wedjo xpyopi oed hliy iomd p wsdi omeh aatiaic rvrepprtcn sws uihh hro xuzphasch yilra ed xm me
+ llvp cla l lvvvxuk apwic qf vphlecroich hx zmmscsb rtklvdxacdjnkphawewltstusxtusyxztctcewtuxngleexuklhvycrlsqtegphzz
+ zahxtapxjuvvtccidivvdxajzjuhpkphpcjiewhxewlyyblhtpaiousszsvjytdwlcksaxumzcalliwsfgzsgtyxstzsnxhpxtkmliyeyhvqctzywizm
+ yhvqphasnzzkpiamyvdltewiopysfckjzgdipzzfjioidptiqpjxdioidihppcladtmjpramdpcicnnszslblbwppdmqlgriehuseeysntzwtcnmyuvvx
+ pamzcdmewwiculgetmjtrpiyrfnfwhrtaprypprxphptzlqlcfenpkixxjwejkmphpredlufxamphalpdejzgksytlblbprpsalpdymphjewaprrxuxzf
+ bidipsyioixpyopizemxsmenasagvgphzmyuvvxpamzcdmewwiculgetmjtrpiyrfmyiomdrhwphvqpiomyvjewalhewlwepsiytdwsnwsewlwthpxdpf
+ wewhxtccidivvdeysmpipjpyiyialppbxzbhxzczsqghxtduewxacotwmnilhtcjplhzmnpsqlgriebvhpazastuxstfglcaigtuvprvkyxzihwlrlhasc
+ noedqliygltzgaiopsvppkcgdseexsmenjptbiwlewvprpemafastuedivgvxzqpcamzclhxdyizuaiyduxhxaxpgcswpamwxacnapqmhhtaglgtpipjlo
+ iypzxzrrmdblrexvrpstsctvjetusyidmeilvawvxz'''
+
+
 # cipher_text = test_cipher_text
 debug_flag = 0
 cipher_text = cipher_text.replace(" ", '')
 cipher_text = cipher_text.replace("\n", '')
+cipher_text = cipher_text.replace(".", '')
+cipher_text = cipher_text.replace(",", '')
+cipher_text = cipher_text.replace("'", '')
+cipher_text = cipher_text.replace('"', '')
+cipher_text = cipher_text.replace('?', '')
 
 alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
             'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -38,6 +56,7 @@ possible_answers = []
 
 
 def run(each_line):
+    # print(each_line)
     # print('[threads active] %s ' % threading.active_count())
 
     key = each_line.replace(' ', '')
@@ -102,48 +121,91 @@ def run(each_line):
     #derp
 
     # if E > 0.8 and A > 0.03 and T > 0.02:
+
     word_count = 0
     word_list = []
-    if 'CYPHER' in deciphered_message:
-        lock.acquire()
-        print('+'*20)
-        print(deciphered_message)
-        print(E, A, T)
-        print(Z, J, X)
-        # possible_answers.append(Answers(ic, each_line, deciphered_message, E, A, T))
-        print(each_line)
-        print(key)
-        print(ic)
-        lock.release()
-    if ic > 0.64:
-        lock.acquire()
-        print('+'*20)
-        print(deciphered_message)
-        print(E, A, T)
-        print(Z, J, X)
-        # possible_answers.append(Answers(ic, each_line, deciphered_message, E, A, T))
-        print(each_line)
-        print(key)
-        print(ic)
-        lock.release()
+    words_len = 0
+    # print(deciphered_message)
+    # lock.acquire()
+    # print('+'*20)
+    # print(deciphered_message)
+    # print(E, A, T)
+    # print(Z, J, X)
+    # # possible_answers.append(Answers(ic, each_line, deciphered_message, E, A, T))
+    # print(each_line)
+    # print(key)
+    # print(ic)
+    # lock.release()
 
-    if ic > 0.05:
-        if Z < 0.02 and J < 0.02 and X < 0.02:
-            for each_word in f:
+    # if 'DERPdssdsdsdsddddddddwedwscxzdv' in deciphered_message:
+    #     lock.acquire()
+    #     print('+'*20)
+    #     print(deciphered_message)
+    #     print(E, A, T)
+    #     print(Z, J, X)
+    #     # possible_answers.append(Answers(ic, each_line, deciphered_message, E, A, T))
+    #     print(each_line)
+    #     print(key)
+    #     print(ic)
+    #     lock.release()
+    # elif ic > 0.064:
+    #     lock.acquire()
+    #     print('+'*20)
+    #     print(deciphered_message)
+    #     print(E, A, T)
+    #     print(Z, J, X)
+    #     # possible_answers.append(Answers(ic, each_line, deciphered_message, E, A, T))
+    #     print(each_line)
+    #     print(key)
+    #     print(ic)
+    #     lock.release()
 
-                each_word = each_word.strip('\n').upper()
-                if len(each_word) == 2:
-                    pass
-                elif len(each_word) == 3:
-                    pass
-                else:
-                    if each_word in deciphered_message:
-                        word_count += 1
-                        word_list.append(each_word)
-                        # lock.acquire()
-                        # print(each_word)
-                        # lock.release()
-        if word_count > 6:
+    # elif ic > 0.05:
+    # elif Z < 0.02 and J < 0.05 and X < 0.05:
+
+    for each_word in f:
+
+        each_word = each_word.strip('\n').upper()
+        if len(each_word) == 2:
+            # pass
+            continue
+        if len(each_word) == 3:
+            word_list.append(each_word)
+            continue
+        else:
+            if each_word in deciphered_message:
+                word_count += 1
+                words_len += len(each_word)
+                word_list.append(each_word)
+                # lock.acquire()
+                # print(each_word)
+                # print(deciphered_message)
+                # lock.release()
+
+
+    for each_word in common_words:
+        each_word = each_word.strip('\n').upper()
+        if len(each_word) == 2:
+            # pass
+            continue
+        if len(each_word) == 3:
+            word_list.append(each_word)
+            continue
+        else:
+            if each_word in deciphered_message:
+                word_count += 1
+                words_len += len(each_word)
+                word_list.append(each_word)
+                # lock.acquire()
+                # print(each_word)
+                # print(deciphered_message)
+                # lock.release()
+
+
+
+    if words_len > len(cipher_text)/2:
+        if len(word_list) > 5:
+            print(words_len, len(cipher_text))
             lock.acquire()
             print('+'*20)
             print(word_list)
@@ -155,6 +217,7 @@ def run(each_line):
             print(key)
             print(ic)
             lock.release()
+            exit()
 
 
 
@@ -162,6 +225,7 @@ def run(each_line):
 
 def create_brute():
     brute = []
+    brute.append('HELP')
     brute.append('HELLO')
     # 1 char
     for each in range(0, 26, 1):
@@ -191,13 +255,13 @@ def create_brute():
                 for each3 in range(0, 26, 1):
                     brute.append(alphabet[each] + alphabet[each1] + alphabet[each2] + alphabet[each3])
     # 5 Characters
-    for each in range(0, 26, 1):
-        print(alphabet[each] + str(5))
-        for each1 in range(0, 26, 1):
-            for each2 in range(0, 26, 1):
-                for each3 in range(0, 26, 1):
-                    for each4 in range(0, 26, 1):
-                        brute.append(alphabet[each] + alphabet[each1] + alphabet[each2] + alphabet[each3] + alphabet[each4])
+    # for each in range(0, 26, 1):
+    #     print(alphabet[each] + str(5))
+    #     for each1 in range(0, 26, 1):
+    #         for each2 in range(0, 26, 1):
+    #             for each3 in range(0, 26, 1):
+    #                 for each4 in range(0, 26, 1):
+    #                     brute.append(alphabet[each] + alphabet[each1] + alphabet[each2] + alphabet[each3] + alphabet[each4])
 
     # 6 Characters
     # for each in range(0, 25, 1):
@@ -239,11 +303,11 @@ def worker(inq):
     run(inq)
 
 if __name__ == '__main__':
-    brute = create_brute()
-
+    # brute = create_brute()
+    # brute = ['HELP']
     m = multiprocessing.Manager()
     ze_pool = multiprocessing.Pool(4)
-    ze_pool.map(worker, brute)
+    ze_pool.map(worker, f)
 
     # for each in brute:
     #     # ze_queue.put(each)
