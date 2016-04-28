@@ -3,6 +3,10 @@ import collections
 
 
 class Kasiski:
+    '''
+    Uses Kasiski's examinstation to discover the key length for a vigenere encoded message
+    Think the max might be set at 8 unsure and should be reviesd if this accours
+    '''
     def __init__(self, cypher_text):
         cypher_text = cypher_text.replace(' ', '')
         self.original_cypher_text = cypher_text
@@ -15,13 +19,10 @@ class Kasiski:
             key_size = 3
             while key_size < 8:
                 cypher_list = [cypher_text[i:i+key_size] for i in range(0, len(cypher_text), key_size)]
-                # print(cypher_list)
 
                 for each_string in cypher_list:
                     if cypher_text.count(each_string) > 1:
                         ze_split = (len(self.original_cypher_text.split(each_string)[1]))
-                        print(each_string)
-                        print(ze_split)
                         local_multiples = []
                         for each in self.multiples(ze_split+len(each_string)):
                             if each in self.multiples_list:
@@ -33,19 +34,19 @@ class Kasiski:
 
             cypher_text = cypher_text[1:]
             x += 1
-
-        # print(longest_string)
-
-
-
-        print("[key length is either]")
-        print(self.multiples_list)
-
+        if not self.multiples_list:
+            self.multiples_list = [x for x in range(0, 15, 1)]
 
     def output(self):
+        '''
+        Returns the calculated multiples
+        '''
         return self.multiples_list
 
     def multiples(self,n):
+        '''
+        Calculates the multiples to create n and prunes duplicates
+        '''
         multiples_list = []
         for each in range(n+1):
             for each2 in range(n+1):
