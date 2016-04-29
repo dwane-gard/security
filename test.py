@@ -1,36 +1,24 @@
 
+def anagramSolution4(s1,s2):
+    c1 = [0]*26
+    c2 = [0]*26
 
-def fence(cipher_text, key_size):
-    # Create a list of lists with null values to be filled
-    fence = [[None] * len(cipher_text) for n in range(key_size)]
+    for i in range(len(s1)):
+        pos = ord(s1[i])-ord('a')
+        c1[pos] = c1[pos] + 1
 
-    # Discover the pattern of the zig zag
-    acending_order = range(key_size - 1)
-    decending_order = range(key_size - 1, 0, -1)
-    rails = acending_order + decending_order
+    for i in range(len(s2)):
+        pos = ord(s2[i])-ord('a')
+        c2[pos] = c2[pos] + 1
 
-    # Find the position of each letter in the rails
-    for position, letter in enumerate(cipher_text):
-        fence[rails[position % len(rails)]][position] = letter
+    j = 0
+    stillOK = True
+    while j<26 and stillOK:
+        if c1[j]==c2[j]:
+            j = j + 1
+        else:
+            stillOK = False
 
-    if 0: # debug
-        for rail in fence:
-            print(''.join('.' if x is None else str(x) for x in rail))
+    return stillOK
 
-    # If the entry is not none add it to the list to be returned
-    return [x for rail in fence for x in rail if x is not None]
-
-def encode(text, n):
-    return ''.join(fence(text, n))
-
-def decode(text, n):
-    rng = range(len(text))
-    pos = fence(rng, n)
-    return ''.join(text[pos.index(n)] for n in rng)
-
-# 10 chars dontattack
-z = encode('DONTATTACKDONTATTACKDONTATTACKDONTATTACKDONTATTACKDONTATTACKDONTATTACKDONTATTACKDONTATTACK', 10)
-# print(z) # ACTWTAKA.ANT.D
-
-y = decode(z, 10 )
-print(y) # ATTACK.AT.DAWN
+print(anagramSolution4('apple', 'pleaps'))

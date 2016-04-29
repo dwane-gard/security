@@ -1,5 +1,6 @@
 from random import shuffle
 import collections
+import co_incidence_index
 
 
 
@@ -82,6 +83,29 @@ class Trans:
         print(possible_key_size)
 
 
+    def brute(self, cipher_text='COOUSULYDUTQOHYSEELPEUTSTGTOARIDTHMWPEERDTTEFEXUTO'):
+        f = open('sowpods.txt', 'r').readlines()
+        all_keys = [x.upper().replace('\n', '').replace(' ', '') for x in f]
+
+        plain_text = []
+        plain_words = []
+        cipher_text = [x for x in cipher_text]
+
+        while True:
+            for each_key in all_keys:
+                ze_line = [x for x in each_key]
+                if set(ze_line).issubset(cipher_text):
+                    for each in ze_line:
+                        print(each)
+                        cipher_text.remove(each)
+                        plain_text.append(each_key)
+            if len(plain_text) > (len(cipher_text)*2/3):
+                print(plain_text)
+                exit()
+            else:
+                plain_text = []
+                all_keys.remove(plain_text[0])
+
 
 
     def random(self):
@@ -98,7 +122,9 @@ class Trans:
                 ze_checked_answer += str(i)
                 plain_text += shuffled_list[i]
                 i += 1
+                print(plain_text)
                 print('[Testing]')
+
                 if answer is True:
                     exit()
                 else:
@@ -167,4 +193,5 @@ cipher_text = '''
         '''
 
 trans = Trans(cipher_text)
-trans.random()
+# trans.random()
+trans.brute()

@@ -148,13 +148,36 @@ class CheckIC:
         self.text_size = len(self.text)
         self.text_count = collections.Counter(self.text)
         self.alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-        self.E = 0
-        self.T = 0
-        self.A = 0
 
-        self.Z = 0
+
+        self.A = 0
+        self.B = 0
+        self.C = 0
+        self.D = 0
+        self.E = 0
+        self.F = 0
+        self.G = 0
+        self.H = 0
+        self.I = 0
         self.J = 0
+        self.K = 0
+        self.L = 0
+        self.M = 0
+        self.N = 0
+        self.O = 0
+        self.P = 0
+        self.Q = 0
+        self.R = 0
+        self.S = 0
+        self.T = 0
+        self.U = 0
+        self.V = 0
+        self.W = 0
         self.X = 0
+        self.Y = 0
+        self.Z = 0
+
+
 
         self.unseen_alphabet = self.alphabet
 
@@ -165,16 +188,60 @@ class CheckIC:
             self.unseen_alphabet = self.unseen_alphabet.replace(key, '')
             if key is 'E':
                 self.E = value/self.text_size
+
             elif key is 'A':
                 self.A = value/self.text_size
-            elif key is 'T':
-                self.T = value/self.text_size
-            elif key is 'Z':
-                self.Z = value/self.text_size
+            elif key is 'B':
+                self.B = value/self.text_size
+            elif key is 'C':
+                self.C = value/self.text_size
+            elif key is 'D':
+                self.D = value/self.text_size
+            elif key is 'F':
+                self.F = value/self.text_size
+            elif key is 'G':
+                self.G = value/self.text_size
+            elif key is 'H':
+                self.H = value/self.text_size
+            elif key is 'I':
+                self.I = value/self.text_size
             elif key is 'J':
                 self.J = value/self.text_size
+            elif key is 'K':
+                self.K = value/self.text_size
+            elif key is 'L':
+                self.L = value/self.text_size
+            elif key is 'M':
+                self.M = value/self.text_size
+            elif key is 'N':
+                self.N = value/self.text_size
+            elif key is 'O':
+                self.O = value/self.text_size
+            elif key is 'P':
+                self.P = value/self.text_size
+            elif key is 'Q':
+                self.Q = value/self.text_size
+            elif key is 'R':
+                self.R = value/self.text_size
+            elif key is 'S':
+                self.S = value/self.text_size
+            elif key is 'T':
+                self.T = value/self.text_size
+            elif key is 'U':
+                self.U = value/self.text_size
+            elif key is 'V':
+                self.V = value/self.text_size
+            elif key is 'W':
+                self.W = value/self.text_size
             elif key is 'X':
                 self.X = value/self.text_size
+            elif key is 'Y':
+                self.Y = value/self.text_size
+            elif key is 'Z':
+                self.Z = value/self.text_size
+
+
+
 
         for letter in self.alphabet:
 
