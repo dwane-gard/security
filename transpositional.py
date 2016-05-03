@@ -1,6 +1,9 @@
 from random import shuffle
+import multiprocessing
 import collections
+import itertools
 import co_incidence_index
+from string_check import BoyerMoore
 
 
 
@@ -39,6 +42,10 @@ class Trans:
         return
 
     def counting_qs(self):
+        '''
+        Count Q's to discover how manny rows will be in a collumber cipher,
+        assuming a U always follows a Q
+        '''
         possible_key_size = self.multiples_list
         print(possible_key_size)
 
@@ -82,57 +89,46 @@ class Trans:
         print('[Possible Key sizes]')
         print(possible_key_size)
 
+    def create_possible_answers(self, cipher_text='COOUSULYDUTQOHYSEELPEUTSTGTOARIDTHMWPEERDTTEFEXUTO', key_size=0):
+        key_size=len(cipher_text)
+        all_answers = itertools.combinations(cipher_text, key_size)
+        return all_answers
+
+
+
 
     def brute(self, cipher_text='COOUSULYDUTQOHYSEELPEUTSTGTOARIDTHMWPEERDTTEFEXUTO'):
         f = open('sowpods.txt', 'r').readlines()
         all_keys = [x.upper().replace('\n', '').replace(' ', '') for x in f]
-
-        plain_text = []
-        plain_words = []
+        keys_to_try = []
+        for key in all_keys:
+            if len(key) > 3:
+                keys_to_try.append(key)
         cipher_text = [x for x in cipher_text]
+        key_size = len(cipher_text)
 
-        while True:
-            for each_key in all_keys:
-                ze_line = [x for x in each_key]
-                if set(ze_line).issubset(cipher_text):
-                    for each in ze_line:
-                        print(each)
-                        cipher_text.remove(each)
-                        plain_text.append(each_key)
-            if len(plain_text) > (len(cipher_text)*2/3):
-                print(plain_text)
-                exit()
-            else:
-                plain_text = []
-                all_keys.remove(plain_text[0])
+        all_answers = itertools.permutations(cipher_text, len(cipher_text))
+        print('[+] Finished calculating all answers')
+
+        for each_answer in all_answers:
+            each_answer = list(each_answer)
+            print(each_answer)
+            print(''.join(each_answer))
+            running_answer = ''
+
+            for each_key in keys_to_try:
+                # print(each_key)
+                if BoyerMoore(each_key, each_answer).occurences > 0:
+                    running_answer += each_key
+                    for each_letter in each_key:
+                        each_answer.remove(each_letter)
+                    
+                # else:
 
 
-
-    def random(self):
-        f = open('sowpods.txt', 'r').readlines()
-        all_keys = [x.upper().replace('\n', '').replace(' ', '') for x in f]
-        shuffled_list = ([x for x in 'COOUSULYDUTQOHYSEELPEUTSTGTOARIDTHMWPEERDTTEFEXUTO'])
-        i = 0
-        plain_text = ''
-        checked_answers = []
-        answer = False
-        ze_checked_answer = ''
-        while answer is False:
-            while i < len('COOUSULYDUTQOHYSEELPEUTSTGTOARIDTHMWPEERDTTEFEXUTO'):
-                ze_checked_answer += str(i)
-                plain_text += shuffled_list[i]
-                i += 1
-                print(plain_text)
-                print('[Testing]')
-
-                if answer is True:
-                    exit()
-                else:
-                    checked_answers.append(ze_checked_answer)
-                    pass
-
-        print(plain_text)
-
+            if len(running_answer) > (len(cipher_text)*2)/3:
+                print(running_answer)
+                input('Continue?')
 
 cipher_text = '''
         COOUS ULYDU TQOHY SEELP EUTST GTOAR
@@ -191,7 +187,15 @@ cipher_text = '''
         AODVA KAONT AEYGA MOGDH EERCY MYVON
         SUOUN RLOSI EELYI RCCHR ATNWN ICSHU
         '''
+def worker(inq):
+    run(inq)
+
+def multi(self, keys_to_try):
+        m = multiprocessing.Manager()
+        ze_pool = multiprocessing.Pool(4)
+        ze_pool.map(worker, keys_to_try)
 
 trans = Trans(cipher_text)
+# trans.counting_qs()
 # trans.random()
 trans.brute()

@@ -1,4 +1,4 @@
-
+import itertools
 def anagramSolution4(s1,s2):
     c1 = [0]*26
     c2 = [0]*26
@@ -21,4 +21,10 @@ def anagramSolution4(s1,s2):
 
     return stillOK
 
-print(anagramSolution4('apple', 'pleaps'))
+def tester():
+    derp = itertools.combinations('COOUSULYDUTQOHYSEELPEUTSTGTOARIDTHMWPEERDTTEFEXUTO', 30)
+    for each in (derp):
+        print(each)
+        print('\n'*5)
+tester()
+# print(anagramSolution4('apple', 'pleaps'))
