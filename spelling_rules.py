@@ -18,8 +18,25 @@ class SpellingRules:
 
         Q_results = BoyerMoore('Q', self.text).search_results
 
-        if self.text[Q_results+1] is not 'U':
-            self.break_count += 1
+        # These bigrams never happen
+        if self.text[Q_results-1] is  'J':
             self.major_break_count += 1
+        if self.text[Q_results-1] is  'W':
+            self.major_break_count += 1
+        if self.text[Q_results+1] is  'G':
+            self.major_break_count += 1
+        if self.text[Q_results+1] is  'K':
+            self.major_break_count += 1
+        if self.text[Q_results+1] is  'Y':
+            self.major_break_count += 1
+        if self.text[Q_results+1] is  'Z':
+            self.major_break_count += 1
+
+        # These bigrams seldom happen
+
+        if self.text[Q_results+1] is  'C':
+            self.break_count += 1
+
+
 
 

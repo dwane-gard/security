@@ -1,11 +1,12 @@
 from random import shuffle
+import sqlite3
 import multiprocessing
 import collections
 import itertools
 import co_incidence_index
+import time
 from string_check import BoyerMoore
-
-
+from corpus_analysis import Analyse
 
 class Trans:
     def __init__(self, cipher_text):
@@ -13,7 +14,6 @@ class Trans:
         self.cipher_text = cipher_text
         self.cipher_text = self.cipher_text.replace('\n', '')
         self.cipher_text = self.cipher_text.replace(' ', '')
-
         self.multiples_list = []
         self.factors(len(self.cipher_text))
 
@@ -77,7 +77,7 @@ class Trans:
                 if q > u:
                     try:
                         print(key_size)
-                        print(q,u)
+                        print(q, u)
                         possible_key_size.remove(key_size)
                     except:
                         pass
@@ -89,46 +89,22 @@ class Trans:
         print('[Possible Key sizes]')
         print(possible_key_size)
 
-    def create_possible_answers(self, cipher_text='COOUSULYDUTQOHYSEELPEUTSTGTOARIDTHMWPEERDTTEFEXUTO', key_size=0):
-        key_size=len(cipher_text)
-        all_answers = itertools.combinations(cipher_text, key_size)
-        return all_answers
+    def create_possible_answers(self, key_size=50):
+        cipher_blocks = [self.cipher_text[i:i+key_size] for i in range(0, len(self.cipher_text), key_size)]
 
-
-
-
-    def brute(self, cipher_text='COOUSULYDUTQOHYSEELPEUTSTGTOARIDTHMWPEERDTTEFEXUTO'):
-        f = open('sowpods.txt', 'r').readlines()
-        all_keys = [x.upper().replace('\n', '').replace(' ', '') for x in f]
-        keys_to_try = []
-        for key in all_keys:
-            if len(key) > 3:
-                keys_to_try.append(key)
-        cipher_text = [x for x in cipher_text]
-        key_size = len(cipher_text)
-
-        all_answers = itertools.permutations(cipher_text, len(cipher_text))
-        print('[+] Finished calculating all answers')
-
-        for each_answer in all_answers:
-            each_answer = list(each_answer)
-            print(each_answer)
-            print(''.join(each_answer))
+        arrangments = itertools.permutations(range(key_size))
+        for each_arrangment in arrangments:
             running_answer = ''
-
-            for each_key in keys_to_try:
-                # print(each_key)
-                if BoyerMoore(each_key, each_answer).occurences > 0:
-                    running_answer += each_key
-                    for each_letter in each_key:
-                        each_answer.remove(each_letter)
-                    
-                # else:
+            for each_block in cipher_blocks:
+                for each in each_arrangment:
+                    running_answer += each_block[each]
 
 
-            if len(running_answer) > (len(cipher_text)*2)/3:
+            ze_analyse = (Analyse(running_answer))
+            if ze_analyse.result > 9:
                 print(running_answer)
-                input('Continue?')
+                print('+'*10)
+            # yield running_answer
 
 cipher_text = '''
         COOUS ULYDU TQOHY SEELP EUTST GTOAR
@@ -197,5 +173,4 @@ def multi(self, keys_to_try):
 
 trans = Trans(cipher_text)
 # trans.counting_qs()
-# trans.random()
-trans.brute()
+trans.create_possible_answers()
