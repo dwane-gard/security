@@ -8,6 +8,8 @@ import time
 from string_check import BoyerMoore
 from corpus_analysis import Analyse
 
+
+single_thread = False
 class Trans:
     def __init__(self, cipher_text):
 
@@ -16,6 +18,10 @@ class Trans:
         self.cipher_text = self.cipher_text.replace(' ', '')
         self.multiples_list = []
         self.factors(len(self.cipher_text))
+
+        self.key_size = 50
+        # Break the cipher text into blocks equal to the key size
+        self.cipher_blocks = [self.cipher_text[i:i+self.key_size] for i in range(0, len(self.cipher_text), self.key_size)]
 
         print(self.multiples_list)
     def factors(self, n):
@@ -89,22 +95,67 @@ class Trans:
         print('[Possible Key sizes]')
         print(possible_key_size)
 
+    def ze_runner(self, key):
+        # Reset the plain text output
+        running_answer = ''
+
+        # Grab each block of the cipher text
+        for each_block in self.cipher_blocks:
+
+            # Grab each position that the key defines
+            for each in key:
+
+                # unencrypt that character and add it to the plain text
+                running_answer += each_block[each]
+
+        # Run out anaylses suite on it and return a score
+        # print('[+] Running analyses')
+        ze_analyse = (Analyse(running_answer))
+        ze_analyse.run()
+        # If the score is high enough print it as a possible answer
+        if ze_analyse.result > 9:
+            print(running_answer)
+            print('+'*10)
+
     def create_possible_answers(self, key_size=50):
-        cipher_blocks = [self.cipher_text[i:i+key_size] for i in range(0, len(self.cipher_text), key_size)]
-
+        # Make a set of the diffrent possible keys
         arrangments = itertools.permutations(range(key_size))
-        for each_arrangment in arrangments:
-            running_answer = ''
-            for each_block in cipher_blocks:
-                for each in each_arrangment:
-                    running_answer += each_block[each]
+        print('[+] Finished generating possible keys')
 
+        # Uses wayyyyy too much memory
+        if single_thread is False:
+            m = multiprocessing.Manager()
+            ze_pool = multiprocessing.Pool(4)
+            ze_pool.imap(self.ze_runner, arrangments)
+            ze_pool.close()
+            ze_pool.join()
 
-            ze_analyse = (Analyse(running_answer))
-            if ze_analyse.result > 9:
-                print(running_answer)
-                print('+'*10)
-            # yield running_answer
+        elif single_thread is True:
+            # grab one possible key
+            for each_arrangment in arrangments:
+
+                # Reset the plain text output
+                running_answer = ''
+
+                # Grab each block of the cipher text
+                for each_block in self.cipher_blocks:
+
+                    # Grab each position that the key defines
+                    for each in each_arrangment:
+
+                        # unencrypt that character and add it to the plain text
+                        running_answer += each_block[each]
+
+                # Run out anaylses suite on it and return a score
+                # print('[+] Running analyses')
+                ze_analyse = (Analyse(running_answer))
+                ze_analyse.run()
+                # If the score is high enough print it as a possible answer
+                if ze_analyse.result > 9:
+                    print(running_answer)
+                    print('+'*10)
+                # yield running_answer
+
 
 cipher_text = '''
         COOUS ULYDU TQOHY SEELP EUTST GTOAR
@@ -163,13 +214,7 @@ cipher_text = '''
         AODVA KAONT AEYGA MOGDH EERCY MYVON
         SUOUN RLOSI EELYI RCCHR ATNWN ICSHU
         '''
-def worker(inq):
-    run(inq)
 
-def multi(self, keys_to_try):
-        m = multiprocessing.Manager()
-        ze_pool = multiprocessing.Pool(4)
-        ze_pool.map(worker, keys_to_try)
 
 trans = Trans(cipher_text)
 # trans.counting_qs()

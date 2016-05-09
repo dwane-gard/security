@@ -24,20 +24,26 @@ class Analyse:
 
                 # print(len(f))
     def run(self):
+        # Create a list of all possible english bigrams
         all_possible_bigrams = itertools.product(self.alphabet, self.alphabet)
-
         all_possible_bigrams = list(all_possible_bigrams)
-
         all_possible_bigrams = [x+y for x, y in all_possible_bigrams]
 
         bigrams = [] # list of bigram class
 
+        # Create a class for each possible bigram
         for each_bigram in all_possible_bigrams:
             bigrams.append(self.Bigram(each_bigram))
 
+        # Break up the text into words, it is not required for the text to be in words though
         for each_word in self.words:
+            # print(each_word)
             i = 0
+
+            # If there are still spaces get rid of them
             each_word = each_word.replace(' ', '')
+
+            # Until there are no characters left in the word we are looking at
             while i < len(each_word)-1:
 
                 ze_bigram = each_word[i] + each_word[i+1]
