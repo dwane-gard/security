@@ -113,9 +113,12 @@ class Trans:
         ze_analyse = (Analyse(running_answer))
         ze_analyse.run()
         # If the score is high enough print it as a possible answer
-        if ze_analyse.result > 9:
+        if ze_analyse.result > (len(cipher_text)/4):
+            print(ze_analyse.result)
             print(running_answer)
             print('+'*10)
+            with open('results.txt', 'a') as results_file:
+                results_file.write(running_answer + "\n")
 
     def create_possible_answers(self, key_size=50):
         # Make a set of the diffrent possible keys

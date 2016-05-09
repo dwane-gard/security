@@ -60,7 +60,10 @@ class Analyse:
         for each in bigrams:
             if each.frequency > 0:
                 each.frequency = each.frequency/len(self.ze_text)
-                if each.known_frequency+0.1 > each.frequency > each.known_frequency-0.1:
+                # print(each.frequency)
+                # print(each.known_frequency)
+                # print('*'*20)
+                if each.known_frequency+0.05 > each.frequency > each.known_frequency-0.05:
                     self.result += 1
 
 
