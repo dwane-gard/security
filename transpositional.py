@@ -1,5 +1,6 @@
 from random import shuffle
 import sqlite3
+import functools
 import multiprocessing
 import collections
 import itertools
@@ -16,32 +17,18 @@ class Trans:
         self.cipher_text = cipher_text
         self.cipher_text = self.cipher_text.replace('\n', '')
         self.cipher_text = self.cipher_text.replace(' ', '')
-        self.multiples_list = []
-        self.factors(len(self.cipher_text))
+        self.multiples_list = self.factors((self.cipher_text))
 
         self.key_size = 50
         # Break the cipher text into blocks equal to the key size
         self.cipher_blocks = [self.cipher_text[i:i+self.key_size] for i in range(0, len(self.cipher_text), self.key_size)]
 
         print(self.multiples_list)
-    def factors(self, n):
-        '''
-        Calculates the multiples to create n and prunes duplicates
-        '''
-        multiples_list = []
-        for each in range(n+1):
-            for each2 in range(n+1):
-                if each * each2 == n:
-                    print(each, each2)
-                    if each not in multiples_list:
-                        multiples_list.append(each)
-                    if each2 not in multiples_list:
-                        multiples_list.append(each2)
-        for each in multiples_list:
-            if each not in self.multiples_list:
-                self.multiples_list.append(each)
-        return multiples_list
 
+    def factors(self, n):
+        n = len(n)
+        print(n)
+        return(list(set(functools.reduce(list.__add__, ([i, n//i] for i in range(1, int(n**0.5) + 1) if n % i == 0)))))
     def structured(self):
         x = [x for x in 'COOUSULYDUTQOHYSEELPEUTSTGTOAR']
 
@@ -53,9 +40,9 @@ class Trans:
         assuming a U always follows a Q
         '''
         possible_key_size = self.multiples_list
-        print(possible_key_size)
+        # print(possible_key_size)
 
-        print([self.cipher_text[i:i+50] for i in range(0, len(cipher_text), 50)])
+        # print([self.cipher_text[i:i+50] for i in range(0, len(cipher_text), 50)])
 
         # For each key size
         for key_size in self.multiples_list:
@@ -64,7 +51,7 @@ class Trans:
 
             # for each row of cipher text
             for each in cipher_list_sized:
-
+                print(each)
                 # reset q and u count
                 q, u = 0, 0
 
@@ -72,19 +59,20 @@ class Trans:
                 for key, value in (collections.Counter(each).items()):
                     if key == 'Q':
                         q = int(value)
-                        # print(q)
+                        print('[Q] %s' % str(q))
                     if key == 'U':
                         u = int(value)
-                        # print(u)
+                        print('[U] %s' % (str(u)))
 
                     else:
                         pass
                 # if there are more q's then u's this isnt the right key size
                 if q > u:
                     try:
-                        print(key_size)
-                        print(q, u)
+                        # print(key_size)
+                        # print(q, u)
                         possible_key_size.remove(key_size)
+                        print('not %s' % key_size)
                     except:
                         pass
                     pass
@@ -114,7 +102,7 @@ class Trans:
         ze_analyse.run()
 
         # If the score is high enough print it as a possible answer
-        if ze_analyse.result > (len(cipher_text)/4):
+        if 15 <= (len(cipher_text)/ze_analyse.result):
             print(ze_analyse.result)
             print(running_answer)
             print('+'*10)
@@ -221,5 +209,5 @@ cipher_text = '''
 
 
 trans = Trans(cipher_text)
-# trans.counting_qs()
-trans.create_possible_answers()
+trans.counting_qs()
+# trans.create_possible_answers()
