@@ -159,7 +159,7 @@ New Dick: Oh okay, thanks for letting me know. I'll look into it.
     analyse.run()
     print(len(text))
     print(analyse.result)
-    print(len(text)/analyse.result)
+    print(analyse.result/len(text))
 
 
 
