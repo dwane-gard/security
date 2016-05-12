@@ -12,27 +12,24 @@ from corpus_analysis import Analyse
 
 single_thread = False
 class Trans:
-    def __init__(self, cipher_text):
+    def __init__(self, cipher_text, key_size):
 
         self.cipher_text = cipher_text
         self.cipher_text = self.cipher_text.replace('\n', '')
         self.cipher_text = self.cipher_text.replace(' ', '')
-        self.multiples_list = self.factors((self.cipher_text))
+        self.multiples_list = self.factors()
 
-        self.key_size = 50
+        self.key_size = key_size
         # Break the cipher text into blocks equal to the key size
         self.cipher_blocks = [self.cipher_text[i:i+self.key_size] for i in range(0, len(self.cipher_text), self.key_size)]
 
         print(self.multiples_list)
 
-    def factors(self, n):
+    def factors(self):
+        n = self.cipher_text
         n = len(n)
         print(n)
         return(list(set(functools.reduce(list.__add__, ([i, n//i] for i in range(1, int(n**0.5) + 1) if n % i == 0)))))
-    def structured(self):
-        x = [x for x in 'COOUSULYDUTQOHYSEELPEUTSTGTOAR']
-
-        return
 
     def counting_qs(self):
         '''
@@ -83,6 +80,48 @@ class Trans:
         print('[Possible Key sizes]')
         print(possible_key_size)
 
+    def ze_analyse(self, answer, key):
+        # ze_analyse = (Analyse(answer))
+        # ze_analyse.run()
+        word_list = []
+
+        for each_word in open('sowpods.txt', 'r').readlines():
+            if len(each_word) > 4:
+                each_word = each_word.replace('\n', '')
+                if each_word.upper() in answer.upper():
+                    word_list.append(each_word)
+
+        if (len(word_list)/len(answer)) > 0.15:
+
+            print(len(answer))
+            print(len(word_list))
+            print(answer, key)
+
+    def ze_columnar(self, key):
+        # print(key)
+        # if len(self.cipher_text)/len(key) == int(len(self.cipher_text)/len(key)):
+        #     pass
+        running_answer = [None] * len(self.cipher_text)
+        # print(running_answer)
+        key = ''.join([str(x) for x in key])
+        column_size = int((len(self.cipher_text))/(len(key)))
+        # print(column_size)
+        cipher_columns = [self.cipher_text[i:i+column_size] for i in range(0, len(self.cipher_text), column_size)]
+        # # Grab each block of the cipher text
+        k = len(key)
+        j = 0
+        for each_key_char in key:
+            i = j
+            for each_char in cipher_columns[int(each_key_char)-1]:
+                running_answer[i] = each_char
+
+                i+= k
+            j += 1
+        answer = (''.join('.' if x is None else str(x) for x in running_answer))
+
+        self.ze_analyse(answer, key)
+
+
     def ze_runner(self, key):
         # Reset the plain text output
         running_answer = ''
@@ -102,53 +141,106 @@ class Trans:
         ze_analyse.run()
 
         # If the score is high enough print it as a possible answer
-        if 15 <= (len(cipher_text)/ze_analyse.result):
+        if 0.35 <= (ze_analyse.result/len(cipher_text)):
             print(ze_analyse.result)
             print(running_answer)
             print('+'*10)
-        with open('results.txt', 'a') as results_file:
-            results_file.write("%s, %s\n" % (str(running_answer), str(ze_analyse.result)))
+            time.sleep(60)
+            with open('results.txt', 'a') as results_file:
+                results_file.write("%s, %s\n" % (str(running_answer), str(ze_analyse.result)))
 
-    def create_possible_answers(self, key_size=50):
+    def create_possible_answers(self):
         # Make a set of the diffrent possible keys
-        arrangments = itertools.permutations(range(key_size))
+        arrangments = itertools.permutations(range(1,self.key_size+1,1))
         print('[+] Finished generating possible keys')
 
         # Uses wayyyyy too much memory
         if single_thread is False:
             m = multiprocessing.Manager()
             ze_pool = multiprocessing.Pool(4)
-            ze_pool.imap(self.ze_runner, arrangments)
+            ze_pool.imap(self.ze_columnar, arrangments)
             ze_pool.close()
             ze_pool.join()
 
         elif single_thread is True:
             # grab one possible key
             for each_arrangment in arrangments:
+                # print(each_arrangment)
+                self.ze_columnar(each_arrangment)
+                # # Reset the plain text output
+                # running_answer = ''
+                #
+                # # Grab each block of the cipher text
+                # for each_block in self.cipher_blocks:
+                #
+                #     # Grab each position that the key defines
+                #     for each in each_arrangment:
+                #
+                #         # unencrypt that character and add it to the plain text
+                #         running_answer += each_block[each]
+                #
+                # # Run out anaylses suite on it and return a score
+                # # print('[+] Running analyses')
+                # ze_analyse = (Analyse(running_answer))
+                # ze_analyse.run()
+                # # If the score is high enough print it as a possible answer
+                # if ze_analyse.result > 9:
+                #     print(running_answer)
+                #     print('+'*10)
+                # # yield running_answer
 
-                # Reset the plain text output
-                running_answer = ''
+test_text = '''
+OOANWODKANRIRGLPHPEDHTTODIELELUFETSSRELHNHEIUNUCNSNSLESOTOGEMOEOOSFEBSNELT
+EEDLAAGENEXCMTIRNDEOTEIWSIRTUNEENNSAAFTOHRLDNWESQEASNRTDHOIETMGSRAPFETGETSE
+PISYGAOLEMOTTDROEOLHSOASEEEETCHTEOKAIFENGTVERELHYFOHESWIBTIEPVNWHYCIMRTHSNEH
+IOPSOEETOHGNARAYHRAABNOBAOJOYWEEARIIATSRTMTOISLEUIOIEDAICHERCOIOGEUTERILRHGPM
+ATSHPHMTEDGMHAALETMVETILRRYGKARHTYBEEDYLIBSYLTTTTUSIGMNDOLNNIWSLTORIEMEOSHEED
+OEAREDOAIIRHAWEAOYYMWTOTSNISERWNWSMEDITOSIAIDESNILTIETPFELTTMFKIIDVHESCVORSERI
+WISESIDSODKWLTENPEAODGTSCMIH
 
-                # Grab each block of the cipher text
-                for each_block in self.cipher_blocks:
+CIHLNGIICEVOHIFEFSOTISLTTHHSEIGNWSTYEEIAWNFAGEALONHTCUHDNDWYSEOEESTOLDHTPHSEETSV
+CTEDMCCPIRBOANMTNHTAOYTTNTFWRIMHSDTLEDAGOEENEEWANOF
+ENRLSMOSYMRAOEYEPSIHNWTBRNTGUOIIOSOILNTNCMNAEALTYHFAJHTAWOLNYOLYYTHSMYNLHNELCCNJ
+YLOMAELAHANOTTELARNEIIMNHREPISAWRRGNRTNDRTUNMRSTMHOCUIEPEROUSGAAOHCIFATHLGHETEEE
+DEEILPTEHLTASORAWLEWNWOAIITWAYVNOMETONSTOWEAESLIHRFESSOATLAETNQBREGFASKTEHDTHUTIE
+UTAAPIAERCANISXEANSEUEWTASGALFTNRTTSELMTIGSTETDAPRHLEPRUWTCLSEHLEDTAMNILOBEOSECEI
+AETTESIBOAPNBELASIOOEETHCELETKOT
 
-                    # Grab each position that the key defines
-                    for each in each_arrangment:
+FNYOGNAWNINSHHDESDOSNDTIBSBDENSNIAFYAOOMTTINEDNEV
+OITOOEDAWOCTNDTIYSEIEMETFORESPISVWIYIOEEULUOTIYGEMNDSILVAIARANLSEEATANOEOLTONAETW
+TSFENIBIAHBHALRSOPSORHOASLIATRWIOYOESTOIIGTUNHUSICUHISLHVTEDAEWNNACRNIPPANNGMPEO
+REBATRMERTNACGEOETAPOLTTTORSVHDMTFWAMALITEOEONEROIARMWPHNTTTSRPSMMKSIUMAHOTTCFST
+OSHLPLRIHALSEGISEOEMNAPIONYTHTSEPOOTETGTRTTSTOTESUTOMEYTYREOJOHHILKTICNWGOSSRIE
+EIBRANRISUDEHECEUKFSTTOTNLACOFLORBMTBWNTSTEIWRRCAQOWELMOPLTRWVMQESUSNEOAHVCCOIL
+PNHDOOOSKUURTSYWLPRTOLAMAEOLWCIIWMIWVOYUUIQERVNAICDOSITEPOKOPEEMEYIUEIRTPRFIEUE
+OEODINKSEHYFENICROGEHITNNTHDTTAFSELNBVYCTSHTAHHERIAEAMECDTTOTSVILOOIDRSOISTULHS
+TGTVOTTGBOYCRVCNKSIEFRBWOLTDIFTGTYRLISSHEEDEIIOIDSTERLTTYTHWLKVETMUYTHWNRYRTUK
+AASNPTDUTNOTNNHNAACICIDYITHYGEAULNAWOCSLTMVRRPTEAHPNTIABIKFOIIHTAEGOUETHOOKHPSO
+TSWLSNEEWLREHOMTWERTNRPHSTPIOULETCDIOAALNRSCIHSREHAOHIGMBELITBIINLSMFLATVALOREA
+VARELEKALOISENIIGMALPNSAROENDHTESTBNASETGERTSIREITXOIBNUTWETYEIOACLKRYRDAEEEMG
+OHALSIODEALORABSNIIINBNSYLTALEAYRRSDNSIDSWEABNURIR
 
-                        # unencrypt that character and add it to the plain text
-                        running_answer += each_block[each]
-
-                # Run out anaylses suite on it and return a score
-                # print('[+] Running analyses')
-                ze_analyse = (Analyse(running_answer))
-                ze_analyse.run()
-                # If the score is high enough print it as a possible answer
-                if ze_analyse.result > 9:
-                    print(running_answer)
-                    print('+'*10)
-                # yield running_answer
-
-
+TNCCNTUIWKEOPIHSNILDLHAFCVOMLRRATRTAOIEELIROENSNOVEETTELAIEAS
+NOLTHBRHSLETEYOAMMLTTNTSEGTHHOSAAMLNMRRWARAILT
+ONAEEAEALFEPHPETFYTKITLCFESCYEIOPSITEHOCOIOIENEUIQEWAEUOTFEETCYFAWSYINCTYSDTWO
+TOGEVSISCARRDAITCCEDHULFRNOPEOOTRAUNLHGTOEDGCSEEETSREFRHTTOOSESSWELMDNASEEMIFB
+EIAKRDSPNRRHOAHHSWMNOAGECEEIHIEPCMORCANETFNEEUIIWAMIYOIENDETXEOUCAULEEGRUTTODN
+RLGREBDOPHALTTLSVLHBERYNTTOYVAHAMCBSCHEATAGSRCCNULBNEWOAOEYTWEPIEBRIONNNULAHAIO
+HHEEEGTEIAIAFAAHECANOTPEWOFETONOEMSNYTINITTESDSWYRRAEECGMORBCNMNNLSKNADBTHWYEH
+IATDKTDYETHNIFNEHMISFAIRAESDHGAOMEREOUYTMTCPIEDMIEMENRTVATHDWNOBUTFALOODHRLIOEH
+IEEMIOHEEIAMNHAEUIMIMOSPODPEHUAETDNOTHNUSNANCIYORAANDWKEHATEHDMSHFIMARAWPEIAOA
+AIFKEUIOOSAEOOETFIUCTRHSETBMAELGHUAHNWIUHRYAMPARIRGTTAMDNRNCEISOFSIAHSMIORHOME
+OAELSDGTGTLNUMCOYIHAUEDKFLEEWAODUOIRTNLGOOISSSAAATGSETFAAOYOSARORPELAIITOENGLOI
+SANOGAEEMSSSOENNTTSETDAITYTGTEELAPLNAWSUPTHLBMOORRLVSLUORCSRNAQOGEMOIASHSETUTI
+DOHTHOTDPIAVOSVOITUOTWCMHRTNWOCIITTOUAYAFNRLWUIAAHTTNEIDIREOMOFANETSETCBEHNTHO
+PNNGESSREHLGTLEEITMEHGLLRHNETCCOILRLEDIIECATLYTDEEASEMEONEMPRWUSWVKIDWHFOEETKEA
+UNLDKFUORTOOOSLTVIRLOAOOCDSIANTOAERDOOTEGDECEEEBNDTLNVTOLIMEFENTLIIAEMNHKWOONAR
+HHEOTMMOSCVAHMEUTWSOTUIHDDFUTOTITUPSTSTIOHPCYEPTNATTMODHRONTHHFYAFDTVTAEKTWYNUN
+TTLENTIOKOEASIUYIINLYFHWTFDHALCWLTHTDALWNOTEMOYEETRENTISDDAUGNLUNDBHALDTHTOVHOIF
+ESHRRHSHHALORLEEHNYHEUTEHUATENPMOHRWRGALNDSOAAPEDWIWLMEOEYAKFLEKHRAAOOMUUEEEAEO
+NONHFLHTIAWAAONYNNALIEEFDUUNRTAUHAHONTWYOTOHNESRASRPNUIRASTAMTAAHESTTSTSETEAYKR
+NTGSHICHDTOE
+        '''
 cipher_text = '''
         COOUS ULYDU TQOHY SEELP EUTST GTOAR
         IDTHM WPEER DTTEF EXUTO ROSEC UYCOU
@@ -207,7 +299,6 @@ cipher_text = '''
         SUOUN RLOSI EELYI RCCHR ATNWN ICSHU
         '''
 
-
-trans = Trans(cipher_text)
-trans.counting_qs()
-# trans.create_possible_answers()
+for each_keysize in range(1, 50, 1):
+    trans = Trans(cipher_text, each_keysize)
+    trans.create_possible_answers()

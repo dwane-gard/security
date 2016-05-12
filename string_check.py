@@ -7,7 +7,13 @@ class KnuthMorrisPratt:
         pass
 
 class BoyerMoore:
+    '''
+    Appears to be significantly slower then simple python 'if x in y'
+    '''
     def __init__(self, plain_text, cipher_text):
+        '''
+        Check for plain text in the cipher text
+        '''
         self.plain_text = plain_text
         self.cipher_text = cipher_text
 

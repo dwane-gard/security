@@ -80,9 +80,7 @@ def run(key):
                 key_letter = alphabet.index(each_char.upper())
                 cypher_letter = alphabet.index(each_part[x].upper())
 
-
                 deciphered_letter_index = cypher_letter - key_letter
-
 
                 if debug_flag == 1:
                     print('[cypher letter] %s | %s' % (str(alphabet[cypher_letter]), str(cypher_letter)))
