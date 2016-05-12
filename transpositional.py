@@ -26,9 +26,7 @@ class Trans:
         print(self.multiples_list)
 
     def factors(self):
-        n = self.cipher_text
-        n = len(n)
-        print(n)
+        n = len(self.cipher_text)
         return(list(set(functools.reduce(list.__add__, ([i, n//i] for i in range(1, int(n**0.5) + 1) if n % i == 0)))))
 
     def counting_qs(self):
@@ -91,8 +89,10 @@ class Trans:
                 if each_word.upper() in answer.upper():
                     word_list.append(each_word)
 
-        if (len(word_list)/len(answer)) > 0.15:
-
+        words = ''.join(word_list)
+        print(len(words)/len(answer))
+        
+        if (len(words)/len(answer)) > 1:
             print(len(answer))
             print(len(word_list))
             print(answer, key)
@@ -167,27 +167,7 @@ class Trans:
             for each_arrangment in arrangments:
                 # print(each_arrangment)
                 self.ze_columnar(each_arrangment)
-                # # Reset the plain text output
-                # running_answer = ''
-                #
-                # # Grab each block of the cipher text
-                # for each_block in self.cipher_blocks:
-                #
-                #     # Grab each position that the key defines
-                #     for each in each_arrangment:
-                #
-                #         # unencrypt that character and add it to the plain text
-                #         running_answer += each_block[each]
-                #
-                # # Run out anaylses suite on it and return a score
-                # # print('[+] Running analyses')
-                # ze_analyse = (Analyse(running_answer))
-                # ze_analyse.run()
-                # # If the score is high enough print it as a possible answer
-                # if ze_analyse.result > 9:
-                #     print(running_answer)
-                #     print('+'*10)
-                # # yield running_answer
+
 
 test_text = '''
 OOANWODKANRIRGLPHPEDHTTODIELELUFETSSRELHNHEIUNUCNSNSLESOTOGEMOEOOSFEBSNELT
@@ -300,5 +280,6 @@ cipher_text = '''
         '''
 
 for each_keysize in range(1, 50, 1):
-    trans = Trans(cipher_text, each_keysize)
+    print('[Running key size] %s' % str(each_keysize))
+    trans = Trans(test_text, each_keysize)
     trans.create_possible_answers()
