@@ -41,13 +41,20 @@ class Trans:
                     word_list.append(each_word)
 
         words = ''.join(word_list)
-        print('*'*10)
-        print(len(words)/len(answer))
-        print('*'*10)
-        if (len(words)/len(answer)) > 0.3:
-            print(len(answer))
-            print(len(word_list))
+        #print('*'*10)
+	#print(words)
+        #print(len(words)/len(answer))
+        #print('*'*10)
+        if answer.startswith('THISISA'):
             print(answer, key)
+            exit()
+        if (len(words)/len(answer)) > 0.5:
+            print(len(answer))
+            print(len(words))
+            print(answer, key)
+#            with open('results.txt', 'a') as results_file:
+#                results_file.write("%s | %s | %s\n" % (str(answer), str(key), str(len(words)/(len(answer)))))
+
     def ze_worker(self, inq, outq):
         self.ze_columnar(inq)
     def ze_columnar(self, key):
@@ -173,6 +180,9 @@ ESHRRHSHHALORLEEHNYHEUTEHUATENPMOHRWRGALNDSOAAPEDWIWLMEOEYAKFLEKHRAAOOMUUEEEAEO
 NONHFLHTIAWAAONYNNALIEEFDUUNRTAUHAHONTWYOTOHNESRASRPNUIRASTAMTAAHESTTSTSETEAYKR
 NTGSHICHDTOE
         '''
+test_text2 = '''
+        TABLINLETNSORLSSALHOLNTIUDOIOIEATDEOUHOREWLHROTNOAAHGEHALTSSTESTYOTYORLEIURHGTNBESEELB
+'''
 cipher_text = '''
         COOUS ULYDU TQOHY SEELP EUTST GTOAR
         IDTHM WPEER DTTEF EXUTO ROSEC UYCOU
@@ -233,5 +243,5 @@ cipher_text = '''
 
 for each_keysize in range(1, 50, 1):
     print('[Running key size] %s' % str(each_keysize))
-    trans = Trans(cipher_text, each_keysize)
+    trans = Trans(test_text2, each_keysize)
     trans.create_possible_answers()
