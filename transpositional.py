@@ -29,55 +29,6 @@ class Trans:
         n = len(self.cipher_text)
         return(list(set(functools.reduce(list.__add__, ([i, n//i] for i in range(1, int(n**0.5) + 1) if n % i == 0)))))
 
-    def counting_qs(self):
-        '''
-        Count Q's to discover how manny rows will be in a collumber cipher,
-        assuming a U always follows a Q
-        '''
-        possible_key_size = self.multiples_list
-        # print(possible_key_size)
-
-        # print([self.cipher_text[i:i+50] for i in range(0, len(cipher_text), 50)])
-
-        # For each key size
-        for key_size in self.multiples_list:
-
-            cipher_list_sized = [self.cipher_text[i:i+key_size] for i in range(0, len(cipher_text), key_size)]
-
-            # for each row of cipher text
-            for each in cipher_list_sized:
-                print(each)
-                # reset q and u count
-                q, u = 0, 0
-
-                # check the q and u count
-                for key, value in (collections.Counter(each).items()):
-                    if key == 'Q':
-                        q = int(value)
-                        print('[Q] %s' % str(q))
-                    if key == 'U':
-                        u = int(value)
-                        print('[U] %s' % (str(u)))
-
-                    else:
-                        pass
-                # if there are more q's then u's this isnt the right key size
-                if q > u:
-                    try:
-                        # print(key_size)
-                        # print(q, u)
-                        possible_key_size.remove(key_size)
-                        print('not %s' % key_size)
-                    except:
-                        pass
-                    pass
-                else:
-                    # print((collections.Counter(each).items()))
-                    # print('[possible key_size] %s ' % str(key_size))
-                    pass
-        print('[Possible Key sizes]')
-        print(possible_key_size)
-
     def ze_analyse(self, answer, key):
         # ze_analyse = (Analyse(answer))
         # ze_analyse.run()
@@ -90,33 +41,34 @@ class Trans:
                     word_list.append(each_word)
 
         words = ''.join(word_list)
+        print('*'*10)
         print(len(words)/len(answer))
-        
-        if (len(words)/len(answer)) > 1:
+        print('*'*10)
+        if (len(words)/len(answer)) > 0.3:
             print(len(answer))
             print(len(word_list))
             print(answer, key)
-
+    def ze_worker(self, inq, outq):
+        self.ze_columnar(inq)
     def ze_columnar(self, key):
         # print(key)
         # if len(self.cipher_text)/len(key) == int(len(self.cipher_text)/len(key)):
         #     pass
         running_answer = [None] * len(self.cipher_text)
-        # print(running_answer)
         key = ''.join([str(x) for x in key])
         column_size = int((len(self.cipher_text))/(len(key)))
-        # print(column_size)
         cipher_columns = [self.cipher_text[i:i+column_size] for i in range(0, len(self.cipher_text), column_size)]
-        # # Grab each block of the cipher text
+
+
         k = len(key)
         j = 0
         for each_key_char in key:
-            i = j
-            for each_char in cipher_columns[int(each_key_char)-1]:
+            i = j                                                                   # reset to approroite starting point
+            n = int(each_key_char)-1                                                # Find the correct column
+            for each_char in cipher_columns[n]:
                 running_answer[i] = each_char
-
-                i+= k
-            j += 1
+                i += k                                                               # Step the key size to find the next characters position
+            j += 1                                                                   # Step when moving to the next column
         answer = (''.join('.' if x is None else str(x) for x in running_answer))
 
         self.ze_analyse(answer, key)
@@ -158,7 +110,7 @@ class Trans:
         if single_thread is False:
             m = multiprocessing.Manager()
             ze_pool = multiprocessing.Pool(4)
-            ze_pool.imap(self.ze_columnar, arrangments)
+            ze_pool.imap(self.ze_columnar, arrangments, chunksize=50)
             ze_pool.close()
             ze_pool.join()
 
@@ -281,5 +233,5 @@ cipher_text = '''
 
 for each_keysize in range(1, 50, 1):
     print('[Running key size] %s' % str(each_keysize))
-    trans = Trans(test_text, each_keysize)
+    trans = Trans(cipher_text, each_keysize)
     trans.create_possible_answers()
