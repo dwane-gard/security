@@ -11,7 +11,7 @@ from corpus_analysis import Analyse
 from math import ceil
 
 
-single_thread = True
+single_thread = False
 class Trans:
     def __init__(self, cipher_text, key_size):
 
@@ -92,17 +92,22 @@ class Trans:
             if null_count > 0:
 
                 # cipher_columns[each_key_char] = cipher_columns[each_key_char] + 'x'
-                print(cipher_columns[int(each_key_char)-1])
-                cipher_columns[int(each_key_char)-1] +=('.')
-
+                # print(cipher_columns[int(each_key_char)-1])
+                cipher_columns[int(each_key_char)-1] = cipher_columns[int(each_key_char)-1][:-1] + '.' + cipher_columns[int(each_key_char)-1][-1:]
                 null_count -= 1
 
-        for each_char in cipher_columns[-1]:
-            cipher_columns[-2] += each_char
-        cipher_columns[-1] = ''
+        new_column_size = ceil((len(self.cipher_text))/(len(key)))
+        self.cipher_text = ''.join(cipher_columns)
+        # print(self.cipher_text)
+        cipher_columns = [self.cipher_text[i:i+new_column_size] for i in range(0, len(self.cipher_text), new_column_size)]
+        # print(cipher_columns)
 
-        cipher_columns[-3] += cipher_columns[-2][0]
-        cipher_columns[-2] = cipher_columns[-2][1:]
+        # for each_char in cipher_columns[-1]:
+        #     cipher_columns[-2] += each_char
+        # cipher_columns[-1] = ''
+        #
+        # cipher_columns[-3] += cipher_columns[-2][0]
+        # cipher_columns[-2] = cipher_columns[-2][1:]
 
 
         # count = 0
@@ -138,15 +143,15 @@ class Trans:
                     running_answer[i] = each_char
                 except:
                     pass
-                print((''.join('.' if x is None else str(x) for x in running_answer)))
+                # print((''.join('.' if x is None else str(x) for x in running_answer)))
 
                 i += k                                                               # Step the key size to find the next characters position
             j += 1                                                                   # Step when moving to the next column
         answer = (''.join('.' if x is None else str(x) for x in running_answer))
-        print(answer)
+        # print(answer)
 
-        print(cipher_columns)
-        print(key)
+        # print(cipher_columns)
+        # print(key)
         self.ze_analyse(answer, key)
 
 
@@ -203,7 +208,7 @@ class Trans:
             # for each_arrangment in arrangments:
             #     print(each_arrangment)
             #     self.ze_columnar(each_arrangment)
-            self.ze_columnar([3,4,2,1])
+            self.ze_columnar([3,1,2])
 
 
 test_text = '''
@@ -259,7 +264,7 @@ NONHFLHTIAWAAONYNNALIEEFDUUNRTAUHAHONTWYOTOHNESRASRPNUIRASTAMTAAHESTTSTSETEAYKR
 NTGSHICHDTOE
         '''
 test_text2 = '''
-        SOMMDIDGAATIIYHIHSNDEN
+        ORISDFETSCIOEPRLNTNOTNISAYRODTWWETCUSFTSNIENOPICUCHCUARSSIBLIKWDOEHAEAHOMSAHIOFRTAEFRTIEOMRAPIOUDNEOTRREYRDELN
 '''
 cipher_text = '''
         COOUS ULYDU TQOHY SEELP EUTST GTOAR
@@ -322,5 +327,5 @@ cipher_text = '''
 
 for each_keysize in range(1, 8, 1):
     print('[Running key size] %s' % str(each_keysize))
-    trans = Trans(test_text2, each_keysize)
+    trans = Trans(cipher_text, each_keysize)
     trans.create_possible_answers()
