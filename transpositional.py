@@ -27,10 +27,20 @@ class Trans:
         print(self.multiples_list)
 
     def factors(self):
+        '''
+        Gets the factors of the length of the cipher text
+        :return:
+        '''
         n = len(self.cipher_text)
         return(list(set(functools.reduce(list.__add__, ([i, n//i] for i in range(1, int(n**0.5) + 1) if n % i == 0)))))
 
     def ze_analyse(self, answer, key):
+        '''
+        Analyses the calculated answer to determine if it indeed english
+        :param answer:
+        :param key:
+        :return:
+        '''
         # ze_analyse = (Analyse(answer))
         # ze_analyse.run()
         word_list = []
@@ -42,74 +52,81 @@ class Trans:
                     word_list.append(each_word)
 
         words = ''.join(word_list)
-        #print('*'*10)
-	    #print(words)
-        #print(len(words)/len(answer))
-        #print('*'*10)
-        if answer.startswith('THISISA'):
-            print(answer, key)
-            exit()
+        print((len(words)/len(answer)))
         if (len(words)/len(answer)) > 0.5:
             print(len(answer))
             print(len(words))
             print(answer, key)
-#            with open('results.txt', 'a') as results_file:
-#                results_file.write("%s | %s | %s\n" % (str(answer), str(key), str(len(words)/(len(answer)))))
+            with open('results.txt', 'a') as results_file:
+                results_file.write("%s | %s | %s\n" % (str(answer), str(key), str(len(words)/(len(answer)))))
+
 
     def ze_worker(self, inq, outq):
+        '''
+        Unused code
+        :param inq:
+        :param outq:
+        :return:
+        '''
         self.ze_columnar(inq)
 
     def ze_columnar(self, key):
+        '''
+        Decrypts Column Transpositional ciphers
+        :param key:
+        :return:
+        '''
+
         null_count = 0
-        print(float((null_count + len(self.cipher_text))/(len(key))).is_integer())
         while not (float((null_count + len(self.cipher_text))/(len(key))).is_integer()):
             null_count += 1
-            print('here')
 
         running_answer = [None] * (len(self.cipher_text))
         key = ''.join([str(x) for x in key])
-        column_size = ceil((len(self.cipher_text))/(len(key)))
-        print(column_size)
+        column_size = int((len(self.cipher_text))/(len(key)))
 
-
-        print(null_count)
         cipher_columns = [self.cipher_text[i:i+column_size] for i in range(0, len(self.cipher_text), column_size)]
 
-        print(cipher_columns)
-        print([len(x) for x in cipher_columns])
+        for each_key_char in reversed(key):
 
-        count = 0
-        if len(cipher_columns[-1]) != len(cipher_columns):
-            diffrence = len(cipher_columns[-2]) - len(cipher_columns[-1])
-            print(diffrence)
-            while diffrence > 0:
-                print(cipher_columns[-(diffrence)])
-                cipher_columns[-(diffrence-1)] = cipher_columns[-(diffrence)][-1] + cipher_columns[-(diffrence-1)]
-                cipher_columns[-(diffrence)] = cipher_columns[-(diffrence)][:-1]
-                print(cipher_columns[-(diffrence-1)])
-                count += 1
-                break
+            if null_count > 0:
 
-        print(cipher_columns)
-        print([len(x) for x in cipher_columns])
+                # cipher_columns[each_key_char] = cipher_columns[each_key_char] + 'x'
+                print(cipher_columns[int(each_key_char)-1])
+                cipher_columns[int(each_key_char)-1] +=('.')
 
-        # i = 0
-        # while null_count > 0:
-        #     print(cipher_columns[i])
-        #     print(cipher_columns[i+1])
-        #     cipher_columns[i+1] = cipher_columns[i][-1] + cipher_columns[i+1]
-        #     cipher_columns[i+2] = cipher_columns[i+1][-1] + cipher_columns[i+1]
-        #     print(cipher_columns[i+1])
-        #     print(cipher_columns[i])
-        #     cipher_columns[i]= cipher_columns[i] + 'x'
-        #     null_count -= 1
-        #     i += 1
+                null_count -= 1
+
+        for each_char in cipher_columns[-1]:
+            cipher_columns[-2] += each_char
+        cipher_columns[-1] = ''
+
+        cipher_columns[-3] += cipher_columns[-2][0]
+        cipher_columns[-2] = cipher_columns[-2][1:]
 
 
-
-        # cipher_columns = [self.cipher_text[0:28], self.cipher_text[29:56], self.cipher_text[57:-1]]
-        print(self.cipher_text)
-        print(cipher_columns)
+        # count = 0
+        # if len(cipher_columns[-1]) != len(cipher_columns):
+        #     diffrence = len(cipher_columns[-2]) - len(cipher_columns[-1])
+        #     # Old way, resulted in adding null characters to the last 4 lists in the list not the last 4 lists equal to where they should be with they key
+        #     while diffrence > 0:
+        #         if diffrence == 1:
+        #             i = 1
+        #             print(key)
+        #             print([len(x) for x in cipher_columns])
+        #             while i < null_count:
+        #                 # cipher_columns[-i] = cipher_columns[-i] + '.'
+        #                 i += 1
+        #             diffrence -= 1
+        #         else:
+        #             for each_car_key in reversed([x for x in key]):
+        #                 # move the last character of the list to the first character of the next list
+        #                 cipher_columns[-(diffrence-1)] = cipher_columns[-diffrence][-(1+count):] + cipher_columns[-(diffrence-1)]
+        #                 #delete the last character of the list
+        #                 cipher_columns[-diffrence] = cipher_columns[-diffrence][:-(1+count)]
+        #
+        #                 count += 1
+        #                 diffrence -= 1
 
         k = len(key)
         j = 0
@@ -117,22 +134,28 @@ class Trans:
             i = j                                                                   # reset to approroite starting point
             n = int(each_key_char) - 1                                              # Find the correct column
             for each_char in cipher_columns[n]:
-                # print(cipher_columns[n])
-                print(i)
                 try:
                     running_answer[i] = each_char
                 except:
                     pass
                 print((''.join('.' if x is None else str(x) for x in running_answer)))
-                time.sleep(0.1)
+
                 i += k                                                               # Step the key size to find the next characters position
             j += 1                                                                   # Step when moving to the next column
         answer = (''.join('.' if x is None else str(x) for x in running_answer))
+        print(answer)
 
+        print(cipher_columns)
+        print(key)
         self.ze_analyse(answer, key)
 
 
     def ze_runner(self, key):
+        '''
+        Old code, not used
+        :param key:
+        :return:
+        '''
         # Reset the plain text output
         running_answer = ''
 
@@ -160,6 +183,9 @@ class Trans:
                 results_file.write("%s, %s\n" % (str(running_answer), str(ze_analyse.result)))
 
     def create_possible_answers(self):
+        '''
+        Create a generator of possible codes and pass them to be processed
+        '''
         # Make a set of the diffrent possible keys
         arrangments = itertools.permutations(range(1,self.key_size+1,1))
         print('[+] Finished generating possible keys')
@@ -177,7 +203,7 @@ class Trans:
             # for each_arrangment in arrangments:
             #     print(each_arrangment)
             #     self.ze_columnar(each_arrangment)
-            self.ze_columnar((1,2,3,4,5,6))
+            self.ze_columnar([3,4,2,1])
 
 
 test_text = '''
@@ -233,7 +259,7 @@ NONHFLHTIAWAAONYNNALIEEFDUUNRTAUHAHONTWYOTOHNESRASRPNUIRASTAMTAAHESTTSTSETEAYKR
 NTGSHICHDTOE
         '''
 test_text2 = '''
-        TABLINLETNSORLSHROTNOAAHGEHALTIURHGTNBESEELBSSTESTYOTYORLEIEATDEOUHOREWLSALHOLNTIUDOIO
+        SOMMDIDGAATIIYHIHSNDEN
 '''
 cipher_text = '''
         COOUS ULYDU TQOHY SEELP EUTST GTOAR
@@ -294,7 +320,7 @@ cipher_text = '''
         '''
 
 
-for each_keysize in range(3, 4, 1):
+for each_keysize in range(1, 8, 1):
     print('[Running key size] %s' % str(each_keysize))
     trans = Trans(test_text2, each_keysize)
     trans.create_possible_answers()
