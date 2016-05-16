@@ -195,7 +195,6 @@ class Trans:
         arrangments = itertools.permutations(range(1,self.key_size+1,1))
         print('[+] Finished generating possible keys')
 
-        # Uses wayyyyy too much memory
         if single_thread is False:
             m = multiprocessing.Manager()
             ze_pool = multiprocessing.Pool(4)
@@ -266,6 +265,12 @@ NTGSHICHDTOE
 test_text2 = '''
         ORISDFETSCIOEPRLNTNOTNISAYRODTWWETCUSFTSNIENOPICUCHCUARSSIBLIKWDOEHAEAHOMSAHIOFRTAEFRTIEOMRAPIOUDNEOTRREYRDELN
 '''
+
+test_text3 = '''
+CNASNLRGLETWTEGITFOSSLOIRCREOSANCNDRPENALNIWOSSTIOOANIIVITAXISHATPEFLISERSOIWTUTDEOIEELPTSESTILLLHDWMROOOWNPTUODRNCROCN
+TPFTEEERRIEWHMROMHITPASNCNKERLUTPIVSIENORNNIEETNMIMTIHTHEEEROCUOFATAXMROOHMOKGELRSTNETHITNAEDHHXIUNISMTUPHHTODALNRXELEI
+TPITUOIEB
+'''
 cipher_text = '''
         COOUS ULYDU TQOHY SEELP EUTST GTOAR
         IDTHM WPEER DTTEF EXUTO ROSEC UYCOU
@@ -325,7 +330,7 @@ cipher_text = '''
         '''
 
 
-for each_keysize in range(1, 8, 1):
+for each_keysize in range(1, 50, 1):
     print('[Running key size] %s' % str(each_keysize))
     trans = Trans(cipher_text, each_keysize)
     trans.create_possible_answers()
