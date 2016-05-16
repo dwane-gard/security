@@ -18,13 +18,11 @@ class Trans:
         self.cipher_text = cipher_text
         self.cipher_text = self.cipher_text.replace('\n', '')
         self.cipher_text = self.cipher_text.replace(' ', '')
-        self.multiples_list = self.factors()
+
+        # self.multiples_list = self.factors()
+        # print(self.multiples_list)
 
         self.key_size = key_size
-        # Break the cipher text into blocks equal to the key size
-        self.cipher_blocks = [self.cipher_text[i:i+self.key_size] for i in range(0, len(self.cipher_text), self.key_size)]
-
-        print(self.multiples_list)
 
     def factors(self):
         '''
@@ -43,6 +41,9 @@ class Trans:
         '''
         # ze_analyse = (Analyse(answer))
         # ze_analyse.run()
+
+        # if single_thread == True:
+
         word_list = []
 
         for each_word in open('sowpods.txt', 'r').readlines():
@@ -161,31 +162,25 @@ class Trans:
         :param key:
         :return:
         '''
+
+        cipher_blocks = [self.cipher_text[i:i+self.key_size] for i in range(0, len(self.cipher_text), self.key_size)]
         # Reset the plain text output
         running_answer = ''
+        i = 0
 
         # Grab each block of the cipher text
-        for each_block in self.cipher_blocks:
-
+        for each_block in cipher_blocks:
             # Grab each position that the key defines
             for each in key:
-
                 # unencrypt that character and add it to the plain text
-                running_answer += each_block[each]
-
+                running_answer += each_block[each-1]
+                # print(running_answer)
         # Run out anaylses suite on it and return a score
         # print('[+] Running analyses')
-        ze_analyse = (Analyse(running_answer))
-        ze_analyse.run()
 
-        # If the score is high enough print it as a possible answer
-        if 0.35 <= (ze_analyse.result/len(cipher_text)):
-            print(ze_analyse.result)
-            print(running_answer)
-            print('+'*10)
-            time.sleep(60)
-            with open('results.txt', 'a') as results_file:
-                results_file.write("%s, %s\n" % (str(running_answer), str(ze_analyse.result)))
+        self.ze_analyse(running_answer, key)
+        # ze_analyse = (Analyse(running_answer))
+        # ze_analyse.run()
 
     def create_possible_answers(self):
         '''
@@ -198,16 +193,18 @@ class Trans:
         if single_thread is False:
             m = multiprocessing.Manager()
             ze_pool = multiprocessing.Pool(4)
-            ze_pool.imap(self.ze_columnar, arrangments, chunksize=50)
+            # ze_pool.imap(self.ze_columnar, arrangments, chunksize=50)
+            ze_pool.imap(self.ze_runner, arrangments, chunksize=50)
             ze_pool.close()
             ze_pool.join()
 
         elif single_thread is True:
             # grab one possible key
-            # for each_arrangment in arrangments:
-            #     print(each_arrangment)
-            #     self.ze_columnar(each_arrangment)
-            self.ze_columnar([3,1,2])
+            for each_arrangment in arrangments:
+                print(each_arrangment)
+                self.ze_columnar(each_arrangment)
+            # # self.ze_columnar([3, 4, 7, 1, 2, 6, 5])
+            #     self.ze_runner([3, 4, 7, 1, 2, 6, 5])
 
 
 test_text = '''
@@ -270,6 +267,10 @@ test_text3 = '''
 CNASNLRGLETWTEGITFOSSLOIRCREOSANCNDRPENALNIWOSSTIOOANIIVITAXISHATPEFLISERSOIWTUTDEOIEELPTSESTILLLHDWMROOOWNPTUODRNCROCN
 TPFTEEERRIEWHMROMHITPASNCNKERLUTPIVSIENORNNIEETNMIMTIHTHEEEROCUOFATAXMROOHMOKGELRSTNETHITNAEDHHXIUNISMTUPHHTODALNRXELEI
 TPITUOIEB
+'''
+
+test_text4 = '''
+HIIFA STMPT TITET SSNCU OSFCE LUSRO WEOPP NASEL LACEI ANONF OTHLL ENGOW ABIWI SIHTS ICMET OXWEH AHSTM AALEK LTOWA EGRRA THDNE ETTOE HGKER MEPAW EACHS EGIAL EVLER GELAN ANFII CNUPA LOPSN DRTTI ANDIS REUOD STHTO EXATC IMTOO IERSQ UCORE NLOTH TSERI TEOTR NNRYW EIICM ETOXS AEXDN AZOAR ANIDE THATE ARILL ESTOE FOYTR SUFTE OMETL TNE
 '''
 cipher_text = '''
         COOUS ULYDU TQOHY SEELP EUTST GTOAR
