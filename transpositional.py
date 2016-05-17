@@ -12,12 +12,13 @@ from math import ceil
 
 
 single_thread = False
+known_word = 'COMP3441{'
 class Trans:
     def __init__(self, cipher_text, key_size):
 
         self.cipher_text = cipher_text
-        self.cipher_text = self.cipher_text.replace('\n', '')
-        self.cipher_text = self.cipher_text.replace(' ', '')
+        # self.cipher_text = self.cipher_text.replace('\n', '')
+        # self.cipher_text = self.cipher_text.replace(' ', '')
 
         # self.multiples_list = self.factors()
         # print(self.multiples_list)
@@ -43,23 +44,28 @@ class Trans:
         # ze_analyse.run()
 
         # if single_thread == True:
+        if known_word:
+            if known_word in answer:
+                print(answer)
+                with open('results.txt', 'a') as results_file:
+                    results_file.write("%s | %s\n" % (str(answer), str(key)))
+        else:
+            word_list = []
 
-        word_list = []
+            for each_word in open('sowpods.txt', 'r').readlines():
+                if len(each_word) > 4:
+                    each_word = each_word.replace('\n', '')
+                    if each_word.upper() in answer.upper():
+                        word_list.append(each_word)
 
-        for each_word in open('sowpods.txt', 'r').readlines():
-            if len(each_word) > 4:
-                each_word = each_word.replace('\n', '')
-                if each_word.upper() in answer.upper():
-                    word_list.append(each_word)
-
-        words = ''.join(word_list)
-        print((len(words)/len(answer)))
-        if (len(words)/len(answer)) > 0.5:
-            print(len(answer))
-            print(len(words))
-            print(answer, key)
-            with open('results.txt', 'a') as results_file:
-                results_file.write("%s | %s | %s\n" % (str(answer), str(key), str(len(words)/(len(answer)))))
+            words = ''.join(word_list)
+            print((len(words)/len(answer)))
+            if (len(words)/len(answer)) > 0.5:
+                print(len(answer))
+                print(len(words))
+                print(answer, key)
+                with open('results.txt', 'a') as results_file:
+                    results_file.write("%s | %s | %s\n" % (str(answer), str(key), str(len(words)/(len(answer)))))
 
 
     def ze_worker(self, inq, outq):
@@ -200,11 +206,13 @@ class Trans:
 
         elif single_thread is True:
             # grab one possible key
-            for each_arrangment in arrangments:
-                print(each_arrangment)
-                self.ze_columnar(each_arrangment)
+            # for each_arrangment in arrangments:
+            #     print(each_arrangment)
+            #     self.ze_columnar(each_arrangment)
             # # self.ze_columnar([3, 4, 7, 1, 2, 6, 5])
-            #     self.ze_runner([3, 4, 7, 1, 2, 6, 5])
+            self.ze_runner([8, 2, 6, 1, 3, 4, 7, 9, 10, 5])
+            #8,2,6,1,3,4,7, 9
+            #YOUCOULD
 
 
 test_text = '''
@@ -272,6 +280,11 @@ TPITUOIEB
 test_text4 = '''
 HIIFA STMPT TITET SSNCU OSFCE LUSRO WEOPP NASEL LACEI ANONF OTHLL ENGOW ABIWI SIHTS ICMET OXWEH AHSTM AALEK LTOWA EGRRA THDNE ETTOE HGKER MEPAW EACHS EGIAL EVLER GELAN ANFII CNUPA LOPSN DRTTI ANDIS REUOD STHTO EXATC IMTOO IERSQ UCORE NLOTH TSERI TEOTR NNRYW EIICM ETOXS AEXDN AZOAR ANIDE THATE ARILL ESTOE FOYTR SUFTE OMETL TNE
 '''
+
+son_of_rail_fence = '''
+S_   ltes e__owesft4ya'h r_ernadinhohn_hstfeamion coo iost  lhrooidskeutsio t,aPeeut_eemlc tmkhegi_wschoool31neOen Cbale4h s tee_  oi_r yjnsr  iat_.>dslu}4 nd asthsnCg\  it_ Misdirection_tCaeesa Oe1elr__firiOR_lelsmk_hlabsfkabM{fbbliuec_p  eiecn P1oaubco a_ite_headm34rebihchtHo4c
+'''
+
 cipher_text = '''
         COOUS ULYDU TQOHY SEELP EUTST GTOAR
         IDTHM WPEER DTTEF EXUTO ROSEC UYCOU
@@ -333,5 +346,5 @@ cipher_text = '''
 
 for each_keysize in range(1, 50, 1):
     print('[Running key size] %s' % str(each_keysize))
-    trans = Trans(cipher_text, each_keysize)
+    trans = Trans(son_of_rail_fence, each_keysize)
     trans.create_possible_answers()
