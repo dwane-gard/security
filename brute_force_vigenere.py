@@ -3,8 +3,10 @@
 import co_incidence_index
 import kasiski
 import multiprocessing
+import itertools
 
 lock = multiprocessing.Lock()
+approch = 'Brute'
 
 class Answers:
     def __init__(self, ze_ic, ze_key, plain_text, E, A, T):
@@ -164,7 +166,12 @@ def run(key):
         # exit()
     del word_list[:]
 
+def new_create_brute(key_size):
+    arrangments = itertools.combinations_with_replacement(alphabet, key_size)
+    # for each in arrangments:
+    #     print(each)
 
+    return arrangments
 def create_brute():
     brute = []
     brute.append('HELP')
@@ -245,26 +252,33 @@ def worker(inq):
     run(inq)
 
 if __name__ == '__main__':
+
+
+
+
     # brute = create_brute()
     # brute = ['HELP']
-
-    possible_sizes = kasiski.Kasiski(cipher_text).multiples_list
-
-    print(possible_sizes)
     all_keys = [x.upper().replace('\n', '').replace(' ', '') for x in f]
+    possible_sizes = kasiski.Kasiski(cipher_text).multiples_list
+    possible_sizes.sort()
+    print(possible_sizes)
 
+    if approch == 'Brute':
+        keys_to_try = [new_create_brute(x) for x in possible_sizes]
 
-    keys_to_try = []
-    for key in all_keys:
-        if len(key) in possible_sizes:
-            keys_to_try.append(key)
+    elif approch == 'Dictionary':
+        keys_to_try = []
+        for key in all_keys:
+            if len(key) in possible_sizes:
+                keys_to_try.append(key)
+    else:
+        keys_to_try = []
+        exit()
 
     m = multiprocessing.Manager()
     ze_pool = multiprocessing.Pool(4)
     ze_pool.map(worker, keys_to_try)
 
-    # for each_key in keys_to_try:
-    #     run(each_key)
 
 
 
