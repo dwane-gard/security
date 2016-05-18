@@ -75,6 +75,7 @@ def run(key):
     for each_part in cipher_list_sized:
         x = 0
         for each_char in key:
+            
             try:
                 if each_char == '\n':
                     continue
@@ -170,8 +171,8 @@ def new_create_brute(key_size):
     arrangments = itertools.combinations_with_replacement(alphabet, key_size)
     # for each in arrangments:
     #     print(each)
-
     return arrangments
+
 def create_brute():
     brute = []
     brute.append('HELP')
@@ -265,19 +266,24 @@ if __name__ == '__main__':
 
     if approch == 'Brute':
         keys_to_try = [new_create_brute(x) for x in possible_sizes]
+        for each_key_set in keys_to_try:
+            m = multiprocessing.Manager()
+            ze_pool = multiprocessing.Pool(4)
+            ze_pool.map(worker, each_key_set)
 
     elif approch == 'Dictionary':
         keys_to_try = []
         for key in all_keys:
             if len(key) in possible_sizes:
                 keys_to_try.append(key)
+
+        m = multiprocessing.Manager()
+        ze_pool = multiprocessing.Pool(4)
+        ze_pool.map(worker, keys_to_try)
     else:
         keys_to_try = []
         exit()
 
-    m = multiprocessing.Manager()
-    ze_pool = multiprocessing.Pool(4)
-    ze_pool.map(worker, keys_to_try)
 
 
 
