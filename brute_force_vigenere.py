@@ -58,6 +58,70 @@ alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N'
 count = 0
 possible_answers = []
 
+def analyse(deciphered_message, key):
+    word_count = 0
+    word_list = []
+    words_len = 0
+
+    # Check IC
+    checkIC = co_incidence_index.CheckIC(deciphered_message)
+    ic = checkIC.ic
+    E = checkIC.E
+    A = checkIC.A
+    T = checkIC.T
+    X = checkIC.X
+    J = checkIC.J
+    Z = checkIC.Z
+
+    print(checkIC.ic)
+    # Check ratio of words in answer
+    if checkIC.ic > 0.6:
+        for each_key in all_keys:
+            # print(each_key)
+
+            if len(each_key) == 2:
+                # pass
+                continue
+            if len(each_key) == 3:
+                # pass
+                continue
+            else:
+                if each_key in deciphered_message:
+                    word_list.append(each_key)
+
+        # for each_key in common_words:
+        #     each_key = each_key.strip('\n').upper()
+        #     if len(each_key) == 2:
+        #         # pass
+        #         continue
+        #     if len(each_key) == 3:
+        #         word_list.append(each_key)
+        #         continue
+        #     else:
+        #         if each_key in deciphered_message:
+        #             word_count += 1
+        #             words_len += len(each_key)
+        #             word_list.append(each_key)
+        #             # lock.acquire()
+        #             # print(each_key)
+        #             # print(deciphered_message)
+        #             # lock.release()
+        words = ''.join(word_list)
+        words_len = (len(words)/len(deciphered_message))
+        if words_len > 0.9:
+            print(words_len, len(cipher_text))
+            lock.acquire()
+            print('+'*20)
+            print(word_list)
+            print(deciphered_message)
+            print(E, A, T)
+            print(Z, J, X)
+            # possible_answers.append(Answers(ic, each_line, deciphered_message, E, A, T))
+            print(key)
+            print(ic)
+            lock.release()
+            # exit()
+
 
 def run(key):
 
@@ -100,72 +164,9 @@ def run(key):
             except Exception:
                 pass
 
-    word_count = 0
-    word_list = []
-    words_len = 0
-
-    for each_key in all_keys:
-        # print(each_key)
-
-        if len(each_key) == 2:
-            # pass
-            continue
-        if len(each_key) == 3:
-            # pass
-            continue
-        else:
-            if each_key in deciphered_message:
-                word_list.append(each_key)
-
-    # for each_key in common_words:
-    #     each_key = each_key.strip('\n').upper()
-    #     if len(each_key) == 2:
-    #         # pass
-    #         continue
-    #     if len(each_key) == 3:
-    #         word_list.append(each_key)
-    #         continue
-    #     else:
-    #         if each_key in deciphered_message:
-    #             word_count += 1
-    #             words_len += len(each_key)
-    #             word_list.append(each_key)
-    #             # lock.acquire()
-    #             # print(each_key)
-    #             # print(deciphered_message)
-    #             # lock.release()
+    analyse(deciphered_message, key)
 
 
-
-    if len(''.join(word_list)) > len(cipher_text)/2:
-
-
-
-        checkIC = co_incidence_index.CheckIC(deciphered_message)
-        ic = checkIC.ic
-        E = checkIC.E
-        A = checkIC.A
-        T = checkIC.T
-        X = checkIC.X
-        J = checkIC.J
-        Z = checkIC.Z
-
-
-
-        # if len(word_list) > 5:
-        print(words_len, len(cipher_text))
-        lock.acquire()
-        print('+'*20)
-        print(word_list)
-        print(deciphered_message)
-        print(E, A, T)
-        print(Z, J, X)
-        # possible_answers.append(Answers(ic, each_line, deciphered_message, E, A, T))
-        print(key)
-        print(ic)
-        lock.release()
-        # exit()
-    del word_list[:]
 
 def new_create_brute(key_size):
     arrangments = itertools.combinations_with_replacement(alphabet, key_size)
@@ -268,8 +269,10 @@ if __name__ == '__main__':
         keys_to_try = [new_create_brute(x) for x in possible_sizes]
         for each_key_set in keys_to_try:
             m = multiprocessing.Manager()
-            ze_pool = multiprocessing.Pool(4)
-            ze_pool.map(worker, each_key_set)
+            ze_pool = multiprocessing.Pool(2)
+            ze_pool.imap(worker, each_key_set)
+            ze_pool.close()
+            ze_pool.join()
 
     elif approch == 'Dictionary':
         keys_to_try = []
@@ -278,8 +281,10 @@ if __name__ == '__main__':
                 keys_to_try.append(key)
 
         m = multiprocessing.Manager()
-        ze_pool = multiprocessing.Pool(4)
-        ze_pool.map(worker, keys_to_try)
+        ze_pool = multiprocessing.Pool(2)
+        ze_pool.imap(worker, keys_to_try)
+        ze_pool.close()
+        ze_pool.join()
     else:
         keys_to_try = []
         exit()
