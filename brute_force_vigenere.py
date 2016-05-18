@@ -6,7 +6,8 @@ import multiprocessing
 import itertools
 
 lock = multiprocessing.Lock()
-approch = 'Brute'
+# 0 = Brute 1 = dictionary
+approch = 1
 
 class Answers:
     def __init__(self, ze_ic, ze_key, plain_text, E, A, T):
@@ -73,9 +74,12 @@ def analyse(deciphered_message, key):
     J = checkIC.J
     Z = checkIC.Z
 
-    print(checkIC.ic)
+#    print(ic)
+#    if 'FJORD' in deciphered_message:   
+#        print(ic)
+#        ic = 1
     # Check ratio of words in answer
-    if checkIC.ic > 0.6:
+    if ic > 0.6:
         for each_key in all_keys:
             # print(each_key)
 
@@ -163,7 +167,7 @@ def run(key):
                 x += 1
             except Exception:
                 pass
-
+#    print(deciphered_message)
     analyse(deciphered_message, key)
 
 
@@ -265,23 +269,24 @@ if __name__ == '__main__':
     possible_sizes.sort()
     print(possible_sizes)
 
-    if approch == 'Brute':
+    if approch == 0:
         keys_to_try = [new_create_brute(x) for x in possible_sizes]
-        for each_key_set in keys_to_try:
+        for each_key_size in possible_sizes:
+            print('Brute Forcing %s' % str(each_key_size))
+            key_set = new_create_brute(each_key_size)
             m = multiprocessing.Manager()
-            ze_pool = multiprocessing.Pool(2)
-            ze_pool.imap(worker, each_key_set)
+            ze_pool = multiprocessing.Pool(5)
+            ze_pool.imap(worker, key_set)
             ze_pool.close()
             ze_pool.join()
 
-    elif approch == 'Dictionary':
+    elif approch == 1:
         keys_to_try = []
         for key in all_keys:
             if len(key) in possible_sizes:
                 keys_to_try.append(key)
-
         m = multiprocessing.Manager()
-        ze_pool = multiprocessing.Pool(2)
+        ze_pool = multiprocessing.Pool(4)
         ze_pool.imap(worker, keys_to_try)
         ze_pool.close()
         ze_pool.join()
