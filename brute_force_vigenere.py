@@ -8,6 +8,7 @@ import itertools
 lock = multiprocessing.Lock()
 # 0 = Brute 1 = dictionary
 approch = 1
+check_by_ic_first = False
 
 class Answers:
     def __init__(self, ze_ic, ze_key, plain_text, E, A, T):
@@ -74,45 +75,46 @@ def analyse(deciphered_message, key):
     J = checkIC.J
     Z = checkIC.Z
 
-#    print(ic)
-#    if 'FJORD' in deciphered_message:   
-#        print(ic)
-#        ic = 1
+    if check_by_ic_first == True:
     # Check ratio of words in answer
-    if ic > 0.6:
-        for each_key in all_keys:
-            # print(each_key)
+        if ic > 0.6:
+            for each_key in all_keys:
+                if len(each_key) == 2:
+                    continue
+                if len(each_key) == 3:
+                    continue
+                else:
+                    if each_key in deciphered_message:
+                        word_list.append(each_key)
 
+            words = ''.join(word_list)
+            words_len = (len(words)/len(deciphered_message))
+            if words_len > 0.9:
+                print(words_len, len(cipher_text))
+                lock.acquire()
+                print('+'*20)
+                print(word_list)
+                print(deciphered_message)
+                print(E, A, T)
+                print(Z, J, X)
+                # possible_answers.append(Answers(ic, each_line, deciphered_message, E, A, T))
+                print(key)
+                print(ic)
+                lock.release()
+                # exit()
+    else:
+        for each_key in all_keys:
             if len(each_key) == 2:
-                # pass
                 continue
             if len(each_key) == 3:
-                # pass
                 continue
             else:
                 if each_key in deciphered_message:
                     word_list.append(each_key)
 
-        # for each_key in common_words:
-        #     each_key = each_key.strip('\n').upper()
-        #     if len(each_key) == 2:
-        #         # pass
-        #         continue
-        #     if len(each_key) == 3:
-        #         word_list.append(each_key)
-        #         continue
-        #     else:
-        #         if each_key in deciphered_message:
-        #             word_count += 1
-        #             words_len += len(each_key)
-        #             word_list.append(each_key)
-        #             # lock.acquire()
-        #             # print(each_key)
-        #             # print(deciphered_message)
-        #             # lock.release()
         words = ''.join(word_list)
         words_len = (len(words)/len(deciphered_message))
-        if words_len > 0.9:
+        if words_len > 0.7:
             print(words_len, len(cipher_text))
             lock.acquire()
             print('+'*20)
@@ -171,88 +173,9 @@ def run(key):
     analyse(deciphered_message, key)
 
 
-
 def new_create_brute(key_size):
     arrangments = itertools.combinations_with_replacement(alphabet, key_size)
-    # for each in arrangments:
-    #     print(each)
     return arrangments
-
-def create_brute():
-    brute = []
-    brute.append('HELP')
-    brute.append('HELLO')
-    # 1 char
-    for each in range(0, 26, 1):
-        try:
-            (alphabet[each])
-        except:
-            print(alphabet[each])
-
-    # 2 Characters
-    for each in range(0, 26, 1):
-        print(alphabet[each]+ str(2))
-        for each1 in range(0, 26, 1):
-            brute.append(alphabet[each] + alphabet[each1])
-
-    # 3 Characters
-    for each in range(0, 26, 1):
-        print(alphabet[each] + str(3))
-        for each1 in range(0, 26, 1):
-            for each2 in range(0, 26, 1):
-                brute.append(alphabet[each] + alphabet[each1] + alphabet[each2])
-
-    # 4 Characters
-    for each in range(0, 26, 1):
-        print(alphabet[each] + str(4))
-        for each1 in range(0, 26, 1):
-            for each2 in range(0, 26, 1):
-                for each3 in range(0, 26, 1):
-                    brute.append(alphabet[each] + alphabet[each1] + alphabet[each2] + alphabet[each3])
-    # 5 Characters
-    # for each in range(0, 26, 1):
-    #     print(alphabet[each] + str(5))
-    #     for each1 in range(0, 26, 1):
-    #         for each2 in range(0, 26, 1):
-    #             for each3 in range(0, 26, 1):
-    #                 for each4 in range(0, 26, 1):
-    #                     brute.append(alphabet[each] + alphabet[each1] + alphabet[each2] + alphabet[each3] + alphabet[each4])
-
-    # 6 Characters
-    # for each in range(0, 25, 1):
-    #     print(alphabet[each] + str(6))
-    #     for each1 in range(0, 25, 1):
-    #         for each2 in range(0, 25, 1):
-    #             for each3 in range(0, 25, 1):
-    #                 for each4 in range(0, 25, 1):
-    #                     for each5 in range (0, 25, 1):
-    #                         brute.append(alphabet[each] + alphabet[each1] + alphabet[each2] + alphabet[each3] + alphabet[each4] + alphabet[each5])
-
-
-    # 7 Characters
-    # for each in range(0, 25, 1):
-    #     print(alphabet[each] + str(7))
-    #     for each1 in range(0, 25, 1):
-    #         for each2 in range(0, 25, 1):
-    #             for each3 in range(0, 25, 1):
-    #                 for each4 in range(0, 25, 1):
-    #                     for each5 in range (0, 25, 1):
-    #                         for each6 in range(0,25,1):
-    #                         brute.append(alphabet[each] + alphabet[each1] + alphabet[each2] + alphabet[each3] + alphabet[each4] + alphabet[each5]+ alphabet[each6])
-
-    # 8 characters
-    # for each in range(0, 25, 1):
-    #     print(alphabet[each] + str(8))
-    #     for each1 in range(0, 25, 1):
-    #         for each2 in range(0, 25, 1):
-    #             for each3 in range(0, 25, 1):
-    #                 for each4 in range(0, 25, 1):
-    #                     for each5 in range (0, 25, 1):
-    #                         for each6 in range(0,25,1):
-    #                             for each7 in range(0,25,1):
-    #                                 brute.append(alphabet[each] + alphabet[each1] + alphabet[each2] + alphabet[each3] + alphabet[each4] + alphabet[each5]+ alphabet[each6] + alphabet[each7])
-    return brute
-
 
 def worker(inq):
     run(inq)
