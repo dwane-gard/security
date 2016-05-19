@@ -1,13 +1,6 @@
-from random import shuffle
-import sqlite3
 import functools
 import multiprocessing
-import collections
 import itertools
-import co_incidence_index
-import time
-from string_check import BoyerMoore
-from corpus_analysis import Analyse
 from math import ceil
 
 
@@ -17,11 +10,6 @@ class Trans:
     def __init__(self, cipher_text, key_size):
 
         self.cipher_text = cipher_text
-        # self.cipher_text = self.cipher_text.replace('\n', '')
-        # self.cipher_text = self.cipher_text.replace(' ', '')
-
-        # self.multiples_list = self.factors()
-        # print(self.multiples_list)
 
         self.key_size = key_size
 
@@ -30,6 +18,7 @@ class Trans:
         Gets the factors of the length of the cipher text
         :return:
         '''
+
         n = len(self.cipher_text)
         return(list(set(functools.reduce(list.__add__, ([i, n//i] for i in range(1, int(n**0.5) + 1) if n % i == 0)))))
 
@@ -40,10 +29,7 @@ class Trans:
         :param key:
         :return:
         '''
-        # ze_analyse = (Analyse(answer))
-        # ze_analyse.run()
 
-        # if single_thread == True:
         if known_word:
             if known_word in answer:
                 print(answer)
@@ -97,48 +83,12 @@ class Trans:
         for each_key_char in reversed(key):
 
             if null_count > 0:
-
-                # cipher_columns[each_key_char] = cipher_columns[each_key_char] + 'x'
-                # print(cipher_columns[int(each_key_char)-1])
                 cipher_columns[int(each_key_char)-1] = cipher_columns[int(each_key_char)-1][:-1] + '.' + cipher_columns[int(each_key_char)-1][-1:]
                 null_count -= 1
 
         new_column_size = ceil((len(self.cipher_text))/(len(key)))
         self.cipher_text = ''.join(cipher_columns)
-        # print(self.cipher_text)
         cipher_columns = [self.cipher_text[i:i+new_column_size] for i in range(0, len(self.cipher_text), new_column_size)]
-        # print(cipher_columns)
-
-        # for each_char in cipher_columns[-1]:
-        #     cipher_columns[-2] += each_char
-        # cipher_columns[-1] = ''
-        #
-        # cipher_columns[-3] += cipher_columns[-2][0]
-        # cipher_columns[-2] = cipher_columns[-2][1:]
-
-
-        # count = 0
-        # if len(cipher_columns[-1]) != len(cipher_columns):
-        #     diffrence = len(cipher_columns[-2]) - len(cipher_columns[-1])
-        #     # Old way, resulted in adding null characters to the last 4 lists in the list not the last 4 lists equal to where they should be with they key
-        #     while diffrence > 0:
-        #         if diffrence == 1:
-        #             i = 1
-        #             print(key)
-        #             print([len(x) for x in cipher_columns])
-        #             while i < null_count:
-        #                 # cipher_columns[-i] = cipher_columns[-i] + '.'
-        #                 i += 1
-        #             diffrence -= 1
-        #         else:
-        #             for each_car_key in reversed([x for x in key]):
-        #                 # move the last character of the list to the first character of the next list
-        #                 cipher_columns[-(diffrence-1)] = cipher_columns[-diffrence][-(1+count):] + cipher_columns[-(diffrence-1)]
-        #                 #delete the last character of the list
-        #                 cipher_columns[-diffrence] = cipher_columns[-diffrence][:-(1+count)]
-        #
-        #                 count += 1
-        #                 diffrence -= 1
 
         k = len(key)
         j = 0
@@ -150,29 +100,24 @@ class Trans:
                     running_answer[i] = each_char
                 except:
                     pass
-                # print((''.join('.' if x is None else str(x) for x in running_answer)))
 
                 i += k                                                               # Step the key size to find the next characters position
             j += 1                                                                   # Step when moving to the next column
         answer = (''.join('.' if x is None else str(x) for x in running_answer))
-        # print(answer)
-
-        # print(cipher_columns)
-        # print(key)
         self.ze_analyse(answer, key)
 
 
     def ze_runner(self, key):
         '''
-        Old code, not used
+        Decrypts by creating blocks and decrypting each block with the key
         :param key:
         :return:
         '''
 
         cipher_blocks = [self.cipher_text[i:i+self.key_size] for i in range(0, len(self.cipher_text), self.key_size)]
+
         # Reset the plain text output
         running_answer = ''
-        i = 0
 
         # Grab each block of the cipher text
         for each_block in cipher_blocks:
@@ -180,13 +125,8 @@ class Trans:
             for each in key:
                 # unencrypt that character and add it to the plain text
                 running_answer += each_block[each-1]
-                # print(running_answer)
-        # Run out anaylses suite on it and return a score
-        # print('[+] Running analyses')
 
         self.ze_analyse(running_answer, key)
-        # ze_analyse = (Analyse(running_answer))
-        # ze_analyse.run()
 
     def create_possible_answers(self):
         '''
