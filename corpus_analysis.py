@@ -1,14 +1,8 @@
 import itertools
 
-import time
-
-
 
 class Analyse:
     def __init__(self, ze_text):
-
-
-
         self.alphabet = [x for x in 'abcdefghijklmnopqrstuvwxyz']
 
         ze_text = ze_text.replace('\n', ' ')
@@ -20,10 +14,10 @@ class Analyse:
         ze_text = ze_text.lower()
         self.ze_text = ''.join([x for x in ze_text if x in self.alphabet or x in ' '])
         self.words = ze_text.split(' ')
+        self.bigrams = []
         self.result = 0
         self.result_coeffienet = 0
         # flat list of possible bigrams
-
                 # print('[Name]\t\t %s ' % each.name)
                 # print('[Frequncy]\t %s' % str(each.frequency))
                 # print('[Known Frequency] %s' % str(each.known_frequency))
@@ -63,13 +57,16 @@ class Analyse:
 
         bigrams.sort(key=lambda x: x.frequency, reverse=True)
         for each in bigrams:
-            if each.frequency > 0 and each.known_frequency > 0:
+            print(each.name)
+            print(each.known_frequency)
+            print(each.frequency)
+            if each.frequency > 0:
 
                 each.frequency_per = each.frequency/len(self.ze_text)
 
-                if each.known_frequency*0.9 < each.frequency_per and each.known_frequency*2 > each.frequency_per:
+                if each.known_frequency*0.75 < each.frequency_per and each.known_frequency*1.25 > each.frequency_per:
                     self.result += 1
-
+        self.bigrams = bigrams
         self.result_coeffienet = self.result/len(self.ze_text)
 
 
@@ -82,18 +79,20 @@ class Analyse:
         def __init__(self, bigram):
             self.frequent_bigrams = {
                     'TH': 1.52,
+                    'HE': 1.28,
+                    'IN': 0.94,
+                    'ER': 0.94,
+                    'AN': 0.82,
                     'EN': 0.55,
                     'NG': 0.18,
-                    'HE': 1.28,
                     'ED': 0.53,
                     'OF': 0.16,
-                    'IN': 0.94,
                     'TO': 0.52,
                     'AL': 0.09,
-                    'ER': 0.94,
+
                     'IT': 0.50,
                     'DE': 0.09,
-                    'AN': 0.82,
+
                     'OU': 0.50,
                     'SE': 0.08,
                     'RE': 0.68,
@@ -270,19 +269,20 @@ Edit: Thank you to everyone who's gilded this post! It's definitely put a smile 
         AODVA KAONT AEYGA MOGDH EERCY MYVON
         SUOUN RLOSI EELYI RCCHR ATNWN ICSHU
         '''
-
+    print('real text')
     analyse = Analyse(text)
     analyse.run()
     analyse.output()
-    analyse2 = Analyse(text2)
-    analyse2.run()
-    analyse2.output()
-    analyse3 = Analyse(text3)
-    analyse3.run()
-    analyse3.output()
-    jumble = Analyse(text_jumble)
-    jumble.run()
-    jumble.output()
+    # analyse2 = Analyse(text2)
+    # analyse2.run()
+    # analyse2.output()
+    # analyse3 = Analyse(text3)
+    # analyse3.run()
+    # analyse3.output()
+    # print('\njumbled text')
+    # jumble = Analyse(text_jumble)
+    # jumble.run()
+    # jumble.output()
 
 
 
