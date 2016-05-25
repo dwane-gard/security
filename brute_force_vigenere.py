@@ -52,7 +52,7 @@ class decode():
                 print('Brute Forcing %s' % str(each_key_size))
                 key_set = self.new_create_brute(each_key_size)
                 m = multiprocessing.Manager()
-                ze_pool = multiprocessing.Pool(4)
+                ze_pool = multiprocessing.Pool(6)
                 ze_pool.imap(self.worker, key_set)
                 ze_pool.close()
                 ze_pool.join()
@@ -65,7 +65,7 @@ class decode():
                     keys_to_try.append(key)
             m = multiprocessing.Manager()
 
-            ze_pool = multiprocessing.Pool(4)
+            ze_pool = multiprocessing.Pool(6)
             ze_pool.imap(self.worker, keys_to_try)
             ze_pool.close()
             ze_pool.join()
