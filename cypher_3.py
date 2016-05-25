@@ -74,6 +74,8 @@ PHHER RU
 
 
 def ze_shift(cipher_text):
+    cracker = decode(cipher_text)
+    cracker.start()
     return
 
 def ze_analyse():
@@ -110,7 +112,7 @@ def ze_test():
     test.start()
     print('here')
 
-ze_test()
+ze_shift(cipher_text)
 
 
 
