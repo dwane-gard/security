@@ -40,9 +40,9 @@ class decode():
 
         f = open('sowpods.txt', 'r').readlines()
         self.all_keys = [x.upper().replace('\n', '').replace(' ', '') for x in f]
-        # self.possible_sizes = kasiski.Kasiski(self.cipher_text).multiples_list
-        # self.possible_sizes.sort()
-        self.possible_sizes = [3,]
+        self.possible_sizes = kasiski.Kasiski(self.cipher_text).multiples_list
+        self.possible_sizes.sort()
+        # self.possible_sizes = [3,]
         print(self.possible_sizes)
 
     def start(self):

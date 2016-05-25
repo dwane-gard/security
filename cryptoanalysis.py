@@ -1,5 +1,5 @@
 
-
+'''
 if IC ==ish english_rate:
     if letter_frequency == english_rate:
         cipher = transpositional
@@ -18,3 +18,4 @@ if frequency_of_digraphs == known_frequency_digraphs cipher may = two_square
 if frequency_of_digraphs == known_frequency_digraphs cipher may = four_square
 if diagraph[0] == diagraph[2]:
     cipher = four_square
+'''
