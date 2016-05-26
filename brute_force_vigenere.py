@@ -46,16 +46,23 @@ class decode():
         print(self.possible_sizes)
 
     def start(self):
+        multithread = True
         # Brute force approch
         if self.approch == 0:
-            for each_key_size in self.possible_sizes:
-                print('Brute Forcing %s' % str(each_key_size))
-                key_set = self.new_create_brute(each_key_size)
-                m = multiprocessing.Manager()
-                ze_pool = multiprocessing.Pool(6)
-                ze_pool.imap(self.worker, key_set)
-                ze_pool.close()
-                ze_pool.join()
+            if multithread == True:
+                for each_key_size in self.possible_sizes:
+                    print('Brute Forcing %s' % str(each_key_size))
+                    key_set = self.new_create_brute(each_key_size)
+                    m = multiprocessing.Manager()
+                    ze_pool = multiprocessing.Pool(4)
+                    ze_pool.imap(self.run, key_set, chunksize=100)
+                    ze_pool.close()
+                    ze_pool.join()
+            elif multithread == False:
+                for each_key_size in self.possible_sizes:
+                    key_set = self.new_create_brute(each_key_size)
+                    for each_key in key_set:
+                        self.run(each_key)
 
         # Dictionary approch
         elif self.approch == 1:
@@ -65,8 +72,8 @@ class decode():
                     keys_to_try.append(key)
             m = multiprocessing.Manager()
 
-            ze_pool = multiprocessing.Pool(6)
-            ze_pool.imap(self.worker, keys_to_try)
+            ze_pool = multiprocessing.Pool(4)
+            ze_pool.imap(self.run, keys_to_try)
             ze_pool.close()
             ze_pool.join()
         else:
@@ -81,6 +88,13 @@ class decode():
         checkIC = co_incidence_index.CheckIC(deciphered_message)
         checkIC.run()
         ic = checkIC.ic
+
+        if self.debug_flag == True:
+            lock.acquire()
+            print(deciphered_message)
+            print(ic)
+            lock.release()
+
         E = checkIC.E
         A = checkIC.A
         T = checkIC.T
@@ -164,23 +178,26 @@ class decode():
         for each_part in cipher_list_sized:
             x = 0
             for each_char in key:
-                key_letter = self.alphabet.index(each_char)
-                cypher_letter = self.alphabet.index(each_part[x])
-
-                deciphered_letter_index = cypher_letter - key_letter
+                try:
+                    key_letter = self.alphabet.index(each_char)
+                    cypher_letter = self.alphabet.index(each_part[x])
+                    deciphered_letter_index = cypher_letter - key_letter
+                    deciphered_letter = self.alphabet[deciphered_letter_index]
+                except:
+                    deciphered_letter = '.'
 
                 if self.debug_flag == 1:
+                    # pass
                     print('[cypher letter] %s | %s' % (str(self.alphabet[cypher_letter]), str(cypher_letter)))
                     print('[key letter] %s | %s' % (str(each_char.upper()), str(key_letter)))
                     # print('[shift] %s' % str(deciphered_letter))
                     print('[new letter] %s | %s' % (str(self.alphabet[deciphered_letter_index]), str(deciphered_letter_index)))
                     print('\n')
-                deciphered_letter = self.alphabet[deciphered_letter_index]
+
                 deciphered_message += deciphered_letter
                 # print(deciphered_message)
-
                 x += 1
-        #    print(deciphered_message)
+        # print(deciphered_message)
         self.analyse(deciphered_message, key)
 
 
@@ -188,8 +205,6 @@ class decode():
         arrangments = itertools.combinations_with_replacement(self.alphabet, key_size)
         return arrangments
 
-    def worker(self, inq):
-        self.run(inq)
 
 if __name__ == '__main__':
     # test = decode('TIKSJUGPKNHVOCGAWGRZGVFPTGWLFXEOKNH', 0)

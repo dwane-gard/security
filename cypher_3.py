@@ -113,7 +113,7 @@ def ze_test():
     print('here')
 
 ze_shift(cipher_text)
-
+# ze_shift('DFUPAHDFUPEHRQS')
 
 
 
