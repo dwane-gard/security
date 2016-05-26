@@ -42,7 +42,7 @@ class decode():
         self.all_keys = [x.upper().replace('\n', '').replace(' ', '') for x in f]
         # self.possible_sizes = kasiski.Kasiski(self.cipher_text).multiples_list
         # self.possible_sizes.sort()
-        self.possible_sizes = [x for x in range(1, 500)]
+        self.possible_sizes = [x for x in range(1, 3)]
         print(self.possible_sizes)
 
     def start(self):

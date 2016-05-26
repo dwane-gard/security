@@ -2,6 +2,7 @@ from co_incidence_index import CheckIC
 from corpus_analysis import Analyse
 from brute_force_vigenere import decode
 
+
 cipher_text = '''
 KIWDY FAIAS YQXQF GMQDZ OHUQK NEFVL
 AZPZP CXYDJ QLVGC KXPAS IENMN JYNGA
@@ -114,6 +115,7 @@ def ze_test():
 
 ze_shift(cipher_text)
 # ze_shift('DFUPAHDFUPEHRQS')
+
 
 
 
