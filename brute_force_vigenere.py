@@ -170,38 +170,37 @@ class decode():
                 open('results_brute_force_vigenere', 'a').write('%s | %s | %s ' % (str(words_len), deciphered_message, key))
 
     def run(self, key):
-        if self.prune_keys(key) is False:
-            key = [x for x in key]
-            key_size = len(key)
-            cipher_list_sized = [self.cipher_text[i:i+key_size] for i in range(0, len(self.cipher_text), key_size)]
 
-            deciphered_message = ''
-            for each_part in cipher_list_sized:
-                x = 0
-                for each_char in key:
-                    try:
-                        key_letter = self.alphabet.index(each_char)
-                        cypher_letter = self.alphabet.index(each_part[x])
-                        deciphered_letter_index = cypher_letter - key_letter
-                        deciphered_letter = self.alphabet[deciphered_letter_index]
-                    except:
-                        deciphered_letter = '.'
+        key = [x for x in key]
+        key_size = len(key)
+        cipher_list_sized = [self.cipher_text[i:i+key_size] for i in range(0, len(self.cipher_text), key_size)]
 
-                    if self.debug_flag == 1:
-                        # pass
-                        print('[cypher letter] %s | %s' % (str(self.alphabet[cypher_letter]), str(cypher_letter)))
-                        print('[key letter] %s | %s' % (str(each_char.upper()), str(key_letter)))
-                        # print('[shift] %s' % str(deciphered_letter))
-                        print('[new letter] %s | %s' % (str(self.alphabet[deciphered_letter_index]), str(deciphered_letter_index)))
-                        print('\n')
+        deciphered_message = ''
+        for each_part in cipher_list_sized:
+            x = 0
+            for each_char in key:
+                try:
+                    key_letter = self.alphabet.index(each_char)
+                    cypher_letter = self.alphabet.index(each_part[x])
+                    deciphered_letter_index = cypher_letter - key_letter
+                    deciphered_letter = self.alphabet[deciphered_letter_index]
+                except:
+                    deciphered_letter = '.'
 
-                    deciphered_message += deciphered_letter
-                    # print(deciphered_message)
-                    x += 1
-            # print(deciphered_message)
-            self.analyse(deciphered_message, key)
-        else:
-            pass
+                if self.debug_flag == 1:
+                    # pass
+                    print('[cypher letter] %s | %s' % (str(self.alphabet[cypher_letter]), str(cypher_letter)))
+                    print('[key letter] %s | %s' % (str(each_char.upper()), str(key_letter)))
+                    # print('[shift] %s' % str(deciphered_letter))
+                    print('[new letter] %s | %s' % (str(self.alphabet[deciphered_letter_index]), str(deciphered_letter_index)))
+                    print('\n')
+
+                deciphered_message += deciphered_letter
+                # print(deciphered_message)
+                x += 1
+        # print(deciphered_message)
+        self.analyse(deciphered_message, key)
+
 
     def prune_keys(self, key):
         multiples_list = kasiski.Kasiski(''.join(key)).multiples_list
