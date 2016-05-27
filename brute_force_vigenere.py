@@ -8,8 +8,6 @@ import itertools
 lock = multiprocessing.Lock()
 # 0 = Brute 1 = dictionary
 
-
-
 class Answers:
     def __init__(self, ze_ic, ze_key, plain_text, E, A, T):
         self.ic = ze_ic
@@ -42,7 +40,8 @@ class decode():
         self.all_keys = [x.upper().replace('\n', '').replace(' ', '') for x in f]
         # self.possible_sizes = kasiski.Kasiski(self.cipher_text).multiples_list
         # self.possible_sizes.sort()
-        self.possible_sizes = [x for x in range(1, len(self.cipher_text))]
+        self.possible_sizes = [x for x in range(2, len(self.cipher_text))]
+        # self.possible_sizes = [1,2,3]
         print(self.possible_sizes)
 
     def start(self):
@@ -52,7 +51,8 @@ class decode():
             if multithread == True:
                 for each_key_size in self.possible_sizes:
                     print('Brute Forcing %s' % str(each_key_size))
-                    key_set = self.new_create_brute(each_key_size)
+                    key_set = self.product_with_prunning(''.join(self.alphabet), repeat=each_key_size)
+                    # key_set = itertools.product(''.join(self.alphabet), repeat=each_key_size)
                     m = multiprocessing.Manager()
                     ze_pool = multiprocessing.Pool(4)
                     ze_pool.imap(self.run, key_set, chunksize=100)
@@ -60,7 +60,8 @@ class decode():
                     ze_pool.join()
             elif multithread == False:
                 for each_key_size in self.possible_sizes:
-                    key_set = self.new_create_brute(each_key_size)
+                    key_set = self.product_with_prunning(''.join(self.alphabet), repeat=each_key_size)
+                    # key_set = itertools.product(''.join(self.alphabet), repeat=each_key_size)
                     for each_key in key_set:
                         self.run(each_key)
 
@@ -88,7 +89,6 @@ class decode():
         checkIC = co_incidence_index.CheckIC(deciphered_message)
         checkIC.run()
         ic = checkIC.ic
-
         if self.debug_flag == True:
             lock.acquire()
             print(deciphered_message)
@@ -170,40 +170,75 @@ class decode():
                 open('results_brute_force_vigenere', 'a').write('%s | %s | %s ' % (str(words_len), deciphered_message, key))
 
     def run(self, key):
-        key = [x for x in key]
-        key_size = len(key)
-        cipher_list_sized = [self.cipher_text[i:i+key_size] for i in range(0, len(self.cipher_text), key_size)]
+        if self.prune_keys(key) is False:
+            key = [x for x in key]
+            key_size = len(key)
+            cipher_list_sized = [self.cipher_text[i:i+key_size] for i in range(0, len(self.cipher_text), key_size)]
 
-        deciphered_message = ''
-        for each_part in cipher_list_sized:
-            x = 0
-            for each_char in key:
-                try:
-                    key_letter = self.alphabet.index(each_char)
-                    cypher_letter = self.alphabet.index(each_part[x])
-                    deciphered_letter_index = cypher_letter - key_letter
-                    deciphered_letter = self.alphabet[deciphered_letter_index]
-                except:
-                    deciphered_letter = '.'
+            deciphered_message = ''
+            for each_part in cipher_list_sized:
+                x = 0
+                for each_char in key:
+                    try:
+                        key_letter = self.alphabet.index(each_char)
+                        cypher_letter = self.alphabet.index(each_part[x])
+                        deciphered_letter_index = cypher_letter - key_letter
+                        deciphered_letter = self.alphabet[deciphered_letter_index]
+                    except:
+                        deciphered_letter = '.'
 
-                if self.debug_flag == 1:
-                    # pass
-                    print('[cypher letter] %s | %s' % (str(self.alphabet[cypher_letter]), str(cypher_letter)))
-                    print('[key letter] %s | %s' % (str(each_char.upper()), str(key_letter)))
-                    # print('[shift] %s' % str(deciphered_letter))
-                    print('[new letter] %s | %s' % (str(self.alphabet[deciphered_letter_index]), str(deciphered_letter_index)))
-                    print('\n')
+                    if self.debug_flag == 1:
+                        # pass
+                        print('[cypher letter] %s | %s' % (str(self.alphabet[cypher_letter]), str(cypher_letter)))
+                        print('[key letter] %s | %s' % (str(each_char.upper()), str(key_letter)))
+                        # print('[shift] %s' % str(deciphered_letter))
+                        print('[new letter] %s | %s' % (str(self.alphabet[deciphered_letter_index]), str(deciphered_letter_index)))
+                        print('\n')
 
-                deciphered_message += deciphered_letter
-                # print(deciphered_message)
-                x += 1
-        # print(deciphered_message)
-        self.analyse(deciphered_message, key)
+                    deciphered_message += deciphered_letter
+                    # print(deciphered_message)
+                    x += 1
+            # print(deciphered_message)
+            self.analyse(deciphered_message, key)
+        else:
+            pass
 
+    def prune_keys(self, key):
+        multiples_list = kasiski.Kasiski(''.join(key)).multiples_list
+        multiples_list.remove(len(key))
+        key = ''.join(key)
+        len_key = len(key)
 
-    def new_create_brute(self, key_size):
-        arrangments = itertools.combinations_with_replacement(self.alphabet, key_size)
-        return arrangments
+        for each_completed_keysize in multiples_list:
+            x = [key[i:i+each_completed_keysize] for i in range(0, len_key, each_completed_keysize)]
+            # print(x)
+            if self.check_if_all_equal(x) is True:
+                    # print(each_completed_keysize)
+                    # print('Prunning: %s' % str(key))
+                    return True
+            # else:
+                # print('not prunning: %s:%s' % (str(key), str(x)))
+        return False
+
+    def check_if_all_equal(self, iterator):
+        try:
+            iterator = iter(iterator)
+            first = next(iterator)
+            return all(first == rest for rest in iterator)
+        except StopIteration:
+            return True
+
+    def product_with_prunning(self, *args, repeat):
+        # product('ABCD', 'xy') --> Ax Ay Bx By Cx Cy Dx Dy
+        # product(range(2), repeat=3) --> 000 001 010 011 100 101 110 111
+        pools = [tuple(pool) for pool in args] * repeat
+        result = [[]]
+        for pool in pools:
+            result = [x+[y] for x in result for y in pool]
+        for prod in result:
+            output = tuple(prod)
+            if self.prune_keys(output) is False:
+                yield output
 
 
 if __name__ == '__main__':
