@@ -19,6 +19,7 @@ class Answers:
 
 class decode():
     def __init__(self, cipher_text, approch):
+        self.core_count = multiprocessing.cpu_count()
         self.common_words = open('commonwords.txt', 'r').readlines()
         self.approch = approch
         self.debug_flag = 0
@@ -42,7 +43,7 @@ class decode():
         # self.possible_sizes.sort()
         self.possible_sizes = [x for x in range(2, len(self.cipher_text))]
         # self.possible_sizes = [1,2,3]
-        print(self.possible_sizes)
+        # print(self.possible_sizes)
 
     def start(self):
         multithread = True
@@ -54,7 +55,7 @@ class decode():
                     key_set = self.product_with_prunning(''.join(self.alphabet), repeat=each_key_size)
                     # key_set = itertools.product(''.join(self.alphabet), repeat=each_key_size)
                     m = multiprocessing.Manager()
-                    ze_pool = multiprocessing.Pool(4)
+                    ze_pool = multiprocessing.Pool(self.core_count)
                     ze_pool.imap(self.run, key_set, chunksize=100)
                     ze_pool.close()
                     ze_pool.join()
@@ -73,7 +74,7 @@ class decode():
                     keys_to_try.append(key)
             m = multiprocessing.Manager()
 
-            ze_pool = multiprocessing.Pool(4)
+            ze_pool = multiprocessing.Pool(self.core_count)
             ze_pool.imap(self.run, keys_to_try)
             ze_pool.close()
             ze_pool.join()
@@ -140,7 +141,7 @@ class decode():
                         print(key)
                         print(ic)
                         lock.release()
-                        open('results_brute_force_vigenere', 'a').write('%s | %s | %s ' % (str(words_len), deciphered_message, key))
+                        open('results_brute_force_vigenere', 'a').write('%s | %s | %s\n' % (str(words_len), deciphered_message, key))
 
 
         else:
@@ -167,7 +168,7 @@ class decode():
                 print(key)
                 print(ic)
                 lock.release()
-                open('results_brute_force_vigenere', 'a').write('%s | %s | %s ' % (str(words_len), deciphered_message, key))
+                open('results_brute_force_vigenere', 'a').write('%s | %s | %s\n' % (str(words_len), deciphered_message, key))
 
     def run(self, key):
 
