@@ -4,6 +4,8 @@ import co_incidence_index
 import kasiski
 import multiprocessing
 import itertools
+import time
+from functools import reduce
 
 lock = multiprocessing.Lock()
 # 0 = Brute 1 = dictionary
@@ -23,6 +25,7 @@ class decode():
         self.common_words = open('commonwords.txt', 'r').readlines()
         self.approch = approch
         self.debug_flag = 0
+        self.analyse_code = False
         self.cipher_text = cipher_text
         self.cipher_text = self.cipher_text.replace(" ", '')
         self.cipher_text = self.cipher_text.replace("\n", '')
@@ -41,8 +44,9 @@ class decode():
         self.all_keys = [x.upper().replace('\n', '').replace(' ', '') for x in f]
         # self.possible_sizes = kasiski.Kasiski(self.cipher_text).multiples_list
         # self.possible_sizes.sort()
-        self.possible_sizes = [x for x in range(6, len(self.cipher_text))]
-        # self.possible_sizes = [1,2,3]
+        self.possible_sizes = [x for x in range(1, len(self.cipher_text))]
+
+        self.possible_sizes = [1]
         # print(self.possible_sizes)
 
     def start(self):
@@ -56,7 +60,8 @@ class decode():
                     key_set = itertools.product(''.join(self.alphabet), repeat=each_key_size)
                     m = multiprocessing.Manager()
                     ze_pool = multiprocessing.Pool(self.core_count)
-                    ze_pool.imap(self.run, key_set, chunksize=100)
+                    # ze_pool.imap(self.run, key_set, chunksize=100)
+                    ze_pool.imap(self.decrypt, key_set, chunksize=100)
                     ze_pool.close()
                     ze_pool.join()
             elif multithread == False:
@@ -83,6 +88,7 @@ class decode():
             exit()
 
     def analyse(self, deciphered_message, key):
+        start_analysis = time.time()
         word_list = []
         words_len = 0
 
@@ -95,7 +101,7 @@ class decode():
             print(deciphered_message)
             print(ic)
             lock.release()
-
+        checkIC.run_with_counter()
         E = checkIC.E
         A = checkIC.A
         T = checkIC.T
@@ -104,11 +110,13 @@ class decode():
         Z = checkIC.Z
         check_by_ic_first = True
         check_for_words = False
+        check_for_letter_frequency = True
 
         if check_by_ic_first is True:
             # print(ic)
             if ic > 0.06:
                 if check_for_words is False:
+
                     lock.acquire()
                     print('+'*20)
                     print(deciphered_message)
@@ -117,7 +125,9 @@ class decode():
                     print(key)
                     print(ic)
                     lock.release()
-                    open('results_brute_force_vigenere', 'a').write('%s | %s | %s ' % (str(words_len), deciphered_message, key))
+                    open('results_brute_force_vigenere.txt', 'a').write('%s | %s | %s \n' % (str(words_len), deciphered_message, key))
+
+
                 else:
                     for each_key in self.all_keys:
                         if len(each_key) == 2:
@@ -127,6 +137,7 @@ class decode():
                         else:
                             if each_key in deciphered_message:
                                 word_list.append(each_key)
+
 
                     words = ''.join(word_list)
                     words_len = (len(words)/len(deciphered_message))
@@ -141,7 +152,7 @@ class decode():
                         print(key)
                         print(ic)
                         lock.release()
-                        open('results_brute_force_vigenere', 'a').write('%s | %s | %s\n' % (str(words_len), deciphered_message, key))
+                        open('results_brute_force_vigenere.txt', 'a').write('%s | %s | %s\n' % (str(words_len), deciphered_message, key))
 
 
         else:
@@ -169,40 +180,63 @@ class decode():
                 print(ic)
                 lock.release()
                 open('results_brute_force_vigenere', 'a').write('%s | %s | %s\n' % (str(words_len), deciphered_message, key))
+        print('analysis time: %s' % str(time.time() - start_analysis))
+
+    def c_decrypt(self, key):
+        return 0
+
+    def decrypt(self, key):
+        # rewritten decyption module
+        # time is very similar to run
+        start = time.time()
+        pairs = zip(self.cipher_text, itertools.cycle(key))
+        result = ''
+
+        for pair in pairs:
+            total = reduce(lambda x, y: self.alphabet.index(x) - self.alphabet.index(y), pair)
+            result += self.alphabet[total % 26]
+        print('decryption time: %s' % str(time.time() - start))
+        self.analyse(result, key)
 
     def run(self, key):
-        if self.prune_keys(key) is False:
-            key = [x for x in key]
-            key_size = len(key)
-            cipher_list_sized = [self.cipher_text[i:i+key_size] for i in range(0, len(self.cipher_text), key_size)]
+        # decryption module
+        # start = time.time()
+        # if self.prune_keys(key) is False:
+        key = [x for x in key]
+        key_size = len(key)
+        cipher_list_sized = [self.cipher_text[i:i+key_size] for i in range(0, len(self.cipher_text), key_size)]
 
-            deciphered_message = ''
-            for each_part in cipher_list_sized:
-                x = 0
-                for each_char in key:
-                    try:
-                        key_letter = self.alphabet.index(each_char)
-                        cypher_letter = self.alphabet.index(each_part[x])
-                        deciphered_letter_index = cypher_letter - key_letter
-                        deciphered_letter = self.alphabet[deciphered_letter_index]
-                    except:
-                        deciphered_letter = '.'
+        deciphered_message = ''
+        for each_part in cipher_list_sized:
+            x = 0
+            for each_char in key:
+                try:
+                    key_letter = self.alphabet.index(each_char)
+                    cypher_letter = self.alphabet.index(each_part[x])
+                    deciphered_letter_index = cypher_letter - key_letter
+                    deciphered_letter = self.alphabet[deciphered_letter_index]
+                except:
+                    deciphered_letter = '.'
 
-                    if self.debug_flag == 1:
-                        # pass
-                        print('[cypher letter] %s | %s' % (str(self.alphabet[cypher_letter]), str(cypher_letter)))
-                        print('[key letter] %s | %s' % (str(each_char.upper()), str(key_letter)))
-                        # print('[shift] %s' % str(deciphered_letter))
-                        print('[new letter] %s | %s' % (str(self.alphabet[deciphered_letter_index]), str(deciphered_letter_index)))
-                        print('\n')
+                if self.debug_flag == 1:
+                    # pass
+                    print('[cypher letter] %s | %s' % (str(self.alphabet[cypher_letter]), str(cypher_letter)))
+                    print('[key letter] %s | %s' % (str(each_char.upper()), str(key_letter)))
+                    # print('[shift] %s' % str(deciphered_letter))
+                    print('[new letter] %s | %s' % (str(self.alphabet[deciphered_letter_index]), str(deciphered_letter_index)))
+                    print('\n')
 
-                    deciphered_message += deciphered_letter
-                    # print(deciphered_message)
-                    x += 1
-            # print(deciphered_message)
+                deciphered_message += deciphered_letter
+                # print(deciphered_message)
+                x += 1
+        # print(deciphered_message)
+        # print('decryption time: %s' % str(time.time() - start))
+        if self.analyse_code is True:
             self.analyse(deciphered_message, key)
-        else:
-            pass
+
+        return deciphered_message
+        # else:
+        #     pass
 
 
     def prune_keys(self, key):
