@@ -12,6 +12,7 @@ class CheckText:
         # print([x.result for x in self.chi])
         self.chi_result = sum([x.result for x in self.chi])
 
+
     def output(self):
         return self.chi_result
 

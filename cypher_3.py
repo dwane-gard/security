@@ -2,6 +2,7 @@ from co_incidence_index import CheckIC
 from corpus_analysis import Analyse
 from brute_force_vigenere import decode
 import chi_square
+import time
 
 cipher_text = '''
 KIWDY FAIAS YQXQF GMQDZ OHUQK NEFVL
@@ -73,26 +74,72 @@ GYUPV DMZXR RRFCV AXQJN RIEJR TVAMR
 PHHER RU
 '''
 
-class decoded_messages:
-    def __i
+class DecodedMessage:
+    def __init__(self, Decoder):
+        self.best_guees = None
+        self.plain_texts = []
+        for each_letter in [x for x in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']:
+            self.plain_texts.append(self.EachMessage(each_letter, Decoder))
 
-def breakup_into_nth(cipher_text, key_length=9):
+
+    class EachMessage:
+            def __init__(self, shift, Decoder):
+                self.shift = shift
+                self.plain_text = Decoder.run(self.shift)
+                self.chi = chi_square.CheckText(self.plain_text).chi_result
+
+    def run(self):
+        for each_plain_text in self.plain_texts:
+            if self.best_guees is None:
+                self.best_guees = each_plain_text
+            elif each_plain_text.chi < self.best_guees.chi:
+                self.best_guees = each_plain_text
+                # print(each_plain_text.chi)
+                print(self.best_guees.chi)
+
+        print('*'*20)
+
+def breakup_into_nth(cipher_text, key_length=36):
         j = 0
+        cipher_text = ''.join([x for x in cipher_text if x.isalpha()])
+
+        list_of_answers = []
+        plain_text = [['.'] * len(cipher_text)]
         while j < key_length:
             i = j
             nth_cypher_text = ''
             while i < len(cipher_text):
                 nth_cypher_text += cipher_text[i]
                 i += key_length
+
+
+
             decoder = decode(nth_cypher_text, 0)
-            decoded_messages = []
-            for each_letter in [x for x in 'abcdefghijklmnopqrstuvwxyz'.upper()]:
-                decded_message = decoder.run(each_letter)
-                chi = chi_square.CheckText(decded_message)
-                decoded_messages.append((decded_message, chi))
+            workingDecoder = DecodedMessage(decoder)
+            workingDecoder.run()
+            list_of_answers.append(workingDecoder)
+
+
             j += 1
 
-breakup_into_nth(cipher_text)
+        m = 0
+        for each in list_of_answers:
+            k = m
+            for each_letter in each.best_guees.plain_text:
+                plain_text[0][k] = each_letter
+                k += key_length
+
+            # print(each.best_guees.plain_text)
+            # print(each.best_guees.chi)
+            m += 1
+            # print(plain_text)
+        print(''.join(plain_text[0]))
+
+
+for each in range(90,180,9):print(each)
+    breakup_into_nth(cipher_text, each)
+
+    time.sleep(5)
 
 
 
