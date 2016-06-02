@@ -1,5 +1,6 @@
 from co_incidence_index import CheckIC
 from corpus_analysis import Analyse
+from transpoitional import Trans
 from brute_force_vigenere import decode
 import chi_square
 import time
@@ -133,11 +134,17 @@ def breakup_into_nth(cipher_text, key_length=36):
             # print(each.best_guees.chi)
             m += 1
             # print(plain_text)
-        print(''.join(plain_text[0]))
+
+        return ''.join(plain_text[0])
 
 
-for each in range(90,180,9):print(each)
-    breakup_into_nth(cipher_text, each)
+for each in range(9,180,9):
+    print(each)
+    de_shifted_text = breakup_into_nth(cipher_text, each)
+    print(de_shifted_text)
+    for each_key_size in range(1,9,1):
+        trans = Trans(de_shifted_text, each_key_size)
+        trans.create_possible_answers()
 
     time.sleep(5)
 
