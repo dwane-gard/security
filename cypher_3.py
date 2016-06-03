@@ -1,6 +1,6 @@
 from co_incidence_index import CheckIC
 from corpus_analysis import Analyse
-from transpoitional import Trans
+from transpositional import Trans
 from brute_force_vigenere import decode
 import chi_square
 import time
@@ -78,9 +78,9 @@ PHHER RU
 class DecodedMessage:
     def __init__(self, Decoder):
         self.best_guees = None
-        self.plain_texts = []
+        self.messages = []
         for each_letter in [x for x in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']:
-            self.plain_texts.append(self.EachMessage(each_letter, Decoder))
+            self.messages.append(self.EachMessage(each_letter, Decoder))
 
 
     class EachMessage:
@@ -90,7 +90,7 @@ class DecodedMessage:
                 self.chi = chi_square.CheckText(self.plain_text).chi_result
 
     def run(self):
-        for each_plain_text in self.plain_texts:
+        for each_plain_text in self.messages:
             if self.best_guees is None:
                 self.best_guees = each_plain_text
             elif each_plain_text.chi < self.best_guees.chi:
@@ -124,8 +124,10 @@ def breakup_into_nth(cipher_text, key_length=36):
             j += 1
 
         m = 0
+        key = [['.'] * key_length]
         for each in list_of_answers:
             k = m
+            key[0][m] = each.best_guees.shift
             for each_letter in each.best_guees.plain_text:
                 plain_text[0][k] = each_letter
                 k += key_length
@@ -135,15 +137,15 @@ def breakup_into_nth(cipher_text, key_length=36):
             m += 1
             # print(plain_text)
 
-        return ''.join(plain_text[0])
+        return ''.join(plain_text[0]), ''.join(key[0])
 
 
 for each in range(9,180,9):
     print(each)
-    de_shifted_text = breakup_into_nth(cipher_text, each)
+    de_shifted_text, key = breakup_into_nth(cipher_text, each)
     print(de_shifted_text)
     for each_key_size in range(1,9,1):
-        trans = Trans(de_shifted_text, each_key_size)
+        trans = Trans(de_shifted_text, each_key_size, str('Shift Key: %s' % key))
         trans.create_possible_answers()
 
     time.sleep(5)

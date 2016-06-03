@@ -6,12 +6,14 @@ from math import ceil
 
 single_thread = False
 # known_word = 'COMP3441{'
+known_word = None
 class Trans:
-    def __init__(self, cipher_text, key_size):
+    def __init__(self, cipher_text, key_size, recording_arguments):
 
         self.cipher_text = cipher_text
-
+        self.cipher_text = ''.join([x for x in self.cipher_text if x.isalpha()])
         self.key_size = key_size
+        self.recording_arguments = recording_arguments
 
     def factors(self):
         '''
@@ -34,7 +36,7 @@ class Trans:
             if known_word in answer:
                 print(answer)
                 with open('results.txt', 'a') as results_file:
-                    results_file.write("%s | %s\n" % (str(answer), str(key)))
+                    results_file.write("%s | %s | %s\n" % (str(answer), str(key), str(self.recording_arguments)))
         else:
             word_list = []
 
@@ -51,7 +53,7 @@ class Trans:
                 print(len(words))
                 print(answer, key)
                 with open('results.txt', 'a') as results_file:
-                    results_file.write("%s | %s | %s\n" % (str(answer), str(key), str(len(words)/(len(answer)))))
+                    results_file.write("%s | %s | %s | %s\n" % (str(answer), str(key), str(len(words)/(len(answer))), self.recording_arguments))
 
 
     def ze_worker(self, inq, outq):
@@ -109,7 +111,7 @@ class Trans:
 
     def ze_runner(self, key):
         '''
-        Decrypts by creating blocks and decrypting each block with the key
+        Decrypts by creating linear blocks and decrypting each block with the key
         :param key:
         :return:
         '''
@@ -124,8 +126,12 @@ class Trans:
             # Grab each position that the key defines
             for each in key:
                 # unencrypt that character and add it to the plain text
-                running_answer += each_block[each-1]
+                try:
+                    running_answer += each_block[each-1]
+                except:
+                    running_answer += ''
 
+        print(running_answer)
         self.ze_analyse(running_answer, key)
 
     def create_possible_answers(self):
@@ -138,19 +144,21 @@ class Trans:
 
         if single_thread is False:
             m = multiprocessing.Manager()
-            ze_pool = multiprocessing.Pool(4)
+            ze_pool = multiprocessing.Pool(multiprocessing.cpu_count())
             # ze_pool.imap(self.ze_columnar, arrangments, chunksize=50)
             ze_pool.imap(self.ze_runner, arrangments, chunksize=50)
             ze_pool.close()
             ze_pool.join()
 
         elif single_thread is True:
+            print('!!! Running in single thread mode')
             # grab one possible key
-            # for each_arrangment in arrangments:
-            #     print(each_arrangment)
-            #     self.ze_columnar(each_arrangment)
+            for each_arrangment in arrangments:
+                print(each_arrangment)
+                # self.ze_columnar(each_arrangment)
+                self.ze_runner(each_arrangment)
             # # self.ze_columnar([3, 4, 7, 1, 2, 6, 5])
-            self.ze_runner([8, 2, 6, 1, 3, 4, 7, 9, 10, 5])
+            # self.ze_runner([8, 2, 6, 1, 3, 4, 7, 9, 10, 5])
             #8,2,6,1,3,4,7, 9
             #YOUCOULD
 
@@ -207,8 +215,13 @@ if __name__ == '__main__':
     NONHFLHTIAWAAONYNNALIEEFDUUNRTAUHAHONTWYOTOHNESRASRPNUIRASTAMTAAHESTTSTSETEAYKR
     NTGSHICHDTOE
             '''
+
+    test = '''
+    SHITHSTIONGEPNGIFLLUOLLUEEVFHYTRWNGIDRLONHICIGOAGN
+    '''
+
     test_text2 = '''
-            ORISDFETSCIOEPRLNTNOTNISAYRODTWWETCUSFTSNIENOPICUCHCUARSSIBLIKWDOEHAEAHOMSAHIOFRTAEFRTIEOMRAPIOUDNEOTRREYRDELN
+ORISDFETSCIOEPRLNTNOTNISAYRODTWWETCUSFTSNIENOPICUCHCUARSSIBLIKWDOEHAEAHOMSAHIOFRTAEFRTIEOMRAPIOUDNEOTRREYRDELN
     '''
 
     test_text3 = '''
@@ -226,7 +239,7 @@ if __name__ == '__main__':
     '''
 
 
-    for each_keysize in range(1, 50, 1):
+    for each_keysize in range(4, 5, 1):
         print('[Running key size] %s' % str(each_keysize))
-        trans = Trans(son_of_rail_fence, each_keysize)
+        trans = Trans(test, each_keysize, '')
         trans.create_possible_answers()
