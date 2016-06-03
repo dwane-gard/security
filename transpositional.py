@@ -111,7 +111,7 @@ class Trans:
 
     def ze_runner(self, key):
         '''
-        Decrypts by creating linear blocks and decrypting each block with the key
+        Decrypts cipher text with a permutation cipher
         :param key:
         :return:
         '''
@@ -131,7 +131,7 @@ class Trans:
                 except:
                     running_answer += ''
 
-        
+
         self.ze_analyse(running_answer, key)
 
     def create_possible_answers(self):

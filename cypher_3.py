@@ -78,66 +78,67 @@ PHHER RU
 class DecodedMessage:
     def __init__(self, Decoder):
         self.best_guees = None
+        self.second_guees = None
+        self.third_guees = None
         self.messages = []
         for each_letter in [x for x in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']:
             self.messages.append(self.EachMessage(each_letter, Decoder))
 
-
     class EachMessage:
-            def __init__(self, shift, Decoder):
-                self.shift = shift
-                self.plain_text = Decoder.run(self.shift)
-                self.chi = chi_square.CheckText(self.plain_text).chi_result
+        def __init__(self, shift, Decoder):
+            self.shift = shift
+            self.plain_text = Decoder.run(self.shift)
+            self.chi = chi_square.CheckText(self.plain_text).chi_result
 
     def run(self):
         for each_plain_text in self.messages:
             if self.best_guees is None:
                 self.best_guees = each_plain_text
             elif each_plain_text.chi < self.best_guees.chi:
+                self.third_guees = self.second_guees
+                self.second_guees = self.best_guees
                 self.best_guees = each_plain_text
                 # print(each_plain_text.chi)
                 print(self.best_guees.chi)
+            elif each_plain_text.chi < self.second_guees.chi:
+                self.third_guees = self.second_guees
+                self.second_guees = each_plain_text
+            elif each_plain_text.chi < self.third_guees.chi:
+                self.third_guees = each_plain_text
 
         print('*'*20)
 
 def breakup_into_nth(cipher_text, key_length=36):
-        j = 0
-        cipher_text = ''.join([x for x in cipher_text if x.isalpha()])
 
-        list_of_answers = []
-        plain_text = [['.'] * len(cipher_text)]
-        while j < key_length:
-            i = j
-            nth_cypher_text = ''
-            while i < len(cipher_text):
-                nth_cypher_text += cipher_text[i]
-                i += key_length
+    # Build the de-shifted text that is the best gueess from chi-squares
+    j = 0
+    cipher_text = ''.join([x for x in cipher_text if x.isalpha()])
+    list_of_answers = []
+    plain_text = [['.'] * len(cipher_text)]
+    while j < key_length:
+        i = j
+        nth_cypher_text = ''
+        while i < len(cipher_text):
+            nth_cypher_text += cipher_text[i]
+            i += key_length
+        decoder = decode(nth_cypher_text, 0)
+        workingDecoder = DecodedMessage(decoder)
+        workingDecoder.run()
+        list_of_answers.append(workingDecoder)
+        j += 1
 
+    # build the key used to make the best guees
+    m = 0
+    key = [['.'] * key_length]
+    for each in list_of_answers:
+        k = m
+        key[0][m] = each.best_guees.shift
+        for each_letter in each.best_guees.plain_text:
+            plain_text[0][k] = each_letter
+            k += key_length
+        m += 1
 
-
-            decoder = decode(nth_cypher_text, 0)
-            workingDecoder = DecodedMessage(decoder)
-            workingDecoder.run()
-            list_of_answers.append(workingDecoder)
-
-
-            j += 1
-
-        m = 0
-        key = [['.'] * key_length]
-        for each in list_of_answers:
-            k = m
-            key[0][m] = each.best_guees.shift
-            for each_letter in each.best_guees.plain_text:
-                plain_text[0][k] = each_letter
-                k += key_length
-
-            # print(each.best_guees.plain_text)
-            # print(each.best_guees.chi)
-            m += 1
-            # print(plain_text)
-
-        return ''.join(plain_text[0]), ''.join(key[0])
+    return ''.join(plain_text[0]), ''.join(key[0])
 
 
 for each in range(9,180,9):
