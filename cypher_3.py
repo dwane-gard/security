@@ -100,21 +100,37 @@ class DecodedMessage:
                 self.best_guees = each_plain_text
                 # print(each_plain_text.chi)
                 print(self.best_guees.chi)
+            elif self.second_guees is None:
+                self.second_guees = each_plain_text
             elif each_plain_text.chi < self.second_guees.chi:
                 self.third_guees = self.second_guees
                 self.second_guees = each_plain_text
+            elif self.third_guees is None:
+                self.third_guees = each_plain_text
             elif each_plain_text.chi < self.third_guees.chi:
                 self.third_guees = each_plain_text
 
         print('*'*20)
 
-def breakup_into_nth(cipher_text, key_length=36):
+def breakup_into_nth(cipher_text, key_length=9):
 
-    # Build the de-shifted text that is the best gueess from chi-squares
-    j = 0
     cipher_text = ''.join([x for x in cipher_text if x.isalpha()])
     list_of_answers = []
     plain_text = [['.'] * len(cipher_text)]
+
+    # build the key used to make the best guess
+    m = 0
+    key = [['.'] * key_length]
+    for each in list_of_answers:
+        k = m
+        key[0][m] = each.best_guees.shift
+        for each_letter in each.best_guees.plain_text:
+            plain_text[0][k] = each_letter
+            k += key_length
+        m += 1
+
+    # Build the de-shifted text that is the best gueess from chi-squares
+    j = 0
     while j < key_length:
         i = j
         nth_cypher_text = ''
@@ -127,18 +143,17 @@ def breakup_into_nth(cipher_text, key_length=36):
         list_of_answers.append(workingDecoder)
         j += 1
 
-    # build the key used to make the best guees
-    m = 0
-    key = [['.'] * key_length]
-    for each in list_of_answers:
-        k = m
-        key[0][m] = each.best_guees.shift
-        for each_letter in each.best_guees.plain_text:
-            plain_text[0][k] = each_letter
-            k += key_length
-        m += 1
+    # To be replacment for above secion to make permuataions of the 3 best gueeses for each block of text
+    list_of_gueeses = [None, None, None]*key_length
+    l = 0
+    for each_answer in list_of_answers:
+        list_of_gueeses[l][0] = each_answer.best_guees.shift
+        list_of_gueeses[l][1] = each_answer.second_guees.shift
+        print(l)
+        list_of_gueeses[l][2] = each_answer.third_guees.shift
+        l += 1
 
-    return ''.join(plain_text[0]), ''.join(key[0])
+    yield ''.join(plain_text[0]), ''.join(key[0])
 
 
 for each in range(9,180,9):
