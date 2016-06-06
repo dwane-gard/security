@@ -18,9 +18,6 @@ class Trans:
         self.recording_arguments = recording_arguments
 
 
-        # run analyssis on unchanged text (for cypher3)
-        self.ze_analyse(self.cipher_text, '0')
-
     def factors(self):
         '''
         Gets the factors of the length of the cipher text
@@ -137,6 +134,7 @@ class Trans:
                     running_answer += each_block[each-1]
                 except:
                     running_answer += ''
+        print(running_answer)
 
         self.ze_analyse(running_answer, key)
 
