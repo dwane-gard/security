@@ -3,7 +3,9 @@ from corpus_analysis import Analyse
 from transpositional import Trans
 from brute_force_vigenere import decode
 import chi_square
+
 import time
+import itertools
 
 cipher_text = '''
 KIWDY FAIAS YQXQF GMQDZ OHUQK NEFVL
@@ -74,60 +76,37 @@ SQFKS NKIOS TPZNG MEZNQ TKSNX JYNWS
 GYUPV DMZXR RRFCV AXQJN RIEJR TVAMR
 PHHER RU
 '''
+count = 0
+class NthMessage:
+    def __init__(self, nth_cypher_Text):
 
-class DecodedMessage:
-    def __init__(self, Decoder):
-        self.best_guees = None
-        self.second_guees = None
-        self.third_guees = None
-        self.messages = []
+        self.cypher_text = nth_cypher_Text
+        self.plain_texts = []
+        Decoder = decode(self.cypher_text, 0)
+
         for each_letter in [x for x in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']:
-            self.messages.append(self.EachMessage(each_letter, Decoder))
+            self.plain_texts.append(self.EachMessage(each_letter, Decoder))
+        self.plain_texts.sort(key=lambda x: x.chi)
+        # for each in self.plain_texts:
+        #     print(each.chi)
+        # print('+'*20)
 
     class EachMessage:
         def __init__(self, shift, Decoder):
             self.shift = shift
             self.plain_text = Decoder.run(self.shift)
             self.chi = chi_square.CheckText(self.plain_text).chi_result
+            # print(self.chi)
+            # print(shift)
 
-    def run(self):
-        for each_plain_text in self.messages:
-            if self.best_guees is None:
-                self.best_guees = each_plain_text
-            elif each_plain_text.chi < self.best_guees.chi:
-                self.third_guees = self.second_guees
-                self.second_guees = self.best_guees
-                self.best_guees = each_plain_text
-                # print(each_plain_text.chi)
-                print(self.best_guees.chi)
-            elif self.second_guees is None:
-                self.second_guees = each_plain_text
-            elif each_plain_text.chi < self.second_guees.chi:
-                self.third_guees = self.second_guees
-                self.second_guees = each_plain_text
-            elif self.third_guees is None:
-                self.third_guees = each_plain_text
-            elif each_plain_text.chi < self.third_guees.chi:
-                self.third_guees = each_plain_text
 
-        print('*'*20)
 
 def breakup_into_nth(cipher_text, key_length=9):
 
     cipher_text = ''.join([x for x in cipher_text if x.isalpha()])
     list_of_answers = []
-    plain_text = [['.'] * len(cipher_text)]
+    messages = []
 
-    # build the key used to make the best guess
-    m = 0
-    key = [['.'] * key_length]
-    for each in list_of_answers:
-        k = m
-        key[0][m] = each.best_guees.shift
-        for each_letter in each.best_guees.plain_text:
-            plain_text[0][k] = each_letter
-            k += key_length
-        m += 1
 
     # Build the de-shifted text that is the best gueess from chi-squares
     j = 0
@@ -137,34 +116,38 @@ def breakup_into_nth(cipher_text, key_length=9):
         while i < len(cipher_text):
             nth_cypher_text += cipher_text[i]
             i += key_length
-        decoder = decode(nth_cypher_text, 0)
-        workingDecoder = DecodedMessage(decoder)
-        workingDecoder.run()
-        list_of_answers.append(workingDecoder)
+        messages.append(NthMessage(nth_cypher_text))
+
         j += 1
 
-    # To be replacment for above secion to make permuataions of the 3 best gueeses for each block of text
-    list_of_gueeses = [None, None, None]*key_length
-    l = 0
-    for each_answer in list_of_answers:
-        list_of_gueeses[l][0] = each_answer.best_guees.shift
-        list_of_gueeses[l][1] = each_answer.second_guees.shift
-        print(l)
-        list_of_gueeses[l][2] = each_answer.third_guees.shift
-        l += 1
+    derp = itertools.product(range(0, 3, 1), repeat=9)
 
-    yield ''.join(plain_text[0]), ''.join(key[0])
+    for each_sequence in derp:
+        w = 0
+        check_this_message = ['.'] * len(cipher_text)
+        key = ''
+        for each_guees in each_sequence:
+            q = w
+            l = 0
+            key += messages[w].plain_texts[each_guees].shift
+            while q < len(cipher_text):
+                check_this_message[q] = messages[w].plain_texts[each_guees].plain_text[l]
+                q += key_length
+                l += 1
+            w += 1
+        check_this_message = ''.join(check_this_message)
+        print(check_this_message, key)
+        for each_key_size in range(1,2,1):
+
+            trans = Trans(check_this_message, each_key_size, str('Shift Key: %s' % key))
+            trans.create_possible_answers()
+
 
 
 for each in range(9,180,9):
     print(each)
-    de_shifted_text, key = breakup_into_nth(cipher_text, each)
-    print(de_shifted_text)
-    for each_key_size in range(1,9,1):
-        trans = Trans(de_shifted_text, each_key_size, str('Shift Key: %s' % key))
-        trans.create_possible_answers()
+    breakup_into_nth(cipher_text, each)
 
-    time.sleep(5)
 
 
 

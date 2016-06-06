@@ -12,8 +12,14 @@ class Trans:
 
         self.cipher_text = cipher_text
         self.cipher_text = ''.join([x for x in self.cipher_text if x.isalpha()])
+
+
         self.key_size = key_size
         self.recording_arguments = recording_arguments
+
+
+        # run analyssis on unchanged text (for cypher3)
+        self.ze_analyse(self.cipher_text, '0')
 
     def factors(self):
         '''
@@ -116,6 +122,7 @@ class Trans:
         :return:
         '''
 
+
         cipher_blocks = [self.cipher_text[i:i+self.key_size] for i in range(0, len(self.cipher_text), self.key_size)]
 
         # Reset the plain text output
@@ -131,7 +138,6 @@ class Trans:
                 except:
                     running_answer += ''
 
-
         self.ze_analyse(running_answer, key)
 
     def create_possible_answers(self):
@@ -140,7 +146,7 @@ class Trans:
         '''
         # Make a set of the diffrent possible keys
         arrangments = itertools.permutations(range(1,self.key_size+1,1))
-        print('[+] Finished generating possible keys')
+        print('[+] Finished generating possible keys for key size: %d' % self.key_size)
 
         if single_thread is False:
             m = multiprocessing.Manager()
