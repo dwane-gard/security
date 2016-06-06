@@ -134,8 +134,6 @@ class Trans:
                     running_answer += each_block[each-1]
                 except:
                     running_answer += ''
-        print(running_answer)
-
         self.ze_analyse(running_answer, key)
 
     def create_possible_answers(self):

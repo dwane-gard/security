@@ -136,7 +136,6 @@ def breakup_into_nth(cipher_text, key_length=9):
                 l += 1
             w += 1
         check_this_message = ''.join(check_this_message)
-        print(check_this_message, key)
         for each_key_size in range(1,3,1):
 
             trans = Trans(check_this_message, each_key_size, str('Shift Key: %s' % key))
