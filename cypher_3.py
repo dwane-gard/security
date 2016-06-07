@@ -121,7 +121,7 @@ class BreakupIntoNth:
             j += 1
 
         # get the nth best guesses and make possibilites from them
-        derp = itertools.product(range(0, 7, 1), repeat=self.key_length)
+        derp = itertools.product(range(0, 5, 1), repeat=self.key_length)
         derp = list(derp)
         derp = sorted(derp, key=sum)
         print('[!] sorted')
@@ -157,32 +157,20 @@ class BreakupIntoNth:
         ze_chi = chi_square.CheckText(check_this_message).chi_result
 
         if ze_chi < 1000:
-            # print(ze_chi)
-            # print(key)
-            # print(check_this_message)
+            print(ze_chi)
+            print(key)
+            print(check_this_message)
             for each_key_size in range(1,2,1):
                 trans = Trans(check_this_message, each_key_size,str('Shift Key: %s' % key), multithread=False)
                 trans.create_possible_answers()
-        #     with open('results.txt', 'a') as results_file:
-        #         results_file.write("%s | %s | %s\n" % (str(ze_chi), str(key), str(check_this_message)))
-
-            # Then check if it is using a transpositional cipher on top of a shift cipher
-
-
-
-
-
-
-    # for each in range(9,180,9):
-    #     print(each)
-    #     breakup_into_nth(cipher_text, each)
 
 
 if __name__ == '__main__':
-    # breakupIntoNth = BreakupIntoNth(real_cipher_text, 9)
-
-    breakupIntoNth = BreakupIntoNth(test_text, 3)
-    breakupIntoNth.run()
+    for each in range(9, 27, 9):
+        print(each)
+        breakupIntoNth = BreakupIntoNth(real_cipher_text, each)
+        # breakupIntoNth = BreakupIntoNth(test_text, 3)
+        breakupIntoNth.run()
 
 
 
