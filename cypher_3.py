@@ -7,6 +7,7 @@ import chi_square
 import multiprocessing
 import time
 import itertools
+import numpy as np
 
 real_cipher_text = '''
 KIWDY FAIAS YQXQF GMQDZ OHUQK NEFVL
@@ -121,26 +122,25 @@ class BreakupIntoNth:
             j += 1
 
         # get the nth best guesses and make possibilites from them
-        derp = itertools.product(range(0, 5, 1), repeat=self.key_length)
-        derp = list(derp)
-        derp = sorted(derp, key=sum)
+        possible_sequences = itertools.product(range(0, 5, 1), repeat=self.key_length)
+        possible_sequences = sorted(possible_sequences, key=sum)
         print('[!] sorted')
 
         if self.multithread is True:
             m = multiprocessing.Manager()
             ze_pool = multiprocessing.Pool(multiprocessing.cpu_count())
-            ze_pool.map(self.check_posibilites, derp, chunksize=100)
+            ze_pool.map(self.check_posibilites, possible_sequences, chunksize=100)
             ze_pool.close()
             ze_pool.join()
         else:
-            for each_sequence in derp:
+            for each_sequence in possible_sequences:
                 self.check_posibilites(each_sequence)
 
     def check_posibilites(self, each_sequence):
         check_this_message = ['.'] * len(self.cipher_text)
         key = ''
 
-        # iterate through possibilites
+        # build the message from its parts
         w = 0
         for each_guees in each_sequence:
             q = w
@@ -154,19 +154,19 @@ class BreakupIntoNth:
             w += 1
         check_this_message = ''.join(check_this_message)
 
+        # check if the entire message is close to englishness, if it is do furthur analisyis
         ze_chi = chi_square.CheckText(check_this_message).chi_result
-
         if ze_chi < 1000:
             print(ze_chi)
             print(key)
             print(check_this_message)
             for each_key_size in range(1,2,1):
-                trans = Trans(check_this_message, each_key_size,str('Shift Key: %s' % key), multithread=False)
+                trans = Trans(check_this_message, each_key_size, str('Shift Key: %s' % key), multithread=False)
                 trans.create_possible_answers()
 
 
 if __name__ == '__main__':
-    for each in range(9, 27, 9):
+    for each in range(18, 27, 9):
         print(each)
         breakupIntoNth = BreakupIntoNth(real_cipher_text, each)
         # breakupIntoNth = BreakupIntoNth(test_text, 3)
