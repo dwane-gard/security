@@ -113,3 +113,4 @@ I guess the moral of this story is no matter how nasty someone is to you over th
 Anyway thanks for reading just thought I'd share how this one call changed my outlook on life :)'''
     plain_text = ''.join([x.upper() for x in plain_text if x.isalpha()])
     checkText = CheckText(plain_text)
+    print(checkText.chi_result)

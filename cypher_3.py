@@ -4,10 +4,11 @@ from transpositional import Trans
 from brute_force_vigenere import decode
 import chi_square
 
+import multiprocessing
 import time
 import itertools
 
-cipher_text = '''
+real_cipher_text = '''
 KIWDY FAIAS YQXQF GMQDZ OHUQK NEFVL
 AZPZP CXYDJ QLVGC KXPAS IENMN JYNGA
 ODJPJ YNTCF RJUIT ECGGS PVEAB STKTN
@@ -76,7 +77,9 @@ SQFKS NKIOS TPZNG MEZNQ TKSNX JYNWS
 GYUPV DMZXR RRFCV AXQJN RIEJR TVAMR
 PHHER RU
 '''
-count = 0
+
+test_text = '''KICOSVYIIBFFGCYRAYDZVBSLDPCEIVQXFGEKB'''
+
 class NthMessage:
     def __init__(self, nth_cypher_Text):
 
@@ -84,68 +87,102 @@ class NthMessage:
         self.plain_texts = []
         Decoder = decode(self.cypher_text, 0)
 
+        # For each shift posibility decode
         for each_letter in [x for x in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']:
             self.plain_texts.append(self.EachMessage(each_letter, Decoder))
+
+        # sort each part by its chi of the english language
         self.plain_texts.sort(key=lambda x: x.chi)
-        # for each in self.plain_texts:
-        #     print(each.chi)
-        # print('+'*20)
 
     class EachMessage:
         def __init__(self, shift, Decoder):
             self.shift = shift
             self.plain_text = Decoder.run(self.shift)
             self.chi = chi_square.CheckText(self.plain_text).chi_result
-            # print(self.chi)
-            # print(shift)
 
 
+class BreakupIntoNth:
+    def __init__(self, cipher_text, key_length=9):
+        self.cipher_text = ''.join([x for x in cipher_text if x.isalpha()])
+        self.messages = []
+        self.key_length = key_length
+        self.multithread = True
 
-def breakup_into_nth(cipher_text, key_length=9):
+    def run(self):
+        # Build the de-shifted text that is the best gueess from chi-squares
+        j = 0
+        while j < self.key_length:
+            i = j
+            nth_cypher_text = ''
+            while i < len(self.cipher_text):
+                nth_cypher_text += self.cipher_text[i]
+                i += self.key_length
+            self.messages.append(NthMessage(nth_cypher_text))
+            j += 1
 
-    cipher_text = ''.join([x for x in cipher_text if x.isalpha()])
-    list_of_answers = []
-    messages = []
+        # get the nth best guesses and make possibilites from them
+        derp = itertools.product(range(0, 7, 1), repeat=self.key_length)
+        derp = list(derp)
+        derp = sorted(derp, key=sum)
+        print('[!] sorted')
 
+        if self.multithread is True:
+            m = multiprocessing.Manager()
+            ze_pool = multiprocessing.Pool(multiprocessing.cpu_count())
+            ze_pool.map(self.check_posibilites, derp, chunksize=100)
+            ze_pool.close()
+            ze_pool.join()
+        else:
+            for each_sequence in derp:
+                self.check_posibilites(each_sequence)
 
-    # Build the de-shifted text that is the best gueess from chi-squares
-    j = 0
-    while j < key_length:
-        i = j
-        nth_cypher_text = ''
-        while i < len(cipher_text):
-            nth_cypher_text += cipher_text[i]
-            i += key_length
-        messages.append(NthMessage(nth_cypher_text))
-
-        j += 1
-
-    derp = itertools.product(range(0, 3, 1), repeat=9)
-
-    for each_sequence in derp:
-        w = 0
-        check_this_message = ['.'] * len(cipher_text)
+    def check_posibilites(self, each_sequence):
+        check_this_message = ['.'] * len(self.cipher_text)
         key = ''
+
+        # iterate through possibilites
+        w = 0
         for each_guees in each_sequence:
             q = w
             l = 0
-            key += messages[w].plain_texts[each_guees].shift
-            while q < len(cipher_text):
-                check_this_message[q] = messages[w].plain_texts[each_guees].plain_text[l]
-                q += key_length
+            key += self.messages[w].plain_texts[each_guees].shift
+            while q < len(self.cipher_text):
+
+                check_this_message[q] = self.messages[w].plain_texts[each_guees].plain_text[l]
+                q += self.key_length
                 l += 1
             w += 1
         check_this_message = ''.join(check_this_message)
-        for each_key_size in range(1,3,1):
 
-            trans = Trans(check_this_message, each_key_size, str('Shift Key: %s' % key))
-            trans.create_possible_answers()
+        ze_chi = chi_square.CheckText(check_this_message).chi_result
+
+        if ze_chi < 1000:
+            # print(ze_chi)
+            # print(key)
+            # print(check_this_message)
+            for each_key_size in range(1,2,1):
+                trans = Trans(check_this_message, each_key_size,str('Shift Key: %s' % key), multithread=False)
+                trans.create_possible_answers()
+        #     with open('results.txt', 'a') as results_file:
+        #         results_file.write("%s | %s | %s\n" % (str(ze_chi), str(key), str(check_this_message)))
+
+            # Then check if it is using a transpositional cipher on top of a shift cipher
 
 
 
-for each in range(9,180,9):
-    print(each)
-    breakup_into_nth(cipher_text, each)
+
+
+
+    # for each in range(9,180,9):
+    #     print(each)
+    #     breakup_into_nth(cipher_text, each)
+
+
+if __name__ == '__main__':
+    # breakupIntoNth = BreakupIntoNth(real_cipher_text, 9)
+
+    breakupIntoNth = BreakupIntoNth(test_text, 3)
+    breakupIntoNth.run()
 
 
 

@@ -8,8 +8,8 @@ single_thread = False
 # known_word = 'COMP3441{'
 known_word = None
 class Trans:
-    def __init__(self, cipher_text, key_size, recording_arguments):
-
+    def __init__(self, cipher_text, key_size,recording_arguments,  multithread=True):
+        self.multithread = multithread
         self.cipher_text = cipher_text
         self.cipher_text = ''.join([x for x in self.cipher_text if x.isalpha()])
 
@@ -50,8 +50,8 @@ class Trans:
                         word_list.append(each_word)
 
             words = ''.join(word_list)
-            print((len(words)/len(answer)))
-            if (len(words)/len(answer)) > 0.5:
+            # print((len(words)/len(answer)))
+            if (len(words)/len(answer)) > 0.9:
                 print(len(answer))
                 print(len(words))
                 print(answer, key)
@@ -142,9 +142,9 @@ class Trans:
         '''
         # Make a set of the diffrent possible keys
         arrangments = itertools.permutations(range(1,self.key_size+1,1))
-        print('[+] Finished generating possible keys for key size: %d' % self.key_size)
+        # print('[+] Finished generating possible keys for key size: %d' % self.key_size)
 
-        if single_thread is False:
+        if self.multithread is True:
             m = multiprocessing.Manager()
             ze_pool = multiprocessing.Pool(multiprocessing.cpu_count())
             # ze_pool.imap(self.ze_columnar, arrangments, chunksize=50)
@@ -152,11 +152,11 @@ class Trans:
             ze_pool.close()
             ze_pool.join()
 
-        elif single_thread is True:
-            print('!!! Running in single thread mode')
+        else:
+            # print('!!! Running in single thread mode')
             # grab one possible key
             for each_arrangment in arrangments:
-                print(each_arrangment)
+                # print(each_arrangment)
                 # self.ze_columnar(each_arrangment)
                 self.ze_runner(each_arrangment)
             # # self.ze_columnar([3, 4, 7, 1, 2, 6, 5])
