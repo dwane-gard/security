@@ -131,7 +131,7 @@ class BreakupIntoNth:
         if self.multithread is True:
             m = multiprocessing.Manager()
             ze_pool = multiprocessing.Pool(multiprocessing.cpu_count())
-            ze_pool.map(self.check_posibilites, possible_sequences, chunksize=100)
+            ze_pool.imap(self.check_posibilites, possible_sequences, chunksize=100)
             ze_pool.close()
             ze_pool.join()
         else:
