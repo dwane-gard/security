@@ -158,7 +158,9 @@ class BreakupIntoNth:
 
         # check if the entire message is close to englishness, if it is do furthur analisyis
         ze_chi = chi_square.CheckText(check_this_message).chi_result
-
+        if ze_chi < 500:
+            with open('results.txt', 'a') as results_file:
+                    results_file.write("%s | %s | %s\n" % (str(ze_chi), str(key), str(check_this_message)))
         if ze_chi < 1000:
             print(ze_chi)
             print(key)
