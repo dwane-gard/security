@@ -122,9 +122,11 @@ class BreakupIntoNth:
             j += 1
 
         # get the nth best guesses and make possibilites from them
-        possible_sequences = itertools.product(range(0, 5, 1), repeat=self.key_length)
-        possible_sequences = sorted(possible_sequences, key=sum)
-        print('[!] sorted')
+        possible_sequences = itertools.product(range(0, 3, 1), repeat=self.key_length)
+
+        # Sorting causes memory issues
+        # sorted(possible_sequences, key=sum)
+        # print('[!] sorted')
 
         if self.multithread is True:
             m = multiprocessing.Manager()
