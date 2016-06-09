@@ -154,7 +154,7 @@ class BreakupIntoNth:
             if whole_message is True:
                 check_message_length = len(self.cipher_text)
             else:
-                check_message_length = self.key_length*2
+                check_message_length = self.key_length
 
             while q < check_message_length:
                 check_this_message[q] = self.messages[w].plain_texts[each_guees].plain_text[l]
