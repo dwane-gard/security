@@ -228,6 +228,11 @@ But WA Premier Colin Barnet, who has long been at odds over the company's decisi
 
 Shell is building the world's first floating LNG project for the Prelude field off the Kimberley coast.'''
 
+    derp = '''ARLHIFIJFIHFBAFONVTIDLEQSOJVEAEJPHQHNHSNALDHHAGEECIMORDSNRQAWEOFSNRDCNSOKRIIMGOTULNPFCTSUSRSDLJOSEMQBVLZRTBJV
+DDWUREBSDUVVDZBUPFHPFAGTRMVESXAQWSSRISSMRANVLEFBIVKRSLWTFHKIKMXKLNDPDNAVNFBAQSBBFNWZAFONAFDDWQGOLFAHFRKRHNFARDWZBHTLALL
+AGPXOGUVFQLBHNHXIFWTRESBFNOVDCNUFDKDLHBANHASCRDCWHHAISWGISJUMPEYIMVOHBGSQKXVOMBFTGUCIXMYEARGAWSLQLIAAPPLMHREVGRHSSIHFBA
+FONVTIDLJSSEMDNVURZXOUVEILMFMOBNVYBIAITMRVHCGRCBUQNOQGCUSUFNOIMAOTGVEAUATSTSPNGILSTIARHPAAVANLUSDACOSELCNGIHSSEMJSWUAPY
+USDBFXCSRTGGSAVDLAOPFEFEHSIJFVEAID'''
     import time
 
     start = time.time()
@@ -239,6 +244,13 @@ Shell is building the world's first floating LNG project for the Prelude field o
 
     ze_start = time.time()
     checkIC = CheckIC(english)
+    checkIC.run_with_counter()
+    checkIC.print_ic()
+    ze_end = time.time()
+    print(ze_end - ze_start)
+
+    ze_start = time.time()
+    checkIC = CheckIC(derp)
     checkIC.run_with_counter()
     checkIC.print_ic()
     ze_end = time.time()

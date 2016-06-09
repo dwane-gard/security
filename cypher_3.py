@@ -9,6 +9,7 @@ import time
 import itertools
 import numpy as np
 
+first_text = 'KIWDY FAIAS YQXQF GMQ'
 real_cipher_text = '''
 KIWDY FAIAS YQXQF GMQDZ OHUQK NEFVL
 AZPZP CXYDJ QLVGC KXPAS IENMN JYNGA
@@ -122,7 +123,7 @@ class BreakupIntoNth:
             j += 1
 
         # get the nth best guesses and make possibilites from them
-        possible_sequences = itertools.product(range(0, 3, 1), repeat=self.key_length)
+        possible_sequences = itertools.product(range(0, 5, 1), repeat=self.key_length)
 
         # Sorting causes memory issues
         # sorted(possible_sequences, key=sum)
@@ -141,6 +142,7 @@ class BreakupIntoNth:
     def check_posibilites(self, each_sequence):
         check_this_message = ['.'] * len(self.cipher_text)
         key = ''
+        whole_message = False       # Do we want to check the whole message or just the first n characters
 
         # build the message from its parts
         w = 0
@@ -148,8 +150,13 @@ class BreakupIntoNth:
             q = w
             l = 0
             key += self.messages[w].plain_texts[each_guees].shift
-            while q < len(self.cipher_text):
 
+            if whole_message is True:
+                check_message_length = len(self.cipher_text)
+            else:
+                check_message_length = self.key_length*2
+
+            while q < check_message_length:
                 check_this_message[q] = self.messages[w].plain_texts[each_guees].plain_text[l]
                 q += self.key_length
                 l += 1
@@ -157,25 +164,34 @@ class BreakupIntoNth:
         check_this_message = ''.join(check_this_message)
 
         # check if the entire message is close to englishness, if it is do furthur analisyis
-        ze_chi = chi_square.CheckText(check_this_message).chi_result
-        if ze_chi < 500:
-            with open('results.txt', 'a') as results_file:
-                    results_file.write("%s | %s | %s\n" % (str(ze_chi), str(key), str(check_this_message)))
-        if ze_chi < 1000:
-            print(ze_chi)
-            print(key)
-            print(check_this_message)
-            for each_key_size in range(1,2,1):
-                trans = Trans(check_this_message, each_key_size, str('Shift Key: %s' % key), multithread=False)
-                trans.create_possible_answers()
+
+        if whole_message == True:
+            ze_chi = chi_square.CheckText(check_this_message).chi_result
+            if ze_chi < 500:
+                with open('results.txt', 'a') as results_file:
+                        results_file.write("%s | %s | %s\n" % (str(ze_chi), str(key), str(check_this_message)))
+            if ze_chi < 1000:
+                print(ze_chi)
+                print(key)
+                print(check_this_message)
+                for each_key_size in range(1,2,1):
+                    trans = Trans(check_this_message, each_key_size, str('Shift Key: %s' % key), multithread=False)
+                    trans.create_possible_answers()
+        else:
+            trans = Trans(check_this_message, 1, str('Shift Key: %s' % key), multithread=False)
+            trans.create_possible_answers()
 
 
 if __name__ == '__main__':
     for each in range(18, 27, 9):
-        print(each)
-        breakupIntoNth = BreakupIntoNth(real_cipher_text, each)
-        # breakupIntoNth = BreakupIntoNth(test_text, 3)
-        breakupIntoNth.run()
+        # print(each)
+        # breakupIntoNth = BreakupIntoNth(real_cipher_text, each)
+        # # breakupIntoNth = BreakupIntoNth(test_text, 3)
+        # breakupIntoNth.run()
+        pass
+    breakupIntoNth = BreakupIntoNth(first_text, 9)
+    # breakupIntoNth = BreakupIntoNth(test_text, 3)
+    breakupIntoNth.run()
 
 
 
