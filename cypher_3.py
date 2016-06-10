@@ -123,16 +123,12 @@ class BreakupIntoNth:
             j += 1
 
         # get the nth best guesses and make possibilites from them
-        possible_sequences = itertools.product(range(0, 4, 1), repeat=self.key_length)
-
-        # Sorting causes memory issues
-        # sorted(possible_sequences, key=sum)
-        # print('[!] sorted')
+        possible_sequences = itertools.product(range(0, 5, 1), repeat=self.key_length)
 
         if self.multithread is True:
             m = multiprocessing.Manager()
-            ze_pool = multiprocessing.Pool(multiprocessing.cpu_count())
-            ze_pool.imap(self.check_posibilites, possible_sequences, chunksize=100)
+            ze_pool = multiprocessing.Pool(multiprocessing.cpu_count(), maxtasksperchild=5000)
+            ze_pool.imap(self.check_posibilites, possible_sequences, chunksize=1000)
             ze_pool.close()
             ze_pool.join()
         else:
