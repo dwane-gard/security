@@ -13,7 +13,7 @@ class Kasiski:
         cipher_text = cipher_text.replace('\n', '')
         self.original_cipher_text = cipher_text
         self.cipher_text = self.original_cipher_text
-
+        print(len(self.cipher_text))
         self.multiples_list = self.factors()
         self.alphabet = 'abcdefghijklmnopqrstuvwxyz'
         self.alphabet = [x for x in self.alphabet]
@@ -162,7 +162,7 @@ PHHER RU
     # cypher_text = 'abcdeknfdslkgnadsklfnlksabdabdbadbbadnscklzmcklznclabcabc'
     kasiski = Kasiski(cypher_text)
     print(kasiski.cipher_text)
-    for each in range(9, 90, 9):
+    for each in range(9, 45, 9):
         print('Key length %d' % each)
         print(kasiski.finding_the_key(each))
     # kasiski.analyse()

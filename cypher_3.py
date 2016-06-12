@@ -104,11 +104,14 @@ class NthMessage:
 
 
 class BreakupIntoNth:
-    def __init__(self, cipher_text, key_length=9):
+    def __init__(self, cipher_text, key_length):
         self.cipher_text = ''.join([x for x in cipher_text if x.isalpha()])
         self.messages = []
         self.key_length = key_length
         self.multithread = True
+        self.brute_force = False
+        self.length_of_check = len(self.cipher_text)
+        self.lowest_ic = (None, None, None)
 
     def run(self):
         # Build the de-shifted text that is the best gueess from chi-squares
@@ -122,50 +125,94 @@ class BreakupIntoNth:
             self.messages.append(NthMessage(nth_cypher_text))
             j += 1
 
-        # get the nth best guesses and make possibilites from them
-        possible_sequences = itertools.product(range(0, 5, 1), repeat=self.key_length)
+        if self.brute_force is True:
+            # get the nth best guesses and make possibilites from them
+            possible_sequences = itertools.product(range(0, 3, 1), repeat=self.key_length)
+            zero_to_three = [0,1,2,3]
+            # possible_sequences = itertools.product([0], [0], [0], [2], [2], [3], zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three)
+            # possible_sequences = itertools.product([0], [0], [0], [2], [3], zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three)
+            possible_sequences = itertools.product([0], [0], [0], [3], zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three, zero_to_three)
 
-        if self.multithread is True:
-            m = multiprocessing.Manager()
-            ze_pool = multiprocessing.Pool(multiprocessing.cpu_count(), maxtasksperchild=5000)
-            ze_pool.imap(self.check_posibilites, possible_sequences, chunksize=1000)
-            ze_pool.close()
-            ze_pool.join()
-        else:
-            for each_sequence in possible_sequences:
-                self.check_posibilites(each_sequence)
+            if self.multithread is True:
+                m = multiprocessing.Manager()
+                ze_pool = multiprocessing.Pool(multiprocessing.cpu_count(), maxtasksperchild=5000)
+                ze_pool.imap(self.check_posibilites, possible_sequences, chunksize=1000)
+                ze_pool.close()
+                ze_pool.join()
+            else:
+                for each_sequence in possible_sequences:
+                    self.check_posibilites(each_sequence)
+
+        else:   # If brute fore is False
+            zero_to_three = range(0,len(self.messages),1)
+
+
+
+            possible_sequences = itertools.product(zero_to_three, zero_to_three, zero_to_three, zero_to_three,
+                                                   zero_to_three, zero_to_three,
+                                                   zero_to_three, zero_to_three, zero_to_three, [None], [None], [None],
+                                                   [None], [None], [None], [None], [None], [None],)# [None], [None],
+                                                   #[None], [None], [None], [None], [None], [None], [None], [None], [None],
+                                                   #[None], [None], [None], [None], [None], [None], [None], )
+
+            if self.multithread is True:
+                m = multiprocessing.Manager()
+                ze_pool = multiprocessing.Pool(multiprocessing.cpu_count(), maxtasksperchild=5000)
+                ze_pool.imap(self.check_posibilites, possible_sequences, chunksize=1000)
+                ze_pool.close()
+                ze_pool.join()
+            else:
+                for each_sequence in possible_sequences:
+                    self.check_posibilites(each_sequence)
+
+
+    def build_message(self, sequence):
+        '''
+        Decode the message using the provided sequence
+        :param sequence:
+        :return:
+        '''
+
+        key = ''
+        w = 0
+        check_this_message = ['.'] * len(self.cipher_text)
+        for each_char in sequence:
+                q = w
+                l = 0
+                if each_char is None:
+                    key += '.'
+                else:
+                    key += self.messages[w].plain_texts[each_char].shift
+
+                while q < self.length_of_check:
+                    if each_char is None:
+                        check_this_message[q] = '.'
+                    else:
+                        check_this_message[q] = self.messages[w].plain_texts[each_char].plain_text[l]
+                    q += self.key_length
+                    l += 1
+                w += 1
+        check_this_message = ''.join(check_this_message)
+
+        return key, check_this_message
+
 
     def check_posibilites(self, each_sequence):
-        whole_message = False       # Do we want to check the whole message or just the first n characters
-        if whole_message is False:
-            length_of_check = 1000
-        else:
-            length_of_check = len(self.cipher_text)
+        '''
+        Check posabilites using a brute force approch
+        :param each_sequence:
+        :return:
+        '''
 
-        print(each_sequence)
-        check_this_message = ['.'] * length_of_check
-        key = ''
-
-        # build the message from its parts
-        w = 0
-        for each_guees in each_sequence:
-            q = w
-            l = 0
-            key += self.messages[w].plain_texts[each_guees].shift
-
-            while q < length_of_check:
-                check_this_message[q] = self.messages[w].plain_texts[each_guees].plain_text[l]
-                q += self.key_length
-                l += 1
-            w += 1
-        check_this_message = ''.join(check_this_message)
+        key, check_this_message = self.build_message(each_sequence)
 
         # check if the entire message is close to englishness, if it is do furthur analisyis
         # if whole_message == True:
         ze_chi = chi_square.CheckText(check_this_message).chi_result
-        if ze_chi < 500:
-            with open('results.txt', 'a') as results_file:
-                    results_file.write("%s | %s | %s\n" % (str(ze_chi), str(key), str(check_this_message)))
+        print('%s | %s' % (str(each_sequence), str(ze_chi)))
+        if ze_chi < 100:
+            with open('9results.txt', 'a') as results_file:
+                results_file.write("%s | %s | %s\n" % (str(ze_chi), str(key), str(check_this_message)))
         # if ze_chi < 750:
         #     print(ze_chi)
         #     print(key)
@@ -176,18 +223,19 @@ class BreakupIntoNth:
         # else:
         #     trans = Trans(check_this_message, 1, str('Shift Key: %s' % key), multithread=False)
         #     trans.create_possible_answers()
+        return
 
 
 if __name__ == '__main__':
-    for each in range(18, 27, 9):
-        print(each)
-        breakupIntoNth = BreakupIntoNth(real_cipher_text, each)
-        # breakupIntoNth = BreakupIntoNth(test_text, 3)
-        breakupIntoNth.run()
+    # for each in range(27, 36, 9):
+    #     print(each)
+    #     breakupIntoNth = BreakupIntoNth(real_cipher_text, each)
+    #     # breakupIntoNth = BreakupIntoNth(test_text, 3)
+    #     breakupIntoNth.run()
     #     pass
-    # breakupIntoNth = BreakupIntoNth(first_text, 9)
-    # # breakupIntoNth = BreakupIntoNth(test_text, 3)
-    # breakupIntoNth.run()
+    breakupIntoNth = BreakupIntoNth(real_cipher_text, 18)
+    # breakupIntoNth = BreakupIntoNth(test_text, 3)
+    breakupIntoNth.run()
 
 
 

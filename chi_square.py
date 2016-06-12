@@ -1,17 +1,18 @@
 from co_incidence_index import CheckIC
 
+
 class CheckText:
     def __init__(self, plain_text):
         alphabet = [x for x in'ABCDEFGHIJKLMNOPQRSTUVWXYZ']
 
-        self.plain_text = plain_text
-        check_ic = CheckIC(plain_text)
+        self.plain_text = ''.join([x.upper() for x in plain_text if x.isalpha()])
+        check_ic = CheckIC(self.plain_text)
         check_ic.run()
 
-        self.chi = [self.CheckLetter(getattr(check_ic, x), len(plain_text), x) for x in alphabet]
+        self.chi = [self.CheckLetter(getattr(check_ic, x), len(self.plain_text), x) for x in alphabet]
         # print([x.result for x in self.chi])
         self.chi_result = sum([x.result for x in self.chi])
-
+        # print(self.plain_text)
 
     def output(self):
         return self.chi_result
@@ -23,7 +24,7 @@ class CheckText:
         def __init__(self, letter_count, text_count, letter):
             self.letter_count = letter_count
             self.text_count = text_count
-            self.letter = letter.upper()
+            self.letter = letter
             # print(self.letter)
             self.expected_frequency = 0
             self.find_expected_frequency()
