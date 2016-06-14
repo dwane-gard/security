@@ -248,7 +248,7 @@ class BreakupIntoNth:
         # print('%s | %s | %s' % (str(each_sequence), str(key), str(ze_chi)))
 
         with open('9results.txt', 'a') as results_file:
-                results_file.write("%s | %s | %s\n" % (str(ze_chi), str(key), str(each_sequence)))
+            results_file.write("%s | %s | %s\n" % (str(ze_chi), str(key), str(each_sequence)))
         if ze_chi < 100:
             with open('10results.txt', 'a') as results_file:
                 results_file.write("%s | %s | %s\n" % (str(ze_chi), str(key), str(each_sequence)))
@@ -268,7 +268,7 @@ class BreakupIntoNth:
 
 
 if __name__ == '__main__':
-    for each in range(18, 90, 9):
+    for each in range(18, 144, 9):
         print(each)
         breakupIntoNth = BreakupIntoNth(real_cipher_text, each)
         # breakupIntoNth = BreakupIntoNth(test_text, 3)
