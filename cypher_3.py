@@ -132,6 +132,7 @@ class NthMessage:
         def __init__(self, shift, Decoder):
             self.shift = shift
             self.plain_text = Decoder.run(self.shift)
+            self.plain_text = Decoder.beaufort_decrypt(self.shift)
             self.chi = chi_square.CheckText(self.plain_text).chi_result
 
 
@@ -177,7 +178,7 @@ class BreakupIntoNth:
 
         else:   # If brute fore is False
 
-            check_length = 18
+            check_length = 12
             zero_to_three = range(0, 3, 1)
             product_arguments = ()
             x = 0
@@ -252,6 +253,7 @@ class BreakupIntoNth:
         if ze_chi < 100:
             with open('10results.txt', 'a') as results_file:
                 results_file.write("%s | %s | %s\n" % (str(ze_chi), str(key), str(each_sequence)))
+                results_file.write(check_this_message)
             print('%s | %s | %s' % (str(each_sequence), str(key), str(ze_chi)))
             time.sleep(10)
         # if ze_chi < 750:
@@ -268,15 +270,15 @@ class BreakupIntoNth:
 
 
 if __name__ == '__main__':
-    for each in range(18, 144, 9):
+    for each in range(9, 144, 9):
         print(each)
         breakupIntoNth = BreakupIntoNth(real_cipher_text, each)
         # breakupIntoNth = BreakupIntoNth(test_text, 3)
         breakupIntoNth.run()
     #     pass
-    breakupIntoNth = BreakupIntoNth(real_cipher_text, 18)
-    # breakupIntoNth = BreakupIntoNth(test_text, 3)
-    breakupIntoNth.run()
+    # breakupIntoNth = BreakupIntoNth(real_cipher_text, 18)
+    # # breakupIntoNth = BreakupIntoNth(test_text, 3)
+    # breakupIntoNth.run()
 
 
 

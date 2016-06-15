@@ -182,8 +182,16 @@ class decode():
                 open('results_brute_force_vigenere', 'a').write('%s | %s | %s\n' % (str(words_len), deciphered_message, key))
         print('analysis time: %s' % str(time.time() - start_analysis))
 
-    def c_decrypt(self, key):
-        return 0
+    def beaufort_decrypt(self, key):
+        pairs = zip(self.cipher_text, itertools.cycle(key))
+        result = ''
+        for pair in pairs:
+            total = reduce(lambda x, y: self.alphabet.index(y) - self.alphabet.index(x), pair)
+            result += self.alphabet[total % 26]
+        if self.analyse_code is True:
+            self.analyse(result, key)
+
+        return result
 
     def decrypt(self, key):
         # rewritten decyption module
@@ -191,7 +199,6 @@ class decode():
         start = time.time()
         pairs = zip(self.cipher_text, itertools.cycle(key))
         result = ''
-
         for pair in pairs:
             total = reduce(lambda x, y: self.alphabet.index(x) - self.alphabet.index(y), pair)
             result += self.alphabet[total % 26]
