@@ -6,7 +6,7 @@ import multiprocessing
 import itertools
 import time
 from functools import reduce
-
+from word_search import WordSearch
 lock = multiprocessing.Lock()
 # 0 = Brute 1 = dictionary
 
@@ -129,18 +129,10 @@ class decode():
 
 
                 else:
-                    for each_key in self.all_keys:
-                        if len(each_key) == 2:
-                            continue
-                        if len(each_key) == 3:
-                            continue
-                        else:
-                            if each_key in deciphered_message:
-                                word_list.append(each_key)
+                    word_search = WordSearch(deciphered_message)
+                    word_search.run()
+                    words_len = word_search.words_len
 
-
-                    words = ''.join(word_list)
-                    words_len = (len(words)/len(deciphered_message))
                     if words_len > 0.9:
                         print(words_len, len(self.cipher_text))
                         lock.acquire()
@@ -156,18 +148,10 @@ class decode():
 
 
         else:
-            for each_key in self.all_keys:
-                if len(each_key) == 2:
-                    continue
-                if len(each_key) == 3:
-                    continue
-                else:
-                    if each_key in deciphered_message:
-                        word_list.append(each_key)
+            word_search = WordSearch(deciphered_message)
+            word_search.run()
+            words_len = word_search.words_len
 
-
-            words = ''.join(word_list)
-            words_len = (len(words)/len(deciphered_message))
             if words_len > 0.7:
                 print(words_len, len(self.cipher_text))
                 lock.acquire()

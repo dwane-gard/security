@@ -191,15 +191,31 @@ class BreakupIntoNth:
             possible_sequences = itertools.product(*product_arguments)
 
             if self.multithread is True:
-                m = multiprocessing.Manager()
-                ze_pool = multiprocessing.Pool(multiprocessing.cpu_count(), maxtasksperchild=5000)
-                ze_pool.imap(self.check_posibilites, possible_sequences, chunksize=1000)
-                ze_pool.close()
-                ze_pool.join()
+                ''' New Way, not currently working'''
+                q = multiprocessing.Queue(maxsize=1000)
+                p = multiprocessing.Process(target=self.worker, args=(q,))
+                p.start()
+                q.close()
+                q.join_thread()
+                p.join()
+
+                ''' Old way '''
+                # m = multiprocessing.Manager()
+                # ze_pool = multiprocessing.Pool(multiprocessing.cpu_count(), maxtasksperchild=5000)
+                # ze_pool.imap(self.check_posibilites, possible_sequences, chunksize=1000)
+                # ze_pool.close()
+                # ze_pool.join()
             else:
                 for each_sequence in possible_sequences:
                     self.check_posibilites(each_sequence)
 
+    def worker(self, q):
+        while True:
+            print('here')
+            obj = q.get()
+            print(obj)
+            self.check_posibilites(obj)
+        return
 
     def build_message(self, sequence):
         '''
