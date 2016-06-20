@@ -193,10 +193,10 @@ class BreakupIntoNth:
 
             if self.multithread is True:
                 ''' New Way '''
-                q = multiprocessing.Queue()
+                q = multiprocessing.Queue(maxsize=1000)
                 jobs = []
 
-                for i in range(0, 4, 1):
+                for i in range(0, multiprocessing.cpu_count(), 1):
                     p = multiprocessing.Process(target=self.worker, args=(q,))
                     p.start()
                     jobs.append(p)
