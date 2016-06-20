@@ -271,7 +271,7 @@ class BreakupIntoNth:
 
         ze_chi = chi_square.CheckText(check_this_message).chi_result
         # print('%s | %s | %s' % (str(each_sequence), str(key), str(ze_chi)))
-
+        print(ze_chi)
         if ze_chi < 100:
             with open('10results.txt', 'a') as results_file:
                 results_file.write("%s | %s | %s\n" % (str(ze_chi), str(key), str(each_sequence)))
