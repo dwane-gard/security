@@ -192,13 +192,20 @@ class BreakupIntoNth:
             possible_sequences = itertools.product(*product_arguments)
 
             if self.multithread is True:
-                ''' New Way, not currently working'''
-                q = multiprocessing.Queue(maxsize=1000)
-                p = multiprocessing.Process(target=self.worker, args=(q,))
-                p.start()
-                q.close()
-                q.join_thread()
-                p.join()
+                ''' New Way '''
+                q = multiprocessing.Queue()
+                jobs = []
+
+                for i in range(0, 4, 1):
+                    p = multiprocessing.Process(target=self.worker, args=(q,))
+                    p.start()
+                    jobs.append(p)
+
+                for each_item in possible_sequences:
+                    q.put(each_item)
+
+                for each_job in jobs:
+                    each_job.join()
 
                 ''' Old way '''
                 # m = multiprocessing.Manager()
@@ -212,11 +219,12 @@ class BreakupIntoNth:
 
     def worker(self, q):
         while True:
-            print('here')
             obj = q.get()
-            print(obj)
+            if obj is None:
+                break
             self.check_posibilites(obj)
-        return
+            if q.empty():
+                break
 
     def build_message(self, sequence):
         '''
@@ -255,7 +263,7 @@ class BreakupIntoNth:
         :param each_sequence:
         :return:
         '''
-
+        print(each_sequence)
         key, check_this_message = self.build_message(each_sequence)
 
         # check if the entire message is close to englishness, if it is do furthur analisyis
@@ -286,7 +294,7 @@ class BreakupIntoNth:
 
 
 if __name__ == '__main__':
-    for each in range(9, 144, 9):
+    for each in range(18, 144, 9):
         print(each)
         breakupIntoNth = BreakupIntoNth(real_cipher_text, each)
         # breakupIntoNth = BreakupIntoNth(test_text, 3)
