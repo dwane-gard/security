@@ -5,6 +5,7 @@ from brute_force_vigenere import decode
 import chi_square
 
 import multiprocessing
+from queue import Queue
 import time
 import itertools
 import numpy as np
