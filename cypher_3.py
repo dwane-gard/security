@@ -178,7 +178,7 @@ class BreakupIntoNth:
 
         else:   # If brute fore is False
 
-            check_length = 12
+            check_length = 15
             zero_to_three = range(0, 3, 1)
             product_arguments = ()
             x = 0
@@ -196,7 +196,7 @@ class BreakupIntoNth:
                 q = multiprocessing.Queue(maxsize=100)
                 jobs = []
 
-                for i in range(0, multiprocessing.cpu_count(), 1):
+                for i in range(1, multiprocessing.cpu_count(), 1):
                     p = multiprocessing.Process(target=self.worker, args=(q,))
                     p.start()
                     jobs.append(p)
@@ -263,7 +263,7 @@ class BreakupIntoNth:
         :param each_sequence:
         :return:
         '''
-        print(each_sequence)
+        # print(each_sequence)
         key, check_this_message = self.build_message(each_sequence)
 
         # check if the entire message is close to englishness, if it is do furthur analisyis
@@ -272,8 +272,6 @@ class BreakupIntoNth:
         ze_chi = chi_square.CheckText(check_this_message).chi_result
         # print('%s | %s | %s' % (str(each_sequence), str(key), str(ze_chi)))
 
-        with open('9results.txt', 'a') as results_file:
-            results_file.write("%s | %s | %s\n" % (str(ze_chi), str(key), str(each_sequence)))
         if ze_chi < 100:
             with open('10results.txt', 'a') as results_file:
                 results_file.write("%s | %s | %s\n" % (str(ze_chi), str(key), str(each_sequence)))
