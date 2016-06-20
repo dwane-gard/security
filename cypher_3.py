@@ -220,7 +220,7 @@ class BreakupIntoNth:
 
     def worker(self, q):
         while True:
-            obj = q.get(block=False)
+            obj = q.get()
             if obj is None:
                 break
             self.check_posibilites(obj)
