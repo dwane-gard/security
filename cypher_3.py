@@ -224,8 +224,6 @@ class BreakupIntoNth:
             if obj is None:
                 break
             self.check_posibilites(obj)
-            if q.empty():
-                break
 
     def build_message(self, sequence):
         '''
