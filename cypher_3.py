@@ -179,7 +179,7 @@ class BreakupIntoNth:
 
         else:   # If brute fore is False
 
-            check_length = 15
+            check_length = 12
             if check_length > self.key_length:
                 check_length = self.key_length
             zero_to_three = range(0, 3, 1)
