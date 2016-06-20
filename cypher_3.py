@@ -180,6 +180,8 @@ class BreakupIntoNth:
         else:   # If brute fore is False
 
             check_length = 15
+            if check_length > self.key_length:
+                check_length = self.key_length
             zero_to_three = range(0, 3, 1)
             product_arguments = ()
             x = 0
@@ -265,33 +267,38 @@ class BreakupIntoNth:
         # print(each_sequence)
         key, check_this_message = self.build_message(each_sequence)
 
+
         # check if the entire message is close to englishness, if it is do furthur analisyis
         # if whole_message == True:
 
-        ze_chi = chi_square.CheckText(check_this_message).chi_result
-        # print('%s | %s | %s' % (str(each_sequence), str(key), str(ze_chi)))
-        print(ze_chi)
-        if ze_chi < 100:
+        ''' Ze IC '''
+        IC = CheckIC(check_this_message)
+        IC.run()
+        ic = IC.ic
+
+        if ic > 0.05:
             with open('10results.txt', 'a') as results_file:
-                results_file.write("%s | %s | %s\n" % (str(ze_chi), str(key), str(each_sequence)))
+                results_file.write("%s | %s | %s\n" % (str(key), str(each_sequence), str(ic)))
                 results_file.write(check_this_message)
-            print('%s | %s | %s' % (str(each_sequence), str(key), str(ze_chi)))
-            time.sleep(10)
-        # if ze_chi < 750:
-        #     print(ze_chi)
-        #     print(key)
-        #     print(check_this_message)
-        #     for each_key_size in range(1,2,1):
-        #         trans = Trans(check_this_message, each_key_size, str('Shift Key: %s' % key), multithread=False)
-        #         trans.create_possible_answers()
-        # else:
-        #     trans = Trans(check_this_message, 1, str('Shift Key: %s' % key), multithread=False)
-        #     trans.create_possible_answers()
-        return
+                print('%s | %s | %s' % (str(each_sequence), str(key), str(ic)))
+                time.sleep(10)
+
+        ''' Ze_chi '''
+        # ze_chi = chi_square.CheckText(check_this_message).chi_result
+        # print(ze_chi)
+        # if ze_chi < 100:
+        #     with open('10results.txt', 'a') as results_file:
+        #         results_file.write("%s | %s | %s\n" % (str(ze_chi), str(key), str(each_sequence)))
+        #         results_file.write(check_this_message)
+        #     print('%s | %s | %s' % (str(each_sequence), str(key), str(ze_chi)))
+        #     time.sleep(10)
+
+        ''' output '''
+        # print('%s | %s | %s' % (str(each_sequence), str(key), str(ze_chi)))
 
 
 if __name__ == '__main__':
-    for each in range(18, 144, 9):
+    for each in range(9, 144, 9):
         print(each)
         breakupIntoNth = BreakupIntoNth(real_cipher_text, each)
         # breakupIntoNth = BreakupIntoNth(test_text, 3)
