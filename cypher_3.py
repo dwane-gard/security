@@ -193,7 +193,7 @@ class BreakupIntoNth:
 
             if self.multithread is True:
                 ''' New Way '''
-                q = multiprocessing.Queue(maxsize=1000)
+                q = multiprocessing.Queue(maxsize=10000)
                 jobs = []
 
                 for i in range(0, multiprocessing.cpu_count(), 1):
