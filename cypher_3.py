@@ -179,11 +179,24 @@ class BreakupIntoNth:
 
         else:   # If brute fore is False
 
+            # set how manny characters per run to decrypt then check
             check_length = 12
             if check_length > self.key_length:
                 check_length = self.key_length
-            zero_to_three = range(0, 3, 1)
+
+            # Check if there are going to be enough decrypted characters to anaylise and if not change the check length
+            unchecked_char_count = (self.key_length - check_length) * (len(self.cipher_text)/self.key_length)
+            while unchecked_char_count < 1000:
+                if check_length == self.key_length:
+                    break
+                check_length += 1
+                unchecked_char_count = check_length * (len(self.cipher_text)/self.key_length)
+
+            # Which possible answers to check, 0 being the most likely answer and then moving away
+            zero_to_three = range(0, 5, 1)
             product_arguments = ()
+
+            # Create possible keys
             x = 0
             while x < check_length:
                 product_arguments += (zero_to_three,)
@@ -199,14 +212,17 @@ class BreakupIntoNth:
                 q = multiprocessing.Queue(maxsize=20)
                 jobs = []
 
+                # Create workers
                 for i in range(0, multiprocessing.cpu_count(), 1):
                     p = multiprocessing.Process(target=self.worker, args=(q,))
                     p.start()
                     jobs.append(p)
 
+                # Feed items into the queue
                 for each_item in possible_sequences:
                     q.put(each_item)
 
+                # Wait for each worker to finish before continueing
                 for each_job in jobs:
                     each_job.join()
 
@@ -222,7 +238,7 @@ class BreakupIntoNth:
 
     def worker(self, q):
         while True:
-            obj = q.get()
+            obj = q.get(Timeout=1)
             if obj is None:
                 break
             self.check_posibilites(obj)
@@ -278,10 +294,8 @@ class BreakupIntoNth:
 
         if ic > 0.05:
             with open('10results.txt', 'a') as results_file:
-                results_file.write("%s | %s | %s\n" % (str(key), str(each_sequence), str(ic)))
-                results_file.write(check_this_message)
+                results_file.write("%s | %s | %s\n%s" % (str(key), str(each_sequence), str(ic), str(check_this_message)))
                 print('%s | %s | %s' % (str(each_sequence), str(key), str(ic)))
-                time.sleep(10)
 
         ''' Ze_chi '''
         # ze_chi = chi_square.CheckText(check_this_message).chi_result
