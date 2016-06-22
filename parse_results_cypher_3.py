@@ -7,12 +7,12 @@ best_ic = 0.05
 
 for each in results:
 
-        ic = each.split('|')[2]
+        ic = float(each.split('|')[2])
         print(ic)
         print('error reading')
 
 
-        if float(ic) > best_ic:
+        if ic > best_ic:
             print(ic)
             best_ic = ic
 
