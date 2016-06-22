@@ -6,15 +6,19 @@ with open('10results.txt', 'r') as results:
 best_ic = 0.05
 
 for each in results:
-
-        ic = float(each.split('|')[2])
-        print(ic)
-        print('error reading')
-
-
-        if ic > best_ic:
+        try:
+            ic = float(each.split('|')[2])
             print(ic)
-            best_ic = ic
+
+
+
+            if ic > best_ic:
+                print(ic)
+                best_ic = ic
+        except IndexError:
+            print('IndexError')
+            print(each)
+
 
 
 
