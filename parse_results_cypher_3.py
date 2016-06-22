@@ -12,6 +12,7 @@ for each in results:
         # print('*'*10)
 
         if float(ic) > best_ic:
+            print(ic)
             best_ic = ic
     except:
         pass
