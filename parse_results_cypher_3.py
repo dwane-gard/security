@@ -6,10 +6,12 @@ with open('10results.txt', 'r') as results:
 best_ic = 0.05
 
 for each in results:
-    ic = each.split('|')[-1]
+    try:
+        ic = each.split('|')[-1]
 
+        if float(ic) < best_ic:
+            best_ic = ic
 
-    if float(ic) < best_ic:
-        best_ic = ic
-
+    except:
+        pass
 print(best_ic)
