@@ -11,8 +11,6 @@ for each in results:
 
             print(ic)
 
-
-
             if ic > best_ic:
                 print(ic)
                 best_ic = ic
@@ -20,11 +18,6 @@ for each in results:
         except IndexError:
             print('IndexError')
             # print(each)
-
-
-
-
-
 
 print(best_ic)
 print(top)

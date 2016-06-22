@@ -132,8 +132,13 @@ class NthMessage:
     class EachMessage:
         def __init__(self, shift, Decoder):
             self.shift = shift
+
+            # run a Vigenere decrypter
             self.plain_text = Decoder.run(self.shift)
-            self.plain_text = Decoder.beaufort_decrypt(self.shift)
+
+            # run a beufort decrypter
+            # self.plain_text = Decoder.beaufort_decrypt(self.shift)
+
             self.chi = chi_square.CheckText(self.plain_text).chi_result
 
 
@@ -144,9 +149,10 @@ class BreakupIntoNth:
         self.key_length = key_length
         self.multithread = True
         self.brute_force = False
-        self.length_of_check = len(self.cipher_text)
         self.lowest_ic = (None, None, None)
 
+        self.length_of_check = len(self.cipher_text) # the amount of characters to check on a run of the whole message
+        self.check_length = 9 # the amount of characters to check per key run
     def run(self):
         # Build the de-shifted text that is the best gueess from chi-squares
         j = 0
@@ -185,13 +191,13 @@ class BreakupIntoNth:
                 check_length = self.key_length
 
             # Check if there are going to be enough decrypted characters to anaylise and if not change the check length
-            unchecked_char_count = (self.key_length - check_length) * (len(self.cipher_text)/self.key_length)
+            unchecked_char_count = check_length * (len(self.cipher_text)/self.key_length)
             while unchecked_char_count < 1000:
                 if check_length == self.key_length:
                     break
                 check_length += 1
                 unchecked_char_count = check_length * (len(self.cipher_text)/self.key_length)
-
+            self.check_length = check_length
             # Which possible answers to check, 0 being the most likely answer and then moving away
             zero_to_three = range(0, 5, 1)
             product_arguments = ()
@@ -242,6 +248,7 @@ class BreakupIntoNth:
             # if q.empty():
             #     break
             self.check_posibilites(obj)
+
         print('ending worker')
         return
 
@@ -253,8 +260,9 @@ class BreakupIntoNth:
         '''
 
         key = ''
-        w = 0
         check_this_message = ['.'] * len(self.cipher_text)
+
+        w = 0
         for each_char in sequence:
                 q = w
                 l = 0
@@ -282,9 +290,7 @@ class BreakupIntoNth:
         :param each_sequence:
         :return:
         '''
-        # print(each_sequence)
         key, check_this_message = self.build_message(each_sequence)
-
 
         # check if the entire message is close to englishness, if it is do furthur analisyis
         # if whole_message == True:
@@ -294,10 +300,12 @@ class BreakupIntoNth:
         IC.run()
         ic = IC.ic
 
-        if ic > 0.05:
-            with open('10results.txt', 'a') as results_file:
-                results_file.write("%s | %s | %s\n%s" % (str(key), str(each_sequence), str(ic), str(check_this_message)))
+        if ic > 0.052:
+
+            with open('%sresults.txt' % self.key_length, 'a') as results_file:
+                results_file.write("%s\n| %s | %s\n%s" % (str(each_sequence), str(key), str(ic), str(check_this_message)))
                 print('%s | %s | %s' % (str(each_sequence), str(key), str(ic)))
+                print(check_this_message)
                 # time.sleep(10)
 
         ''' Ze_chi '''
@@ -311,7 +319,8 @@ class BreakupIntoNth:
         #     time.sleep(10)
 
         ''' output '''
-        print('%s | %s | %s' % (str(each_sequence), str(key), str(ic)))
+        # print('%s | %s | %s' % (str(each_sequence[0:self.check_length]), str(key), str(ic)))
+        # print(check_this_message)
 
 
 if __name__ == '__main__':
