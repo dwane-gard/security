@@ -2,7 +2,7 @@
 
 with open('10results.txt', 'r') as results:
     results = results.readlines()
-
+    print(results)
 best_ic = 0.05
 
 for each in results:
@@ -15,6 +15,7 @@ for each in results:
             print(ic)
             best_ic = ic
     except:
+        print('error reading')
         pass
 
 
