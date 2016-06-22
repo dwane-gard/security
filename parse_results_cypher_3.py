@@ -8,7 +8,8 @@ best_ic = 0.05
 for each in results:
     ic = each.split('|')[-1]
 
-    if ic < best_ic:
+
+    if float(ic) < best_ic:
         best_ic = ic
 
 print(best_ic)
