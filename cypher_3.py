@@ -153,6 +153,7 @@ class BreakupIntoNth:
 
         self.length_of_check = len(self.cipher_text) # the amount of characters to check on a run of the whole message
         self.check_length = 9 # the amount of characters to check per key run
+
     def run(self):
         # Build the de-shifted text that is the best gueess from chi-squares
         j = 0
