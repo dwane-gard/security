@@ -238,10 +238,12 @@ class BreakupIntoNth:
 
     def worker(self, q):
         while True:
-            obj = q.get(Timeout=1)
-            if obj is None:
-                break
+            obj = q.get(timeout=1)
+            # if q.empty():
+            #     break
             self.check_posibilites(obj)
+        print('ending worker')
+        return
 
     def build_message(self, sequence):
         '''
@@ -296,6 +298,7 @@ class BreakupIntoNth:
             with open('10results.txt', 'a') as results_file:
                 results_file.write("%s | %s | %s\n%s" % (str(key), str(each_sequence), str(ic), str(check_this_message)))
                 print('%s | %s | %s' % (str(each_sequence), str(key), str(ic)))
+                # time.sleep(10)
 
         ''' Ze_chi '''
         # ze_chi = chi_square.CheckText(check_this_message).chi_result
@@ -308,7 +311,7 @@ class BreakupIntoNth:
         #     time.sleep(10)
 
         ''' output '''
-        # print('%s | %s | %s' % (str(each_sequence), str(key), str(ze_chi)))
+        print('%s | %s | %s' % (str(each_sequence), str(key), str(ic)))
 
 
 if __name__ == '__main__':
