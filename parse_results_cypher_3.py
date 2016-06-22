@@ -7,11 +7,14 @@ best_ic = 0.05
 
 for each in results:
     try:
-        ic = each.split('|')[-1]
+        ic = each.split('|')[2]
+        # print(ic)
+        # print('*'*10)
 
-        if float(ic) < best_ic:
+        if float(ic) > best_ic:
             best_ic = ic
-
     except:
         pass
+
+
 print(best_ic)
