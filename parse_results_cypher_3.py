@@ -15,6 +15,7 @@ for each in results:
             print(ic)
             best_ic = ic
     except:
+        print(ic)
         print('error reading')
         pass
 
