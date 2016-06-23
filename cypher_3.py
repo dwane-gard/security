@@ -246,6 +246,8 @@ class BreakupIntoNth:
     def worker(self, q):
         while True:
             obj = q.get(timeout=1)
+            if obj is None:
+                break
             # if q.empty():
             #     break
             self.check_posibilites(obj)
@@ -301,7 +303,7 @@ class BreakupIntoNth:
         IC.run()
         ic = IC.ic
 
-        if ic > 0.052:
+        if ic > 0.05:
 
             with open('%sresults.txt' % self.key_length, 'a') as results_file:
                 results_file.write("%s\n| %s | %s\n%s" % (str(each_sequence), str(key), str(ic), str(check_this_message)))
