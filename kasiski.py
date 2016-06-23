@@ -90,6 +90,12 @@ class Kasiski:
 
 
 if __name__ == '__main__':
+    another_cipher_test = '''
+    HQCNPXQNRHPRPGJPLOGQEVSIEILNOVQVSQTPCVUDLOGMPGZJPMNVLRFBFGZJ
+HZFIHSQTFHMEVIEFESPOLGZJFWXCOHGZJHZVMIEFMPKVUYZVOAJVTRITZBLV
+FACGREPLFYWIVANKYKHWICNLCZDQQTQEVTQYNBIQFFNMCKVICPVNWFTWKJMS
+KTRPOFWJSNP
+    '''
     cypher_text = '''
 KIWDY FAIAS YQXQF GMQDZ OHUQK NEFVL
 AZPZP CXYDJ QLVGC KXPAS IENMN JYNGA
@@ -162,7 +168,7 @@ PHHER RU
     # cypher_text = 'abcdeknfdslkgnadsklfnlksabdabdbadbbadnscklzmcklznclabcabc'
     kasiski = Kasiski(cypher_text)
     print(kasiski.cipher_text)
-    for each in range(9, 45, 9):
+    for each in range(1, 20, 1):
         print('Key length %d' % each)
         print(kasiski.finding_the_key(each))
     # kasiski.analyse()

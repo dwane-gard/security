@@ -5,12 +5,17 @@ from brute_force_vigenere import decode
 import chi_square
 
 import multiprocessing
-from queue import Queue
+# from queue import Queue
 import time
 import itertools
 import numpy as np
 
-
+annother_cipher_test = '''
+HQCNPXQNRHPRPGJPLOGQEVSIEILNOVQVSQTPCVUDLOGMPGZJPMNVLRFBFGZJ
+HZFIHSQTFHMEVIEFESPOLGZJFWXCOHGZJHZVMIEFMPKVUYZVOAJVTRITZBLV
+FACGREPLFYWIVANKYKHWICNLCZDQQTQEVTQYNBIQFFNMCKVICPVNWFTWKJMS
+KTRPOFWJSNP
+'''
 # key = aaabbbcccabcabcabc
 test_cipher_text = '''SOMZTUQTASUCRUUOOYHATXBTCPQRNCLECYUCKINHDBNNUOOVHFHRPPTLIOFGQTCLBTGFEACNECONQBPAVHFLOCRAZUWELMBOF
 HQRUJENQSURARTUIFRGQPMGIEGAMYITHBSFHCKRMANJEEUQTALLUPSWKTFQFUGNXGLLGFUDCNNSGTONUEOKORSFTQGEKAMNYJPTIGMOROJOIYJOICVFRRF
@@ -245,13 +250,18 @@ class BreakupIntoNth:
 
     def worker(self, q):
         while True:
-            obj = q.get(timeout=1)
-            if obj is None:
-                break
-            # if q.empty():
-            #     break
-            self.check_posibilites(obj)
+            if q.empty():
+                time.sleep(1)
+            try:
+                obj = q.get(timeout=1)
+                # if obj is None:
+                #     break
+                self.check_posibilites(obj)
 
+                # q.task_done()
+            except:
+                print('[!] run finished')
+                break
         print('ending worker')
         return
 
@@ -305,7 +315,7 @@ class BreakupIntoNth:
 
         if ic > 0.05:
 
-            with open('%sresults.txt' % self.key_length, 'a') as results_file:
+            with open('zetest%sresults.txt' % self.key_length, 'a') as results_file:
                 results_file.write("%s\n| %s | %s\n%s" % (str(each_sequence), str(key), str(ic), str(check_this_message)))
                 print('%s | %s | %s' % (str(each_sequence), str(key), str(ic)))
                 print(check_this_message)
@@ -327,7 +337,7 @@ class BreakupIntoNth:
 
 
 if __name__ == '__main__':
-    for each in range(9, 144, 9):
+    for each in range(1, 18, 1):
         print(each)
         breakupIntoNth = BreakupIntoNth(real_cipher_text, each)
         # breakupIntoNth = BreakupIntoNth(test_text, 3)
