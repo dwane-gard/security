@@ -11,10 +11,10 @@ import itertools
 import numpy as np
 
 annother_cipher_test = '''
-HQCNPXQNRHPRPGJPLOGQEVSIEILNOVQVSQTPCVUDLOGMPGZJPMNVLRFBFGZJ
-HZFIHSQTFHMEVIEFESPOLGZJFWXCOHGZJHZVMIEFMPKVUYZVOAJVTRITZBLV
-FACGREPLFYWIVANKYKHWICNLCZDQQTQEVTQYNBIQFFNMCKVICPVNWFTWKJMS
-KTRPOFWJSNP
+HSULAREFOTXNMYNJOUZWYILGPRYZQVBBZABLBWHMFGWFVPMYWAVVTYISCIZRLVGOPGBRAKLUGJUZGLN
+BASTUQAGAVDZIGZFFWVLZSAZRGPVXUCUZBYLRXZSAZRYIHMIMTOJBZFZDEYMFPMAGSMUGBHUVYTSABB
+AISKXVUCAQABLDETIFGICRVWEWHSWECBVJMQGPRIBYYMBSAPOFRIMOLBUXFIIMAGCEOFWOXHAKUZISY
+MAHUOKSWOVGBULIBPICYNBBXJXSIXRANNBTVGSNKR
 '''
 # key = aaabbbcccabcabcabc
 test_cipher_text = '''SOMZTUQTASUCRUUOOYHATXBTCPQRNCLECYUCKINHDBNNUOOVHFHRPPTLIOFGQTCLBTGFEACNECONQBPAVHFLOCRAZUWELMBOF
@@ -205,7 +205,7 @@ class BreakupIntoNth:
                 unchecked_char_count = check_length * (len(self.cipher_text)/self.key_length)
             self.check_length = check_length
             # Which possible answers to check, 0 being the most likely answer and then moving away
-            zero_to_three = range(0, 5, 1)
+            zero_to_three = range(0, 1, 1)
             product_arguments = ()
 
             # Create possible keys
@@ -313,9 +313,9 @@ class BreakupIntoNth:
         IC.run()
         ic = IC.ic
 
-        if ic > 0.05:
+        if ic > 0.052:
 
-            with open('zetest%sresults.txt' % self.key_length, 'a') as results_file:
+            with open('ze%sresults.txt' % self.key_length, 'a') as results_file:
                 results_file.write("%s\n| %s | %s\n%s" % (str(each_sequence), str(key), str(ic), str(check_this_message)))
                 print('%s | %s | %s' % (str(each_sequence), str(key), str(ic)))
                 print(check_this_message)
@@ -337,7 +337,7 @@ class BreakupIntoNth:
 
 
 if __name__ == '__main__':
-    for each in range(1, 18, 1):
+    for each in range(1, 90, 1):
         print(each)
         breakupIntoNth = BreakupIntoNth(real_cipher_text, each)
         # breakupIntoNth = BreakupIntoNth(test_text, 3)

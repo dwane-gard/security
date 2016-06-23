@@ -5,6 +5,8 @@ import brute_force_vigenere
 
 class Kasiski:
     '''
+    THIS IS NOT KASISKI  but ic examination at the nth character
+
     Uses Kasiski's examinstation to discover the key length for a vigenere encoded message
     Think the max might be set at 8 unsure and should be reviesd if this accours
     '''
@@ -88,6 +90,13 @@ class Kasiski:
             n = len(self.cipher_text)
             return(list(set(functools.reduce(list.__add__, ([i, n//i] for i in range(1, int(n**0.5) + 1) if n % i == 0)))))
 
+class RealKasiski:
+    def __init__(self, cipher_text):
+        return3
+    def run(self):
+        return
+    def output(self):
+        return
 
 if __name__ == '__main__':
     another_cipher_test = '''
@@ -168,7 +177,7 @@ PHHER RU
     # cypher_text = 'abcdeknfdslkgnadsklfnlksabdabdbadbbadnscklzmcklznclabcabc'
     kasiski = Kasiski(cypher_text)
     print(kasiski.cipher_text)
-    for each in range(1, 20, 1):
+    for each in range(0, 90, 9):
         print('Key length %d' % each)
         print(kasiski.finding_the_key(each))
     # kasiski.analyse()
