@@ -205,7 +205,7 @@ class BreakupIntoNth:
                 unchecked_char_count = check_length * (len(self.cipher_text)/self.key_length)
             self.check_length = check_length
             # Which possible answers to check, 0 being the most likely answer and then moving away
-            zero_to_three = range(0, 1, 1)
+            zero_to_three = range(0, 5, 1)
             product_arguments = ()
 
             # Create possible keys
@@ -221,7 +221,7 @@ class BreakupIntoNth:
 
             if self.multithread is True:
                 ''' New Way '''
-                q = multiprocessing.Queue(maxsize=20)
+                q = multiprocessing.Queue(maxsize=50)
                 jobs = []
 
                 # Create workers
@@ -337,7 +337,7 @@ class BreakupIntoNth:
 
 
 if __name__ == '__main__':
-    for each in range(1, 90, 1):
+    for each in range(27,90,9):
         print(each)
         breakupIntoNth = BreakupIntoNth(real_cipher_text, each)
         # breakupIntoNth = BreakupIntoNth(test_text, 3)
