@@ -178,7 +178,7 @@ SQFKS NKIOS TPZNG MEZNQ TKSNX JYNWS
 GYUPV DMZXR RRFCV AXQJN RIEJR TVAMR
 PHHER RU'''
 if __name__ == '__main__':
-    for key_length in range(1,9,1):
+    for key_length in range(4,9,1):
         print('[key length] %s' % key_length)
         autoKeyDecoder = AutoKeyDecoder(real_cipher_text, key_length)
         autoKeyDecoder.run()

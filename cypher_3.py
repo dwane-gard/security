@@ -3,7 +3,7 @@ from corpus_analysis import Analyse
 from transpositional import Trans
 from brute_force_vigenere import decode
 import chi_square
-
+from word_search import WordSearch
 import multiprocessing
 # from queue import Queue
 import time
@@ -183,12 +183,12 @@ class BreakupIntoNth:
             if self.multithread is True:
                 m = multiprocessing.Manager()
                 ze_pool = multiprocessing.Pool(multiprocessing.cpu_count(), maxtasksperchild=5000)
-                ze_pool.imap(self.check_posibilites, possible_sequences, chunksize=1000)
+                ze_pool.imap(self.analyse, possible_sequences, chunksize=1000)
                 ze_pool.close()
                 ze_pool.join()
             else:
                 for each_sequence in possible_sequences:
-                    self.check_posibilites(each_sequence)
+                    self.analyse(each_sequence)
 
         else:   # If brute fore is False
 
@@ -259,7 +259,7 @@ class BreakupIntoNth:
                 # if obj is None:
                 #     break
                 key, check_this_message = self.build_message(obj)
-                self.check_posibilites(key, check_this_message, obj)
+                self.analyse(key, check_this_message, obj)
 
                 # q.task_done()
             except:
@@ -302,7 +302,7 @@ class BreakupIntoNth:
         return key, check_this_message
 
 
-    def check_posibilites(self, key, check_this_message, each_sequence):
+    def analyse(self, key, check_this_message, each_sequence):
         '''
         Check posabilites using a brute force approch
         :param each_sequence:
@@ -325,6 +325,15 @@ class BreakupIntoNth:
                 print('%s | %s | %s' % (str(each_sequence), str(key), str(ic)))
                 print(check_this_message)
                 # time.sleep(10)
+
+        ''' ze word search '''
+        wordSearch = WordSearch(check_this_message)
+        wordSearch.run()
+        if wordSearch.words_len > 1:
+            with open('words%sresults.txt' % self.key_length, 'a') as results_file:
+                results_file.write("%s\n| %s | %s\n%s" % (str(each_sequence), str(key), str(ic), str(check_this_message)))
+                print('%s | %s | %s' % (str(each_sequence), str(key), str(ic)))
+                print(check_this_message)
 
         ''' Ze_chi '''
         # ze_chi = chi_square.CheckText(check_this_message).chi_result
