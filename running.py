@@ -11,7 +11,7 @@ class Run:
         self.alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
                     'U', 'V', 'W', 'X', 'Y', 'Z']
         self.words = open('sowpods.txt', 'r').readlines()
-        self.cipher_text = cipher_text[0:check_len]
+        self.cipher_text = cipher_text[0:check_len+1]
         self.brute = itertools.product(self.alphabet, repeat=check_len)
         self.decoder = decode(self.cipher_text, 0)
 
@@ -54,10 +54,15 @@ class Run:
                 wordSearch = WordSearch(plain_text)
                 words_len = wordSearch.run()
                 print('%s | %s' %(str(obj), str(words_len)))
-                if words_len < 1:
+                if words_len > 1:
                     with open('running_results', 'a') as results_file:
                         results_file.write('%s | %s | %s' % (str(obj), str(plain_text), str(words_len)))
-
+                if words_len == 0:
+                    q.get(timeout=1)
+                    q.get(timeout=1)
+                    q.get(timeout=1)
+                    q.get(timeout=1)
+                    q.get(timeout=1)
                 # q.task_done()
             except:
                 print('[!] run finished')
