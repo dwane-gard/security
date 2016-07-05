@@ -50,19 +50,22 @@ class Run:
             try:
                 obj = q.get(timeout=1)
 
-                plain_text = self.decoder.run(obj)
+                plain_text = self.decoder.decrypt(obj)
                 wordSearch = WordSearch(plain_text)
                 words_len = wordSearch.run()
-                print('%s | %s' %(str(obj), str(words_len)))
+                print('%s | %s' % (str(obj), str(words_len)))
+
                 if words_len > 1:
-                    with open('running_results', 'a') as results_file:
+                    print(words_len)
+                    print(plain_text)
+                    with open('running_results.txt', 'a') as results_file:
                         results_file.write('%s | %s | %s' % (str(obj), str(plain_text), str(words_len)))
-                if words_len == 0:
-                    q.get(timeout=1)
-                    q.get(timeout=1)
-                    q.get(timeout=1)
-                    q.get(timeout=1)
-                    q.get(timeout=1)
+                # if words_len == 0:
+                #     q.get(timeout=1)
+                #     q.get(timeout=1)
+                #     q.get(timeout=1)
+                #     q.get(timeout=1)
+                #     q.get(timeout=1)
                 # q.task_done()
             except:
                 print('[!] run finished')
@@ -72,6 +75,7 @@ class Run:
 
 if __name__ == '__main__':
     cipher_text = open('cipher_3_text.txt', 'r').read()
+    # cipher_text = 'THISISAVERYDERPYTHING'
     cipher_text = ''.join([x for x in cipher_text if x.isalpha()])
-    run = Run(18, cipher_text)
+    run = Run(17, cipher_text)
     run.start()

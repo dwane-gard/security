@@ -173,14 +173,15 @@ class decode():
     def decrypt(self, key):
         # rewritten decyption module
         # time is very similar to run
-        start = time.time()
+        # start = time.time()
         pairs = zip(self.cipher_text, itertools.cycle(key))
         result = ''
         for pair in pairs:
             total = reduce(lambda x, y: self.alphabet.index(x) - self.alphabet.index(y), pair)
             result += self.alphabet[total % 26]
-        print('decryption time: %s' % str(time.time() - start))
-        self.analyse(result, key)
+        # print('decryption time: %s' % str(time.time() - start))
+        return result
+        # self.analyse(result, key)
 
     def autokey(self, key):
         '''
