@@ -3,15 +3,13 @@ from corpus_analysis import Analyse
 from transpositional import Trans
 from brute_force_vigenere import decode
 import chi_square
-from word_search import WordSearch
+
 import multiprocessing
 # from queue import Queue
 import time
 import itertools
 import numpy as np
 
-annother_test_text = '''KLTMJDQSXFXYHLWLTMEZMNTPYJ
-''' # alberti
 annother_cipher_test = '''
 HSULAREFOTXNMYNJOUZWYILGPRYZQVBBZABLBWHMFGWFVPMYWAVVTYISCIZRLVGOPGBRAKLUGJUZGLN
 BASTUQAGAVDZIGZFFWVLZSAZRGPVXUCUZBYLRXZSAZRYIHMIMTOJBZFZDEYMFPMAGSMUGBHUVYTSABB
@@ -156,6 +154,7 @@ class BreakupIntoNth:
         self.key_length = key_length
         self.multithread = True
         self.brute_force = False
+        self.lowest_ic = (None, None, None)
 
         self.length_of_check = len(self.cipher_text) # the amount of characters to check on a run of the whole message
         self.check_length = 9 # the amount of characters to check per key run
@@ -183,12 +182,12 @@ class BreakupIntoNth:
             if self.multithread is True:
                 m = multiprocessing.Manager()
                 ze_pool = multiprocessing.Pool(multiprocessing.cpu_count(), maxtasksperchild=5000)
-                ze_pool.imap(self.analyse, possible_sequences, chunksize=1000)
+                ze_pool.imap(self.check_posibilites, possible_sequences, chunksize=1000)
                 ze_pool.close()
                 ze_pool.join()
             else:
                 for each_sequence in possible_sequences:
-                    self.analyse(each_sequence)
+                    self.check_posibilites(each_sequence)
 
         else:   # If brute fore is False
 
@@ -206,7 +205,7 @@ class BreakupIntoNth:
                 unchecked_char_count = check_length * (len(self.cipher_text)/self.key_length)
             self.check_length = check_length
             # Which possible answers to check, 0 being the most likely answer and then moving away
-            zero_to_three = range(0, 4, 1)
+            zero_to_three = range(0, 5, 1)
             product_arguments = ()
 
             # Create possible keys
@@ -246,9 +245,8 @@ class BreakupIntoNth:
                 # ze_pool.close()
                 # ze_pool.join()
             else:
-                # for each_sequence in possible_sequences:
-                #     self.check_posibilites(each_sequence)
-                pass
+                for each_sequence in possible_sequences:
+                    self.check_posibilites(each_sequence)
 
     def worker(self, q):
         while True:
@@ -258,21 +256,18 @@ class BreakupIntoNth:
                 obj = q.get(timeout=1)
                 # if obj is None:
                 #     break
-                key, check_this_message = self.build_message(obj)
-                self.analyse(key, check_this_message, obj)
+                self.check_posibilites(obj)
 
                 # q.task_done()
             except:
-                # print('[!] run finished')
+                print('[!] run finished')
                 break
-        # print('ending worker')
-
-
-
+        print('ending worker')
+        return
 
     def build_message(self, sequence):
         '''
-        Decode the message using the provided sequence, THIS IS WAY TO COMPLEX FOR WHAT IT DOES
+        Decode the message using the provided sequence
         :param sequence:
         :return:
         '''
@@ -282,33 +277,33 @@ class BreakupIntoNth:
 
         w = 0
         for each_char in sequence:
-            q = w
-            l = 0
-            if each_char is None:
-                key += '.'
-            else:
-                key += self.messages[w].plain_texts[each_char].shift
-
-            while q < self.length_of_check:
+                q = w
+                l = 0
                 if each_char is None:
-                    check_this_message[q] = '.'
+                    key += '.'
                 else:
-                    check_this_message[q] = self.messages[w].plain_texts[each_char].plain_text[l]
-                q += self.key_length
-                l += 1
-            w += 1
+                    key += self.messages[w].plain_texts[each_char].shift
+
+                while q < self.length_of_check:
+                    if each_char is None:
+                        check_this_message[q] = '.'
+                    else:
+                        check_this_message[q] = self.messages[w].plain_texts[each_char].plain_text[l]
+                    q += self.key_length
+                    l += 1
+                w += 1
         check_this_message = ''.join(check_this_message)
 
         return key, check_this_message
 
 
-    def analyse(self, key, check_this_message, each_sequence):
+    def check_posibilites(self, each_sequence):
         '''
         Check posabilites using a brute force approch
         :param each_sequence:
         :return:
         '''
-
+        key, check_this_message = self.build_message(each_sequence)
 
         # check if the entire message is close to englishness, if it is do furthur analisyis
         # if whole_message == True:
@@ -326,15 +321,6 @@ class BreakupIntoNth:
                 print(check_this_message)
                 # time.sleep(10)
 
-        ''' ze word search '''
-        wordSearch = WordSearch(check_this_message)
-        wordSearch.run()
-        if wordSearch.words_len > 1:
-            with open('words%sresults.txt' % self.key_length, 'a') as results_file:
-                results_file.write("%s\n| %s | %s\n%s" % (str(each_sequence), str(key), str(ic), str(check_this_message)))
-                print('%s | %s | %s' % (str(each_sequence), str(key), str(ic)))
-                print(check_this_message)
-
         ''' Ze_chi '''
         # ze_chi = chi_square.CheckText(check_this_message).chi_result
         # print(ze_chi)
@@ -346,21 +332,20 @@ class BreakupIntoNth:
         #     time.sleep(10)
 
         ''' output '''
-        # if ic > 0.05:
-        #     print('%s | %s | %s' % (str(each_sequence[0:self.check_length]), str(key), str(ic)))
-        #     print(check_this_message)
+        # print('%s | %s | %s' % (str(each_sequence[0:self.check_length]), str(key), str(ic)))
+        # print(check_this_message)
 
 
 if __name__ == '__main__':
-    for each in range(1,10,1):
+    for each in range(27,90,9):
         print(each)
-        # breakupIntoNth = BreakupIntoNth(real_cipher_text, each)
-        breakupIntoNth = BreakupIntoNth(annother_cipher_test, each)
+        breakupIntoNth = BreakupIntoNth(real_cipher_text, each)
+        # breakupIntoNth = BreakupIntoNth(test_text, 3)
         breakupIntoNth.run()
     #     pass
     # breakupIntoNth = BreakupIntoNth(real_cipher_text, 18)
-    #     breakupIntoNth = BreakupIntoNth(test_cipher_text, 18)
-    #     breakupIntoNth.run()
+    # # breakupIntoNth = BreakupIntoNth(test_text, 3)
+    # breakupIntoNth.run()
 
 
 
