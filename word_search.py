@@ -18,6 +18,7 @@ class WordSearch:
                     self.word_list.append(each_key)
 
         self.words_len = (len(''.join(self.word_list))/self.message_length)
+        return self.words_len
 
 
 

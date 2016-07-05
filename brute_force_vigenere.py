@@ -26,14 +26,7 @@ class decode():
         self.approch = approch
         self.debug_flag = 0
         self.analyse_code = False
-        self.cipher_text = cipher_text
-        self.cipher_text = self.cipher_text.replace(" ", '')
-        self.cipher_text = self.cipher_text.replace("\n", '')
-        self.cipher_text = self.cipher_text.replace(".", '')
-        self.cipher_text = self.cipher_text.replace(",", '')
-        self.cipher_text = self.cipher_text.replace("'", '')
-        self.cipher_text = self.cipher_text.replace('"', '')
-        self.cipher_text = self.cipher_text.replace('?', '')
+        self.cipher_text = ''.join([x for x in cipher_text if x.isalpha()])
 
         self.alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
                     'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -257,7 +250,6 @@ class decode():
         return deciphered_message
         # else:
         #     pass
-
 
     def prune_keys(self, key):
         multiples_list = kasiski.Kasiski(''.join(key)).multiples_list
