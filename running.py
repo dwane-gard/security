@@ -14,12 +14,12 @@ class Run:
         self.cipher_text = cipher_text[0:check_len+1]
         self.brute = itertools.product(self.alphabet, repeat=check_len)
         self.decoder = decode(self.cipher_text, 0)
-
     def start(self):
         ''' '''
         ''' MultiCore '''
         q = multiprocessing.Queue(maxsize=50)
         jobs = []
+
 
         # Create workers
         for i in range(0, multiprocessing.cpu_count(), 1):
