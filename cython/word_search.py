@@ -10,7 +10,7 @@ class WordSearch:
         for each_key in self.keys:
             if each_key in plain_text:
                 word_list.append(each_key)
-
+            pass
         words_list_len = len(''.join(word_list))
         words_len = words_list_len/len(plain_text)
 

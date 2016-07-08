@@ -60,13 +60,6 @@ class Run:
                     print(plain_text)
                     with open('running_results.txt', 'a') as results_file:
                         results_file.write('%s | %s | %s' % (str(obj), str(plain_text), str(words_len)))
-                # if words_len == 0:
-                #     q.get(timeout=1)
-                #     q.get(timeout=1)
-                #     q.get(timeout=1)
-                #     q.get(timeout=1)
-                #     q.get(timeout=1)
-                # q.task_done()
             except:
                 print('[!] run finished')
                 break

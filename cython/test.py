@@ -109,7 +109,7 @@ py_decoder = py_decode(cipher_text, 0)
 cy_wordSearch = WordSearch_cy()
 py_wordSearch = py_WordSearch()
 
-keys = itertools.product(alphabet, repeat=17)
+keys = itertools.product(alphabet, repeat=6)
 
 for key in keys:
     print(key)
@@ -117,14 +117,12 @@ for key in keys:
     cy_start = time.time()
     plain_text = (cy_decoder.runner(key))
     words_len = cy_wordSearch.run(plain_text)
-    # print(words_len)
     print('cy time: %s' % (str(time.time() - cy_start)))
 
     py_start = time.time()
     py_plain_text = (py_decoder.decrypt(key))
     py_words_len = py_wordSearch.run(py_plain_text)
-    # print(py_words_len)
     print('py time: %s' % (str(time.time() - py_start)))
 
-
-
+    print(words_len)
+    print(py_words_len)
