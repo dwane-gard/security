@@ -1,3 +1,5 @@
+
+
 class WordSearch:
     def __init__(self):
         self.keys = open('sowpods.txt', 'r').readlines()
@@ -5,8 +7,6 @@ class WordSearch:
         self.keys = [x for x in self.keys if len(x) != 2]
         self.keys = [x for x in self.keys if len(x) != 3]
         self.len_plain_text = None
-        # for each_key in self.keys:
-        #     cdef char* each = each_key
 
     def run(self, plain_text):
         word_list = []

@@ -119,7 +119,7 @@ class Runner:
         print(cipher_text)
 
     def start(self):
-        ''' MultiCore '''
+    #     ''' MultiCore '''
         q = multiprocessing.Queue(maxsize=50)
         jobs = []
 
@@ -155,6 +155,7 @@ class Runner:
         print('ending worker')
         return
 
+        # ''' Single thread test code '''
         # for key in self.keys:
         #     cy_start = time.time() # for testing
         #     plain_text, key = self.cy_decoder.runner(key)
@@ -166,14 +167,14 @@ class Runner:
         #
         #     ''' Testing code '''
         #     print('cy time: %s' % (str(time.time() - cy_start)))
-        #     #
-        #     # py_start = time.time()
-        #     # py_plain_text = self.py_decoder.decrypt(key)
-        #     # py_words_len = self.py_wordSearch.run(py_plain_text)
-        #     # print('py time: %s' % (str(time.time() - py_start)))
-        #     #
-        #     # print(words_len)
-        #     # print(py_words_len)
-
-runner = Runner()
-runner.start()
+        #
+        #     py_start = time.time()
+        #     py_plain_text = self.py_decoder.decrypt(key)
+        #     py_words_len = self.py_wordSearch.run(py_plain_text)
+        #     print('py time: %s' % (str(time.time() - py_start)))
+        #
+        #     print(words_len)
+        #     print(py_words_len)
+if __name__ == '__main__':
+    runner = Runner()
+    runner.start()

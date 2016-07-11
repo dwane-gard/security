@@ -15,5 +15,5 @@ class decode:
         for pair in pairs:
             total = reduce(lambda x, y: self.alphabet.index(x) - self.alphabet.index(y), pair)
             result += self.alphabet[total % 26]
-        
+
         return result, key
