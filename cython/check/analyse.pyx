@@ -18,3 +18,12 @@ class WordSearch:
         words_list_len = len(''.join(word_list))
         words_len = words_list_len/self.len_plain_text
         return words_len
+
+    def the_check(self, plain_text):
+        the_count = plain_text.count('THE')
+        return the_count
+
+#
+# if __name__ == '__main__':
+#     wordSearch = WordSearch()
+#     wordSearch.the_check('THETHEHHETHE')

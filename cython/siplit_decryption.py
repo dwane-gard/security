@@ -1,38 +1,27 @@
 from pad.pad import decode as decode_cy
 from check.analyse import WordSearch as WordSearch_cy
-from brute_force_vigenere import decode as py_decode
-from word_search import WordSearch as py_WordSearch
 import itertools
 import time
 import multiprocessing
 
 
-'''
-first cython build
-cy time: 0.7430474758148193
-py time: 0.9128749370574951
+class derp:
+    def __init__(self):
+        results_file = open('cython_results.txt', 'r').readlines()
+        self.results = [(x.split('|')[0], x.split('|')[1]) for x in results_file]
 
-'''
-'''
-moved the words list so it is only intialized once
-cy time: 0.6541030406951904
-py time: 0.8258819580078125
+    def run(self):
+        return self.results
 
-'''
-'''
-run compatability on word list once
-cy time: 0.3932199478149414
-py time: 0.45741724967956543
-'''
-'''
-more compatability ot word list ran once
-cy time: 0.3907437324523926
-py time: 0.39853334426879883
-'''
+
+derps = derp()
+derps.run()
 
 
 class Runner:
-    def __init__(self):
+    def __init__(self, known_key, known_plain_text):
+        self.known_key = known_key
+        self.known_plain_text = known_plain_text
         cipher_text = '''
         KIWDY FAIAS YQXQF GMQDZ OHUQK NEFVL
         AZPZP CXYDJ QLVGC KXPAS IENMN JYNGA
@@ -107,20 +96,17 @@ class Runner:
                          'U', 'V', 'W', 'X', 'Y', 'Z']
 
         cipher_text = [x for x in cipher_text if x.isalpha()]
-        check_len = 40
-        cipher_text = cipher_text[0:check_len]
+        check_len = 3
+        cipher_text = cipher_text[len(self.known_plain_text):len(self.known_plain_text)+check_len]
 
         self.cy_decoder = decode_cy(cipher_text)
-        self.py_decoder = py_decode(cipher_text, 0)
-
         self.cy_wordSearch = WordSearch_cy()
-        self.py_wordSearch = py_WordSearch()
 
         self.keys = itertools.product(alphabet, repeat=check_len)
         print(cipher_text)
 
     def start(self):
-        ''' MultiCore '''
+        #''' MultiCore '''
         q = multiprocessing.Queue(maxsize=50)
         jobs = []
 
@@ -137,29 +123,7 @@ class Runner:
         # Wait for each worker to finish before continueing
         for each_job in jobs:
             each_job.join()
-        # ''' Single thread test code '''
-        # for key in self.keys:
-        #     cy_start = time.time() # for testing
-        #     plain_text, key = self.cy_decoder.runner(key)
-        #     # words_len = self.cy_wordSearch.run(plain_text)
-        #     the_len = self.cy_wordSearch.the_check(plain_text)
-        #     print(the_len)
-        #     if the_len > 0:
-        #         print('%s | %s' % (str(key), str(the_len)))
-        #     # if words_len > 0.7:
-        #     #     with open('results.txt', 'a') as results:
-        #     #         results.write('%s | %s | %s' % (words_len, plain_text, key))
-        #     #
-        #     ''' Testing code '''
-        #     print('cy time: %s' % (str(time.time() - cy_start)))
-        #
-            # py_start = time.time()
-            # py_plain_text = self.py_decoder.decrypt(key)
-            # py_words_len = self.py_wordSearch.run(py_plain_text)
-            # print('py time: %s' % (str(time.time() - py_start)))
-            #
-            # print(words_len)
-            # print(py_words_len)
+
     def worker(self, q):
         while True:
             if q.empty():
@@ -167,25 +131,14 @@ class Runner:
             try:
                 obj = q.get(timeout=1)
                 plain_text, key = self.cy_decoder.runner(obj)
-                ''' word count test'''
-                # words_len = self.cy_wordSearch.run(plain_text)
-                # if words_len > .7:
-                #     print('%s | %s' % (str(key), str(words_len)))
-                #     with open('cython_results.txt', 'a') as results_file:
-                #         results_file.write('%s | %s | %s\n' % (str(key), str(plain_text), str(words_len)))
-
-                '''The len test'''
-                the_len = self.cy_wordSearch.the_check(plain_text)
-                if the_len > 0:
-                    print(plain_text)
-                    print('%s | %s' % (str(key), str(the_len)))
+                plain_text = self.known_plain_text + plain_text
+                words_len = self.cy_wordSearch.run(plain_text)
+                if words_len > .7:
+                    print('%s | %s' % ((str(self.known_key) + str(key)), str(words_len)))
+                    with open('2cython_results.txt', 'a') as results_file:
+                        results_file.write('%s | %s | %s\n' % (str(key), str(plain_text), str(words_len)))
             except:
                 print('[!] run finished')
                 break
         print('ending worker')
         return
-
-
-if __name__ == '__main__':
-    runner = Runner()
-    runner.start()
