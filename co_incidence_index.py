@@ -326,3 +326,11 @@ PHHER RU
     ze_end = time.time()
     print(ze_end - ze_start)
 
+
+    start = time.time()
+    checkIC = CheckIC(cipher_text)
+    checkIC.run()
+    checkIC.print_ic()
+    end = time.time()
+    print(end - start)
+

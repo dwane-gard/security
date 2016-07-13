@@ -177,7 +177,7 @@ PHHER RU
     # cypher_text = 'abcdeknfdslkgnadsklfnlksabdabdbadbbadnscklzmcklznclabcabc'
     kasiski = Kasiski(cypher_text)
     print(kasiski.cipher_text)
-    for each in range(0, 90, 9):
+    for each in range(1, 18, 1):
         print('Key length %d' % each)
         print(kasiski.finding_the_key(each))
     # kasiski.analyse()

@@ -1,4 +1,4 @@
-from pad.pad import decode as decode_cy
+from pad.pad import Decode as decode_cy
 from check.analyse import WordSearch as WordSearch_cy
 from brute_force_vigenere import decode as py_decode
 from word_search import WordSearch as py_WordSearch

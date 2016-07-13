@@ -49,7 +49,6 @@ class Run:
                 time.sleep(1)
             try:
                 obj = q.get(timeout=1)
-
                 plain_text = self.decoder.decrypt(obj)
                 wordSearch = WordSearch(plain_text)
                 words_len = wordSearch.run()

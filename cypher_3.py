@@ -337,15 +337,15 @@ class BreakupIntoNth:
 
 
 if __name__ == '__main__':
-    for each in range(27,90,9):
-        print(each)
-        breakupIntoNth = BreakupIntoNth(real_cipher_text, each)
+    # for each in range(27,90,9):
+    #     print(each)
+    #     breakupIntoNth = BreakupIntoNth(real_cipher_text, each)
         # breakupIntoNth = BreakupIntoNth(test_text, 3)
-        breakupIntoNth.run()
+        # breakupIntoNth.run()
     #     pass
-    # breakupIntoNth = BreakupIntoNth(real_cipher_text, 18)
+    breakupIntoNth = BreakupIntoNth(test_cipher_text, 18)
     # # breakupIntoNth = BreakupIntoNth(test_text, 3)
-    # breakupIntoNth.run()
+    breakupIntoNth.run()
 
 
 
