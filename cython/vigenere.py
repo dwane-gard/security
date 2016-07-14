@@ -1,9 +1,9 @@
 import itertools
 import multiprocessing
 import time
-
+from termcolor import colored
 from pad.pad import Decode
-from check.analyse import CheckIC, ChiSquare
+from check.analyse import CheckIC, ChiSquare, WordSearch
 
 class NthMessage:
     def __init__(self, nth_cypher_Text):
@@ -18,7 +18,6 @@ class NthMessage:
 
         # sort each part by its chi of the english language
         self.plain_texts.sort(key=lambda x: x.chi)
-
     class EachMessage:
         def __init__(self, shift, Decoder):
             self.shift = shift
@@ -29,7 +28,9 @@ class NthMessage:
             # run a beufort decrypter
             # self.plain_text = Decoder.beaufort_decrypt(self.shift)
 
-            self.chi = ChiSquare(self.plain_text).chi_result
+            self.chiSquare = ChiSquare(self.plain_text)
+            self.chi = self.chiSquare.chi_result
+            self.ic = self.chiSquare.ic
 
 
 class Run:
@@ -42,6 +43,7 @@ class Run:
         self.brute = itertools.product(self.alphabet, repeat=key_len)
         self.decoder = Decode(self.cipher_text)
         self.pre_analysis()
+        self.transDecode = None
 
     def pre_analysis(self):
         # Build the de-shifted text that is the best gueess from chi-squares
@@ -71,7 +73,7 @@ class Run:
         return key
 
     def start_single_core(self):
-        ''' Single Core '''
+        ''' combination cipher '''
         self.brute = [self.pre_analysis(),]
 
         for each_key in self.brute:
@@ -79,15 +81,66 @@ class Run:
             plain_text, key = self.decoder.runner(each_key)
             chiSquare = ChiSquare(plain_text)
             ic = chiSquare.ic
-            print('_' * 10)
-            print(ic)
-            print(self.key_len)
-            print(plain_text)
-            # print('%s | %s | %s' % (str(plain_text), str(chiSquare.output()), str(ic)))
-            if ic < 0.065:
+
+            if chiSquare.ic_difference < 0.005:
+                print('_' * 10)
+                # print('%s | %s ' %(ic, chiSquare.output()))
                 # print(plain_text)
-                with open('running_results.txt', 'a') as results_file:
-                    results_file.write('%s | %s | %s' % (str(key), str(plain_text), str(ic)))
+                self.transDecode = Decode(plain_text)
+                for each_transposition_key_size in range (1, 9, 1):
+                    transpostional_keys = itertools.permutations(range(1, each_transposition_key_size+1,1))
+
+                    ''' Single Thread '''
+                #     for each_trans_key in transpostional_keys:
+                #         plain_text, each_trans_key = self.transDecode.permutation(each_trans_key)
+                #
+                #         wordSearch = WordSearch()
+                #         words_len = wordSearch.run(plain_text)
+                #         print(key)
+                #         print(plain_text)
+                #         print(words_len)
+
+
+                    ''' Multi Thread '''
+                    q = multiprocessing.Queue(maxsize=50)
+                    jobs = []
+
+                    # Create workers
+                    for i in range(0, multiprocessing.cpu_count(), 1):
+                        p = multiprocessing.Process(target=self.combination_cipher_worker, args=(q,))
+                        p.start()
+                        jobs.append(p)
+
+                    # Feed items into the queue
+                    for each_item in transpostional_keys:
+                        q.put(each_item)
+
+                    # Wait for each worker to finish before continueing
+                    for each_job in jobs:
+                        each_job.join()
+
+    def combination_cipher_worker(self, q):
+        while True:
+            if q.empty():
+                time.sleep(1)
+            try:
+                obj = q.get(timeout=1)
+                plain_text, key = self.transDecode.permutation(obj)
+
+                wordSearch = WordSearch()
+                words_len = wordSearch.run(plain_text)
+                print(key)
+                print(words_len)
+                if words_len > 1:
+                    print(words_len)
+                    with open('combination_cipher_result.txt', 'a') as results_file:
+                        results_file.write('%s | %s | %s' % (str(key), str(plain_text), str(words_len)))
+            except:
+                # print('[!] run finished')
+                break
+        # print('ending worker')
+        return
+
 
     def start(self):
         ''' MultiCore '''
@@ -164,7 +217,7 @@ if __name__ == '__main__':
     OQTBNWAYTBUGTTICNEQGRTQNANEKVUVIOJPGUJRPWGHAMPUKUVIMNTIKNLCBOUUNSUOKTIQCDCSJQNALMZXJGPIHGTUJOTGNASUZDWUVONGRTCNEKTMALFT
     OGHEFNAMKTUNEBEUUFTCPYXCYUJAOMSFOSSFCFKNHLUTVTIQUGHUJEUJCRFJOXVHJUONEDBMNEJAOIEEOYPWTLOPLPPNKFF'''
     cipher_text = open('cipher_3_text.txt', 'r').read()
-    cipher_text = ''.join([x for x in test_cipher_text if x.isalpha()])
+    cipher_text = ''.join([x for x in cipher_text if x.isalpha()])
     for each in range(9,900,9):
         run = Run(each, cipher_text)
         run.start_single_core()
