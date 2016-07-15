@@ -40,7 +40,8 @@ class Run:
                     'U', 'V', 'W', 'X', 'Y', 'Z']
 
         self.cipher_text = cipher_text
-        self.brute = itertools.product(self.alphabet, repeat=key_len)
+        #self.brute = itertools.product(self.alphabet, repeat=key_len)
+        self.brute = [self.pre_analysis(), ]
         self.decoder = Decode(self.cipher_text)
         self.pre_analysis()
         self.transDecode = None
@@ -72,7 +73,7 @@ class Run:
         key = key[::-1]
         return key
 
-    def start_single_core(self):
+    def start_combination(self):
         ''' combination cipher '''
         self.brute = [self.pre_analysis(),]
 
@@ -87,7 +88,7 @@ class Run:
                 # print('%s | %s ' %(ic, chiSquare.output()))
                 # print(plain_text)
                 self.transDecode = Decode(plain_text)
-                for each_transposition_key_size in range (1, 9, 1):
+                for each_transposition_key_size in range(1, 9, 1):
                     transpostional_keys = itertools.permutations(range(1, each_transposition_key_size+1,1))
 
                     ''' Single Thread '''
@@ -142,7 +143,7 @@ class Run:
         return
 
 
-    def start(self):
+    def start_simple_substitution(self):
         ''' MultiCore '''
         q = multiprocessing.Queue(maxsize=50)
         jobs = []
@@ -171,7 +172,7 @@ class Run:
                 chiSquare = ChiSquare(plain_text)
                 chi = chiSquare.output()
                 ic = chiSquare.ic
-                print('%s | %s | %s' % (str(key), str(ic), str(chi)))
+                # print('%s | %s | %s' % (str(key), str(ic), str(chi)))
 
                 if ic > 0.065:
                     print(ic)
@@ -179,10 +180,9 @@ class Run:
                     with open('vigenere.txt', 'a') as results_file:
                         results_file.write('%s | %s | %s | %s' % (str(key), str(plain_text), str(ic), str(chi)))
             except:
-                time.sleep(0.1)
-                print('[!] run finished')
+                # print('[!] run finished')
                 break
-        print('ending worker')
+        # print('ending worker')
         return
 
 if __name__ == '__main__':
@@ -220,4 +220,4 @@ if __name__ == '__main__':
     cipher_text = ''.join([x for x in cipher_text if x.isalpha()])
     for each in range(9,900,9):
         run = Run(each, cipher_text)
-        run.start_single_core()
+        run.start_simple_substitution()
