@@ -196,6 +196,123 @@ class ChiSquare:
             elif self.letter == 'Z':
                 self.expected_frequency = 0.001
 
+class Anagram:
+    '''
+    Code to find anagrams in a body of text
+    http://www.nerdparadise.com/forum/technology/4394/
+    '''
+    import os
+    import pickle
+
+    bedugging = False
+    bedugging = True
+
+    def dprint(msg):
+        global bedugging
+        if bedugging:
+            print(msg)
+
+    class Node:
+        def __init__(self, _l, _parent=None):
+            self.l = _l
+            self.parent = _parent
+            self.children = {}
+        def __len__(self):
+            return len(self.children.keys())
+        def __getitem__(self, key):
+            return self.children[key]
+        def __contains__(self, item):
+            return item in self.children
+        def __setitem__(self, key, value):
+            self.children[key] = value
+        def __str__(self):
+            return ','.join(self.children.keys())
+        def stop(self):
+            return '' in self.children
+
+    def insertword(line, node):
+        dprint('insert %s' % (line))
+        current = node
+        for char in line:
+            if char not in current:
+                dprint('add %s' % (char))
+                nextnode = Node(char, current)
+                current[char] = nextnode
+            else:
+                dprint('follow %s' % (char))
+            current = current[char]
+        dprint('terminate')
+        current[''] = None
+
+    def load_dictionary(path):
+        words = Node(None)
+        for line in open(path).readlines():
+            insertword(line.strip(), words)
+        return words
+
+    def wordscontaining(letters, tree, word=[]):
+        dprint(letters)
+        dprint(word)
+        dprint(tree)
+        if len(letters) > 0 and len(tree) > 0 :
+            dprint('keep going')
+            result = []
+            for letter in letters:
+                if letter in tree:
+                    nextletters = letters[:]
+                    nextletters.remove(letter)
+                    result += wordscontaining(nextletters, tree[letter], word + [letter])
+            dprint('returning %s' % result)
+            return result
+        if len(letters) == 0 and tree.stop():
+            dprint('matched %s' % (''.join(word)))
+            return [''.join(word)]
+        # otherwise
+        dprint('cancel')
+        return []
+
+    def startup():
+        global prefictionary
+        treepath = "prefictionary.pyobj"
+        dicpath = "english-words.80.trimmed" if not bedugging else "faketionary.txt"
+
+        if os.path.exists(treepath) and os.path.getsize(treepath)>0:
+            prefictionary = pickle.load(open(treepath, 'rb'))
+        else:
+            print("Generating dictionary tree...", end='')
+            prefictionary = load_dictionary(dicpath)
+            pickle.dump(prefictionary, open(treepath, 'wb'))
+            print("done generating.")
+
+    def findwords(text):
+        withdups = wordscontaining(list(text), prefictionary)
+        withoutdups = {}
+        for word in withdups:
+            dprint('found %s' % (word))
+            withoutdups[''.join(word)] = True
+        return list(withoutdups.keys())
+
+    def main():
+        try:
+            while True:
+                line = input('> ')
+                if len(line) > 0:
+                    if line[0] == '!':
+                        raise EOFError()
+                    for word in findwords(list(line)):
+                        print(word)
+        except EOFError:
+            pass
+
+    ###
+
+    startup()
+    print("Ready.")
+    if bedugging:
+        print(findwords(['l', 'i', 'e', 'n']))
+    else:
+        main()
+
 if __name__ == '__main__':
         plain_text = '''So my story starts on what was a normal day taking calls on the front line for a large cable company. The job pays well and for the most part the people I deal with are fairly nice to talk to.
 Quite often we'll get calls from seniors (especially in the morning) who have premise equipment issues such as "snow on screen" or "no signal" on their TV sets connected to our digital equipment.
