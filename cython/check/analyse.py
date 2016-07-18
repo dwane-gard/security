@@ -196,122 +196,56 @@ class ChiSquare:
             elif self.letter == 'Z':
                 self.expected_frequency = 0.001
 
-class Anagram:
-    '''
-    Code to find anagrams in a body of text
-    http://www.nerdparadise.com/forum/technology/4394/
-    '''
-    import os
-    import pickle
 
-    bedugging = False
-    bedugging = True
+class Dia:
+    def __init__(self, plain_text, degree):
+        self.plain_text = plain_text
+        self.degree = degree
+        self.plain_columns = [self.plain_text[i:i + degree] for i in range(0, len(self.plain_text), degree)]
 
-    def dprint(msg):
-        global bedugging
-        if bedugging:
-            print(msg)
+        for each_column in self.plain_columns:
+            print('')
+    def run(self, a, b):
 
-    class Node:
-        def __init__(self, _l, _parent=None):
-            self.l = _l
-            self.parent = _parent
-            self.children = {}
-        def __len__(self):
-            return len(self.children.keys())
-        def __getitem__(self, key):
-            return self.children[key]
-        def __contains__(self, item):
-            return item in self.children
-        def __setitem__(self, key, value):
-            self.children[key] = value
-        def __str__(self):
-            return ','.join(self.children.keys())
-        def stop(self):
-            return '' in self.children
+        # prob(a)*prob(b) score(ab) ~= x
+        return
 
-    def insertword(line, node):
-        dprint('insert %s' % (line))
-        current = node
-        for char in line:
-            if char not in current:
-                dprint('add %s' % (char))
-                nextnode = Node(char, current)
-                current[char] = nextnode
-            else:
-                dprint('follow %s' % (char))
-            current = current[char]
-        dprint('terminate')
-        current[''] = None
+    class FrequencyDiagrams:
+        def __init__(self):
+            ''' Known Freuency of diagrams over 10000 characters of text'''
+            AA = 1
+            AB = 11
+            AC = 31
+            AD = 48
+            AE = 110
+            AF = 25
+            AG = 24
+            AH = 114
+            AI = 10
+            AJ = 2
+            AK = 6
+            AL = 40
+            AM = 44
+            AN = 40
+            AO = 16
+            AP = 23
+            AQ = 0
+            AR = 50
+            AS = 67
+            AT = 59
+            AU = 7
+            AV = 5
+            AW = 66
+            AX = 1
+            AY = 18
+            AZ = 1
 
-    def load_dictionary(path):
-        words = Node(None)
-        for line in open(path).readlines():
-            insertword(line.strip(), words)
-        return words
+            BA = 20
+            BB = 1
+            BC = 0
+            BD = 20
 
-    def wordscontaining(letters, tree, word=[]):
-        dprint(letters)
-        dprint(word)
-        dprint(tree)
-        if len(letters) > 0 and len(tree) > 0 :
-            dprint('keep going')
-            result = []
-            for letter in letters:
-                if letter in tree:
-                    nextletters = letters[:]
-                    nextletters.remove(letter)
-                    result += wordscontaining(nextletters, tree[letter], word + [letter])
-            dprint('returning %s' % result)
-            return result
-        if len(letters) == 0 and tree.stop():
-            dprint('matched %s' % (''.join(word)))
-            return [''.join(word)]
-        # otherwise
-        dprint('cancel')
-        return []
 
-    def startup():
-        global prefictionary
-        treepath = "prefictionary.pyobj"
-        dicpath = "english-words.80.trimmed" if not bedugging else "faketionary.txt"
-
-        if os.path.exists(treepath) and os.path.getsize(treepath)>0:
-            prefictionary = pickle.load(open(treepath, 'rb'))
-        else:
-            print("Generating dictionary tree...", end='')
-            prefictionary = load_dictionary(dicpath)
-            pickle.dump(prefictionary, open(treepath, 'wb'))
-            print("done generating.")
-
-    def findwords(text):
-        withdups = wordscontaining(list(text), prefictionary)
-        withoutdups = {}
-        for word in withdups:
-            dprint('found %s' % (word))
-            withoutdups[''.join(word)] = True
-        return list(withoutdups.keys())
-
-    def main():
-        try:
-            while True:
-                line = input('> ')
-                if len(line) > 0:
-                    if line[0] == '!':
-                        raise EOFError()
-                    for word in findwords(list(line)):
-                        print(word)
-        except EOFError:
-            pass
-
-    ###
-
-    startup()
-    print("Ready.")
-    if bedugging:
-        print(findwords(['l', 'i', 'e', 'n']))
-    else:
-        main()
 
 if __name__ == '__main__':
         plain_text = '''So my story starts on what was a normal day taking calls on the front line for a large cable company. The job pays well and for the most part the people I deal with are fairly nice to talk to.
