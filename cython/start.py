@@ -2,8 +2,10 @@ import itertools
 import multiprocessing
 import time
 from termcolor import colored
+
 from pad.pad import Decode
 from check.analyse import CheckIC, ChiSquare, WordSearch
+
 
 class NthMessage:
     def __init__(self, nth_cypher_Text):
@@ -23,10 +25,10 @@ class NthMessage:
             self.shift = shift
 
             # run a Vigenere decrypter
-            self.plain_text = Decoder.runner(self.shift)
+            # self.plain_text = Decoder.runner(self.shift)
 
             # run a beufort decrypter
-            # self.plain_text = Decoder.beaufort_decrypt(self.shift)
+            self.plain_text = Decoder.beaufort_decrypt(self.shift)
 
             self.chiSquare = ChiSquare(self.plain_text)
             self.chi = self.chiSquare.chi_result
@@ -69,8 +71,9 @@ class Run:
                 key += messages[w].plain_texts[each_char].shift
             w += 1
 
-        # flip the key, it is flipped later in the decrpyter for important reasons
+        # flip the key, it is flipped later in the decrpyter for important(asthetic) reasons /s
         key = key[::-1]
+        print(key)
         return key
 
     def start_combination(self):
@@ -83,7 +86,7 @@ class Run:
             chiSquare = ChiSquare(plain_text)
             ic = chiSquare.ic
 
-            if chiSquare.ic_difference < 0.005:
+            if chiSquare.ic_difference < 0.012:
                 print('_' * 10)
                 # print('%s | %s ' %(ic, chiSquare.output()))
                 # print(plain_text)
@@ -163,18 +166,24 @@ class Run:
             each_job.join()
 
     def worker(self, q):
+
         while True:
             if q.empty():
                 time.sleep(1)
+
             try:
                 obj = q.get(timeout=1)
-                plain_text, key = self.decoder.runner(obj)
+                obj = [x for x in 'ZZZYYYXXXZYXZYXZYX']
+                obj = obj[::-1]
+                # plain_text, key = self.decoder.runner(obj)
+                plain_text, key = self.decoder.beaufort_decrypt(obj)
+
                 chiSquare = ChiSquare(plain_text)
                 chi = chiSquare.output()
                 ic = chiSquare.ic
-                # print('%s | %s | %s' % (str(key), str(ic), str(chi)))
+                print('%s | %s | %s' % (str(key), str(ic), str(chi)))
 
-                if ic > 0.065:
+                if ic > 0.06:
                     print(ic)
                     print(plain_text)
                     with open('vigenere.txt', 'a') as results_file:
@@ -216,8 +225,12 @@ if __name__ == '__main__':
     MFEBPFRUUQNPWRGTONTFOUTCPCFVOSGTBKLIGVFTUVJENQRBNOGVHISTUPTAKSOQMBVTFTHOWOBTVAUONGOOGITVOYOVPWGTVHFRHPPETQMETJNFUVJEZTE
     OQTBNWAYTBUGTTICNEQGRTQNANEKVUVIOJPGUJRPWGHAMPUKUVIMNTIKNLCBOUUNSUOKTIQCDCSJQNALMZXJGPIHGTUJOTGNASUZDWUVONGRTCNEKTMALFT
     OGHEFNAMKTUNEBEUUFTCPYXCYUJAOMSFOSSFCFKNHLUTVTIQUGHUJEUJCRFJOXVHJUONEDBMNEJAOIEEOYPWTLOPLPPNKFF'''
+    test_cipher_text = ''.join([x for x in test_cipher_text if x.isalpha()])
+
     cipher_text = open('cipher_3_text.txt', 'r').read()
     cipher_text = ''.join([x for x in cipher_text if x.isalpha()])
-    for each in range(9,900,9):
-        run = Run(each, cipher_text)
+
+    for each in range(17,900,1):
+        print('Key length: %s' % each)
+        run = Run(each, test_cipher_text)
         run.start_simple_substitution()
