@@ -950,7 +950,7 @@ class Dia:
             self.Z = 6
 
     def run(self, cipher_column):
-        derp = itertools.product(cipher_column, repeat=2)
+        derp = itertools.combinations_with_replacement(cipher_column, repeat=2)
         for each in derp:
             print(each)
 
