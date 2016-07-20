@@ -218,28 +218,44 @@ class Dia:
         derp = itertools.permutations(range(0, self.degree, 1), 2)
 
         for each in derp:
-            # print(each)
-            # print(cipher_column[each[0]-1], cipher_column[each[1]-1], cipher_column)
-            # self.data_set.append(self.Data(cipher_column[each[0]-1], cipher_column[each[1]-1], cipher_column))
             data = self.Data(each[0], each[1], cipher_columns)
             self.data_set.append(data)
-            # exit()
 
-
-
+        # newb way
+        refined_data_set = []
         for each_row in range(0, self.degree, 1):
             current_score = -99999999999
             current_name = None
+            top_data = None
             for each_data in self.data_set:
                 if each_data.pos1 == each_row:
                     if each_data.score > current_score:
+                        top_data = each_data
                         current_score = each_data.score
                         current_name = '%d:%d' % (each_data.pos1+1, each_data.pos2+1)
+            if top_data.score > 0:
+                refined_data_set.append(top_data)
             print(current_name)
             print(current_score)
             print('_'*10)
 
 
+
+        # output = [refined_data_set[0], ]
+        # curent = refined_data_set[0]
+        # ze_next = curent.pos2
+        # while True:
+        #     for each_item in refined_data_set:
+        #         if each_item.pos1 == ze_next:
+        #             output.append(each_item)
+        #             ze_next = each_item.pos2
+
+
+
+
+        # pro way
+        pro_data_set = []
+        # for each_row in range(0, self.degree, 1):
 
     class Data:
         def __init__(self, pos1, pos2, cipher_columns):
@@ -1700,30 +1716,22 @@ class Dia:
                 letter_a = each_column[a]
                 letter_b = each_column[b]
                 collective_score = self.get_collective_score(letter_a, letter_b)
-
                 scores.append(collective_score)
-            # print(scores)
+
             ave_score = reduce(lambda x, y: x+y, scores) / len(scores)
-            # print('%d:%d' % (a,b))
-            # print(ave_score)
             return ave_score
 
         def get_collective_score(self, a, b,):
-            frequencyDiagrams = self.FrequencyDiagrams()
-            frequencyLetters = self.FrequencyLetters()
-            scoreDiagrams = self.ScoreDiagrams()
-            prob = (getattr(frequencyDiagrams, a + b))
-            a_prob = (getattr(frequencyLetters, a) / 10000)
-            b_prob = (getattr(frequencyLetters, b) / 10000)
-            individual_prob = (a_prob * b_prob) * 10000
-            try:
-                colective_probability = individual_prob / prob
-                # print(colective_probability)
-            except:
-                colective_probability = 0
-            # score = a_prob* b_prob * getattr(scoreDiagrams, (a+b).lower())
-            score = getattr(scoreDiagrams, (a+b))
+            # frequencyDiagrams = self.FrequencyDiagrams()
+            # frequencyLetters = self.FrequencyLetters()
+            # prob = (getattr(frequencyDiagrams, a + b))
+            # a_prob = (getattr(frequencyLetters, a) / 10000)
+            # b_prob = (getattr(frequencyLetters, b) / 10000)
+            # individual_prob = (a_prob * b_prob) * 10000
+            # colective_probability = individual_prob / prob
 
+            scoreDiagrams = self.ScoreDiagrams()
+            score = getattr(scoreDiagrams, (a+b))
             return score
 
 
