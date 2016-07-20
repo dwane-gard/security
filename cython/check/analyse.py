@@ -205,57 +205,70 @@ class Dia:
     A Pre-analysis for transposition ciphers that tries to predict the cypher by using
     diagram analysis
     '''
-    def __init__(self, plain_text, degree):
-        self.plain_text = plain_text
+    def __init__(self, cipher_text, degree):
+        self.cipher_text = cipher_text
         self.degree = degree
-        self.plain_columns = [self.plain_text[i:i + degree] for i in range(0, len(self.plain_text), degree)]
-
+        self.cipher_columns = [self.cipher_text[i:i + degree] for i in range(0, len(self.cipher_text), degree)]
         self.data_set = []
-        self.run(self.plain_columns)
+        self.key = None
+        self.run(self.cipher_columns)
 
     def run(self, cipher_columns):
-
-        derp = itertools.permutations(range(0, self.degree, 1), 2)
-
-        for each in derp:
+        # Test the probability of each diagram
+        possible_diagrams = itertools.permutations(range(0, self.degree, 1), 2)
+        for each in possible_diagrams:
             data = self.Data(each[0], each[1], cipher_columns)
             self.data_set.append(data)
 
-        # newb way
+        # Using the diagram probability data find the best scoring possibility for each position
+        #  and build the refined data set
         refined_data_set = []
         for each_row in range(0, self.degree, 1):
             current_score = -99999999999
-            current_name = None
             top_data = None
             for each_data in self.data_set:
                 if each_data.pos1 == each_row:
                     if each_data.score > current_score:
                         top_data = each_data
                         current_score = each_data.score
-                        current_name = '%d:%d' % (each_data.pos1+1, each_data.pos2+1)
             if top_data.score > 0:
                 refined_data_set.append(top_data)
-            print(current_name)
-            print(current_score)
-            print('_'*10)
 
 
+        # Sort the refined data set and find the best place to start building the key
+        refined_data_set.sort(key=lambda x: x.score)
+        refined_data_set.reverse()
 
-        # output = [refined_data_set[0], ]
-        # curent = refined_data_set[0]
-        # ze_next = curent.pos2
-        # while True:
-        #     for each_item in refined_data_set:
-        #         if each_item.pos1 == ze_next:
-        #             output.append(each_item)
-        #             ze_next = each_item.pos2
+        # Build out the key
+        current = refined_data_set[0].pos2
+        key = [refined_data_set[0].pos1,]
+        count = 0
+        while True:
+            if count == self.degree+1:
+                break
+            for each_data in refined_data_set:
+                if each_data.pos1 == current:
 
+                    key.append(each_data.pos1)
+                    current = each_data.pos2
+                    count = 0
+            count += 1
 
+        # If the key isn't fully built build out the key to the left of the best guess
+        current = refined_data_set[0].pos1
+        if len(key) != self.degree:
+            count = 0
+            while True:
+                if count == self.degree+1:
+                    break
+                for each_data in refined_data_set:
+                    if each_data.pos2 == current:
+                        key.insert(0, each_data.pos1)
+                        current = each_data.pos1
+                        count = 0
+                count += 1
 
-
-        # pro way
-        pro_data_set = []
-        # for each_row in range(0, self.degree, 1):
+        self.key = key
 
     class Data:
         def __init__(self, pos1, pos2, cipher_columns):
@@ -1864,6 +1877,7 @@ t l o e a n t p n t s l a
 r i t e o n r df f eof
 n u t w o e i o o h w m r'''.upper() if x.isalpha()])
         dia = Dia(ze_cipher_text, 13)
+        print(dia.key)
 
         # dia.run()
 
