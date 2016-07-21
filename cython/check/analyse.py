@@ -246,6 +246,10 @@ class Dia:
         refined_data_set.sort(key=lambda x: x.score)
         refined_data_set.reverse()
 
+        # for each in self.data_set:
+        #     print(each.pos1, each.pos2)
+        #     print(each.score)
+
        # Build out the key
         key = [refined_data_set[0].pos1, refined_data_set[0].pos2]
         count = 0
@@ -263,7 +267,7 @@ class Dia:
             if len(key) == self.degree:
                 break
             count += 1
-            if count == 2 * len(self.degree):
+            if count == 5 * self.degree:
                 key = None
                 break
 

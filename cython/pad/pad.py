@@ -122,7 +122,7 @@ class Decode:
                     # unencrypt that character and add it to the plain text
                     try:
                         plain_text += each_block[each]
-                        print(plain_text)
+
                         time.sleep(0.001)
                     except:
                         plain_text += ''
