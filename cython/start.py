@@ -4,7 +4,7 @@ import time
 from termcolor import colored
 
 from pad.pad import Decode
-from check.analyse import CheckIC, ChiSquare, WordSearch
+from check.analyse import CheckIC, ChiSquare, WordSearch, Dia
 
 
 class NthMessage:
@@ -25,10 +25,10 @@ class NthMessage:
             self.shift = shift
 
             # run a Vigenere decrypter
-            # self.plain_text = Decoder.runner(self.shift)
+            self.plain_text = Decoder.runner(self.shift)
 
             # run a beufort decrypter
-            self.plain_text = Decoder.beaufort_decrypt(self.shift)
+            # self.plain_text = Decoder.beaufort_decrypt(self.shift)
 
             self.chiSquare = ChiSquare(self.plain_text)
             self.chi = self.chiSquare.chi_result
@@ -71,9 +71,7 @@ class Run:
                 key += messages[w].plain_texts[each_char].shift
             w += 1
 
-        # flip the key, it is flipped later in the decrpyter for important(asthetic) reasons /s
-        key = key[::-1]
-        print(key)
+
         return key
 
     def start_combination(self):
@@ -85,43 +83,56 @@ class Run:
             plain_text, key = self.decoder.runner(each_key)
             chiSquare = ChiSquare(plain_text)
             ic = chiSquare.ic
-
-            if chiSquare.ic_difference < 0.012:
-                print('_' * 10)
-                # print('%s | %s ' %(ic, chiSquare.output()))
-                # print(plain_text)
+            print('[-] IC: %s' % str(ic))
+            print('[-] CHI: %s' % str(chiSquare.chi_result))
+            if chiSquare.chi_result < 100:
+                print(key)
+                print('[+] Found a possible key running diagram analysis')
                 self.transDecode = Decode(plain_text)
-                for each_transposition_key_size in range(1, 9, 1):
-                    transpostional_keys = itertools.permutations(range(1, each_transposition_key_size+1,1))
+                for each_degree in range(2, 100):
+                    print('[-] Running %d degree' % each_degree)
+                    dia = Dia(plain_text, each_degree)
+                    if dia.key is not None:
+                        print(dia.key)
+                        trans_plain_text, trans_key = self.transDecode.permutation(dia.key)
+                        wordSearch = WordSearch()
+                        words_len = wordSearch.run(trans_plain_text)
+                        print(key)
+                        print(trans_plain_text)
+                        print(words_len)
+                        if words_len > 1:
+                            print(words_len)
+                            with open('combination_cipher_result.txt', 'a') as results_file:
+                                results_file.write('%s | %s | %s' % (str(key), str(plain_text), str(words_len)))
 
                     ''' Single Thread '''
-                #     for each_trans_key in transpostional_keys:
-                #         plain_text, each_trans_key = self.transDecode.permutation(each_trans_key)
-                #
-                #         wordSearch = WordSearch()
-                #         words_len = wordSearch.run(plain_text)
-                #         print(key)
-                #         print(plain_text)
-                #         print(words_len)
+                    # for each_trans_key in transpostional_keys:
+                    #     plain_text, each_trans_key = self.transDecode.permutation(each_trans_key)
+                    #
+                    #     wordSearch = WordSearch()
+                    #     words_len = wordSearch.run(plain_text)
+                    #     print(key)
+                    #     print(plain_text)
+                    #     print(words_len)
 
 
                     ''' Multi Thread '''
-                    q = multiprocessing.Queue(maxsize=50)
-                    jobs = []
-
-                    # Create workers
-                    for i in range(0, multiprocessing.cpu_count(), 1):
-                        p = multiprocessing.Process(target=self.combination_cipher_worker, args=(q,))
-                        p.start()
-                        jobs.append(p)
-
-                    # Feed items into the queue
-                    for each_item in transpostional_keys:
-                        q.put(each_item)
-
-                    # Wait for each worker to finish before continueing
-                    for each_job in jobs:
-                        each_job.join()
+                    # q = multiprocessing.Queue(maxsize=50)
+                    # jobs = []
+                    #
+                    # # Create workers
+                    # for i in range(0, multiprocessing.cpu_count(), 1):
+                    #     p = multiprocessing.Process(target=self.combination_cipher_worker, args=(q,))
+                    #     p.start()
+                    #     jobs.append(p)
+                    #
+                    # # Feed items into the queue
+                    # for each_item in transpostional_keys:
+                    #     q.put(each_item)
+                    #
+                    # # Wait for each worker to finish before continueing
+                    # for each_job in jobs:
+                    #     each_job.join()
 
     def combination_cipher_worker(self, q):
         while True:
@@ -173,10 +184,8 @@ class Run:
 
             try:
                 obj = q.get(timeout=1)
-                obj = [x for x in 'ZZZYYYXXXZYXZYXZYX']
-                obj = obj[::-1]
-                # plain_text, key = self.decoder.runner(obj)
-                plain_text, key = self.decoder.beaufort_decrypt(obj)
+                plain_text, key = self.decoder.runner(obj)
+                # plain_text, key = self.decoder.beaufort_decrypt(obj)
 
                 chiSquare = ChiSquare(plain_text)
                 chi = chiSquare.output()
@@ -229,8 +238,50 @@ if __name__ == '__main__':
 
     cipher_text = open('cipher_3_text.txt', 'r').read()
     cipher_text = ''.join([x for x in cipher_text if x.isalpha()])
+    combination_test_text = ''.join([x for x in '''
+    VWXJGVXCJGHXCEGUSHSODXLDOVRCXOKPLJHRETYUHGWWGUSESSYJZYHPPYPTYSLWONVPNOSFPNCWQLYMOXPUCWFLJG
+    LAWWOKRQZFOXPXCAWALFAXSPDVIAWSKMPLZPAESOLVQLWSVJYWLGEZHSEVECBUTESMSEPBLAWWUAINLZZPQCCZQPYW
+    YSDPGLTNTOSPJTBOXPXCUVTYUOAZSOLZACSPQDPSBUTAAUIETGBWPDGJYSLGUWZHCZRNCSUIZCBZSTRBSEZYHLLTCH
+    ZZPEGVGYYSAGPOHVSFCRNMTEOLPBFWTTPYHVRHXMLLLCHVHPDUVSFEHZSZXSMSESSLWQZZIOPNOZYPFDUYETZLVNPB
+    SXJAOAWQPKLCLCGLAHZIKPDFDSTJDHHVTRVHXYLZNSNLPLPEZAUEJSCLQDNCEEOTFJIEQFTSHLZAPZEJPAESGYGZWZ
+    UMRRIKMPSCLAGPFVQDEQAMTPGLADPFPZNPBDSLOOZCCPEPYCPCYYOTUAMLWSBUTAAUIEECLVNPWLZNSOURPWGUEOEV
+    ZMSLGHGFDSHHWZHMSQCIAWCLHVMYHWOXZWRYIAPCSTPHVKSZYHUOZHVDSEZCLTCLHZILTRXIFTDLQYEWHIWHOZCSLJ
+    UMRJCYYEGGAIZYJKMPZCOVOXWVXRPHPTNEILVDZCAJPYHTMPDKNIPEQZYEZAYIDHVHSCPFWIPLHMSQPBLHCDKAMSWC
+    NRETQLOESWAWZCWZIZQHLLDPHWCPDCPJDDIZIDZOFRHLMNMPEOHGWWTVVXLBSSOPFLKYEZTILYKVLDBIAMPMWAXPCO
+    KRXPOYRTRVVXQQHLLMLHVHPDBSXTVSOXLEWZEVPRVJCSWHWOOFZIDESLPASCLRYFALFCECLZCTTACSPOJGZFBOXLES
+    AWSLHLLSLGVXDASREHTHHLXLQPLYPPMIZCSLVLNVUMRLBNEPYHAINTVCEPDCLQPIDYITPBLGSLBSHTYUOXPDSFXAPG
+    MSNFGVXXPFOWZHSLZCEVZMNLZDPLDUPSYRHISPLZAMEWSPHQQSLVYEWWWPYHCSPCAUMFESDWTEVOXTDUFYHPZJPLWZ
+    PLXXFTWTEVYXJTBAKZRSOXTDHZZPEQUSYPQLXOECOXPOWPKELZVFIAFWSPCZZCZSSVGFWRLVNPWLZLAWAGFCSVRWFQ
+    OOPHONWPEHUMRNZHICWMYJFDHHVEPRFFESSOAZWSYSOPOHPYOGHXCESIHWLAUMRXSVJCYCIXPTBHKMWSVXOZAQCZMD
+    VVAPFFPSZKDMLDILWWPGLWENKHLEPJYIWTYPIDLWPHGPRHIWEKAMSEVZMMPTYSPDCAMCTSTHJMSAWYZHVXELYPIEAS
+    ZVZYOSPJMILXGPBBXLWZPCSLRVXLDYPLXTTLANZIKPMZCHODPFPZNPHJISECOXPSCLQLNCYYEPGJCLWZVXRPHPLDEJ
+    VACVWNRNZFLVNEZBCYQCAVFYOLXWJCYYMZCPOYRQSEPYRYEHLGOWZHWNRLYOWTZTBTXPYHHHJDCAYESOZXHSSORPOF
+    WSAPROXTDCTRPOCARMZHLLCDSKRTYUNEZORTEYESOGYTQHMYMSHGFDSSMWMSLHLOPACSPBTMLYRCXTDHLLZYZACSTB
+    PKSLJSIPQHYEPJCYYPLZFPRZWNREZAREPXSHATETYSLESOGTTBAWLYHFPQPZIXLOWLQLYWLZSPOKVPGSFVNZASTLTB
+    PXYEVIIZZYZEEZKFLAPCSTPOCARHLBAXZHOAMQZFAEPNVBFEEVZMZYSPOYOCNJZEHTSPTAUMXJAKMDDCVLYPGSXJTQ
+    UEEPJUITXOPKYPVDSTEAZYEQSSIEZIAXPCHVLDPKYSODGPSDACLOHTHTLJDILTCGWVWCHVZSLTROXPJRLWPTTLANZI
+    KPRPHVWXPCLRZFHHICWWYIMFHLANZIKPYEDVVXTGHIYJHPLYRGPSWPHYQDXWOXVYCHAYOVDILDDLVOTQHXMWMVREGS
+    FVSLDFTHTHTLJLBDWPCOAXSLHVTTYHAMLWAZSEDCUYOPRPPVPVZIELFLXOECYGJLBDHPYHUMEZVDSSPVZEYZTTETWM
+    LPQEOKRYZTPVPYRAWSLHVGXPJZMTEHPLDHOHWQESPVLDYKITQHLLCPKZELYMUSPTBPLDMISMOTBAKSLHPQRSHLFLMZ
+    AIZSSWPXLBMMPWHLXCCWSFPDCAMZZYAMFACTRJDSMPEZORWXCGPQESWPJNZIKPALMCETDWOXPWWLZOTBZEXLZJPTEM
+    CSPCTVVXHVYIPTKZEYZHLZCJTYEEZRPVGPVDILDOPPEEZZISZQLOOTKZEHTZPPYRHKSZEVZMMFHVWFYRKIESORRQFZ
+    DMLDKSMWTBAKZNCLQZFHUEOSSWPSTALTCDCHRWWMVWTSSKEZGSNVPEHASSPFZITOSJRPLBTHPPHPLXHWOXTYGJIZYR
+    PWSLROXPNOSFPCIURTYUNELTBPWXAZPIYAIJXSLBLKLYRCIPYPVVFRVOXTXOPWXAZMMTPRLVXZHMIZCVZMDPHVXAMC
+    ABZLJPSOEVZMACCSFPXWARSPTAYFCSOXLEGOAPYVZIELFLXONFPCYRVNIZPGUMEZVDSSPVZEYEOAGFLZFPDACLOYZF
+    LVLWZPCYESHVNESDHTEVUEJZBMIZCMHICDVNILGSLQLSIHKYOHSSOXSVLHEVUEVQIOPPHOAWSLHJMLXSBSELBOHPWD
+    KISTAUEOECKPXPVDSDZFFVSPKZEQZFLFTYUVWXPOLRLCZLMCZBZMLTRAMHLGVRACCSFPXOKRTHOOWLADACZSSWPLYR
+    OXLEKZETEWLPQEKLIVDZAEPCAZCFASCVTDCJVZXSAWZXMLHDVOKRLDYTWPTTJMZFZJHZXSWWPLYPAESVYIQZFIETEO
+    VFFEOHRNNCUYEQCTVCDAAMSEIUVDZIOXPDSARESSHGMWSVGXAOFRLWSAXPCCAYWTBUMRSCAASLBMOFWVDILDTYSSPZ
+    PTYRVTMHTHOLTDWZWFPOKRSZKAMCPOSPJXOLHLYCKPXLBHLAAMNELTBVJCZBLGTYOLZCJZUSREWLQESSLPEESDVLDT
+    HVXPRUEOAIVXYZIMVCZBLXYEFUENPHYSPEOSMTRIZIDEVTIZCOVPQEVZMDECFVTDBTSLEHYISZKHRDEMVWXPCLRTDH
+    FSZFCLZCEVWISZBZIZXSPXXPGOXPJFUIZEODPLJGAEPCFIMWPDYIDZBUEOUIAWRZWNRESFBSRSOVPETGPXWWHPLYVO
+    VFFEAZVXTHVLNNOPWZYOSPJHVUITRSAXSZGUILDHJCFDHTSPCGUEOTHHQVPGLQQPSHPWTHSXPMSAXPCOFRHLMOXLYY
+    MWZCFHIOTBQKFDHOXZFUALTOGHLCPVDSESWVWYPQSEWNVUERPRFQZFHVPZVCSRTQS
+    ''' if x.isalpha()])
 
-    for each in range(17,900,1):
-        print('Key length: %s' % each)
-        run = Run(each, test_cipher_text)
-        run.start_simple_substitution()
+
+    for each in range(9,900,9):
+        print('Poly-alphabetic Key length: %s' % each)
+        run = Run(each, cipher_text)
+        # run.start_simple_substitution()
+        run.start_combination()

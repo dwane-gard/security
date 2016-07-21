@@ -234,39 +234,42 @@ class Dia:
             if top_data.score > 0:
                 refined_data_set.append(top_data)
 
+        # check to see if the degree has a high enough ave score to be considered
+        ave_score = sum([x.score for x in refined_data_set])
+        if ave_score < 1:
+            print("[!] Ave score is %f, this isn't the right degree" % ave_score)
+            return
+        else:
+            print("[!] Ave score is %f, this is high enough to consider" % ave_score)
 
         # Sort the refined data set and find the best place to start building the key
         refined_data_set.sort(key=lambda x: x.score)
         refined_data_set.reverse()
 
-        # Build out the key
-        current = refined_data_set[0].pos2
-        key = [refined_data_set[0].pos1,]
+        # for each in self.data_set:
+        #     print(each.pos1, each.pos2)
+        #     print(each.score)
+
+       # Build out the key
+        key = [refined_data_set[0].pos1, refined_data_set[0].pos2]
         count = 0
         while True:
-            if count == self.degree+1:
+            for each in refined_data_set:
+                if each is refined_data_set[0]:
+                    pass
+
+                if each.pos1 == key[-1]:
+                    key.append(each.pos2)
+
+                if each.pos2 == key[0]:
+                    key.insert(0, each.pos1)
+
+            if len(key) == self.degree:
                 break
-            for each_data in refined_data_set:
-                if each_data.pos1 == current:
-
-                    key.append(each_data.pos1)
-                    current = each_data.pos2
-                    count = 0
             count += 1
-
-        # If the key isn't fully built build out the key to the left of the best guess
-        current = refined_data_set[0].pos1
-        if len(key) != self.degree:
-            count = 0
-            while True:
-                if count == self.degree+1:
-                    break
-                for each_data in refined_data_set:
-                    if each_data.pos2 == current:
-                        key.insert(0, each_data.pos1)
-                        current = each_data.pos1
-                        count = 0
-                count += 1
+            if count == 5 * self.degree:
+                key = None
+                break
 
         self.key = key
 
@@ -1725,7 +1728,13 @@ class Dia:
 
         def get_average_probability(self, a, b):
             scores = []
+
             for each_column in self.cipher_columns:
+
+                # If the cipher requires padding disregard the last column
+                if len(each_column) != len(self.cipher_columns[0]):
+                    break
+
                 letter_a = each_column[a]
                 letter_b = each_column[b]
                 collective_score = self.get_collective_score(letter_a, letter_b)
@@ -1845,6 +1854,61 @@ PHHER RU
         # chiSquare = ChiSquare(plain_text)
         # print(chiSquare.ic)
         # print(chiSquare.ic_difference)
+        cipher_2 = ''.join([x for x in '''COOUS ULYDU TQOHY SEELP EUTST GTOAR
+IDTHM WPEER DTTEF EXUTO ROSEC UYCOU
+DUBEU LUONL IKFTE YHCER LROTU ESAOF
+ANRAI EQSOR ETLER HTFTE UISEI SDQBY
+LSFOS ERTIN NRGED AWTOR KLEQA IASNT
+RFEXL OASMP TBOTW UHEER ISTWD EOIUL
+ETASV LTAGI UYAST OTEAR PNOIN GNITI
+HOEDY TETCR OTNQT IUPES ROKEY MNTLA
+ITNKS HIITI OHNLC EYTDE ANNDH TREIG
+ITNGO HTTOD OONAH DTTET LMLIO IOENS
+LDLAO ORFSY DMEFS ARUOM ILNGO LEENR
+OSCKO TBNEF HEECA TORMP EYCLD DANRE
+KARUY NPBTC UONDC FSTSU EANRM SOHNE
+YLEEN OTPRA IIOND TFSUN RNEAH DCAHT
+ETNET BFAIT OEMPS CAHNY LMOYW PEEES
+OOSTI LTHHE TRIRN EERME VSINN AGTSA
+OPVIE RDDER FITOI ELLOW MCECU OONNS
+SEINI RCMAL NOIAC RWFHO ANFFT TOARD
+YPTHE AEOIR GEYBS RINLL VIESI NTIED
+UYRCA OONMP EYCAI BUNSE IEEVN LEBDI
+ONNAT RNEDI NFANL ICSIA TTEMS AESNT
+NAOTK MSIEE TNORV GEICO YRLON MSETI
+TEMEU SNVTB OIBEV DLTIE ATTYE HOEUR
+OPYEE LEMSD VEEMA RUSCH RTTHY EEFIR
+SAOFD RHEAR KOMAG RKWIN ONNAO RNEDY
+CRHIW IKUNO WOILV ULYNE ERADS RTEHI
+IMLAO ANEDC NLTBT DEUBO EEDWI RIHTH
+TBUNS ULTES AOREL UWYIL TNOHY GAIVE
+NUAMD REOGO IWNAI NMOER HAISY NTCOR
+NSEOS OFAIT SOEBN RUWSI CSRIA SMEIN
+OSUHA YALVE NHCET ANCOW GRHTG IAONE
+IEOUO GSRWR NGDEH IENDW YLOUT ENIET
+EDLLR WOEVE LMLIA IOANM FYENS ORNON
+LMOYW PEEES FRINI EAENC YLDET LVAAS
+DTWHH EEANT MCPAE ONEYD RLEDK ABCAN
+TUCYT PARND REREE ITHIR TEPLW NAMNS
+WRIPU EEEDO DAENM NRTON ADNAO ESATR
+IOCAO MLNPR DIURT TIFNG AELIN CFHOR
+NAERR EGIYC SSLAE ISITY SRARL AEASU
+ETRET HATRE SOANF UDHSO SOUMW NECRS
+ROEUL ANHAB PTAYI OTEHE SBICR AERNE
+IYLLD BSGAN LHART EGTES LTITT IYUIN
+TEATB SEHIS RNUPE KTATH YEORM WKNTI
+ESPOD RRETE THYOL AUTSO LMLIO IODNW
+OTFEN HNRRO CTKWE OHSIL RGESE GSAIV
+RYGIH UNLGT MCPAE ONEYS OPYEO LEMST
+PEBUG EYKIN OTNAH DTIET OSNET MYITO
+UENDT FSHSE OPHEE TLUPR RATHV IEPLI
+FSTHA OOESE IECAU RNMSH YTENS BRRON
+ENRHE DAUND DANEI NFDAR DUEAG SLOIN
+HOERE TWSIS WOILV ULYHA SLTAE OLELR
+CPTFM ERSOM DNECH YEANT WRORG DKAIN
+TNRUN DSATI EARIS MCGAN HFOMT WYOOU
+AODVA KAONT AEYGA MOGDH EERCY MYVON
+SUOUN RLOSI EELYI RCCHR ATNWN ICSHU''' if x.isalpha()])
         ze_cipher_text = ''.join([x for x in ''''
 t i f a t p o k g r i a n
 eb s t m n e l r t i a e
@@ -1876,8 +1940,11 @@ r d t r i s i e e r ezt
 t l o e a n t p n t s l a
 r i t e o n r df f eof
 n u t w o e i o o h w m r'''.upper() if x.isalpha()])
-        dia = Dia(ze_cipher_text, 13)
-        print(dia.key)
+
+        for each_degree in range(2,14,1):
+            print('[+] Running Degree: %d' % each_degree)
+            dia = Dia(ze_cipher_text, each_degree)
+            print(dia.key)
 
         # dia.run()
 
