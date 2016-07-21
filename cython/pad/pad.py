@@ -15,9 +15,6 @@ class Decode:
         :return:
         '''
 
-        # Reverse the the key
-        key = key[::-1]
-
         pairs = zip(self.cipher_text, itertools.cycle(key))
         result = ''
         for pair in pairs:
@@ -32,8 +29,6 @@ class Decode:
         :return:
         '''
 
-        # Reverse the the key
-        key = key[::-1]
 
         message = ''
         next_key = key
@@ -60,8 +55,6 @@ class Decode:
         :return:
         '''
 
-        # Reverse the the key
-        key = key[::-1]
 
         pairs = zip(self.cipher_text, itertools.cycle(key))
         result = ''
@@ -114,7 +107,6 @@ class Decode:
 
     def permutation(self, key):
         ''' Permutaion Transpositional decyption module '''
-        # key = key[::-1]
         key_len = len(key)
         plain_text = ''
 
@@ -123,8 +115,8 @@ class Decode:
         #     total = reduce(lambda x, y: plain_text[y] = x, pair)
 
         cipher_blocks = [self.cipher_text[i:i+key_len] for i in range(0, len(self.cipher_text), key_len)]
-        print(cipher_blocks[0])
-        input('derp')
+        # print(cipher_blocks[0])
+        # input('derp')
         for each_block in cipher_blocks:
             for each in key:
                     # unencrypt that character and add it to the plain text
