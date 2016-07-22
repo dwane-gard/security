@@ -43,7 +43,7 @@ class Run:
 
         self.cipher_text = cipher_text
         #self.brute = itertools.product(self.alphabet, repeat=key_len)
-        self.brute = [self.pre_analysis(), ]
+        # self.brute = [self.pre_analysis(), ]
         self.decoder = Decode(self.cipher_text)
         self.pre_analysis()
         self.transDecode = None
@@ -61,41 +61,67 @@ class Run:
             messages.append(NthMessage(nth_cypher_text))
             j += 1
 
+        return messages
         # Build the key from the analysis
-        key = ''
-        w = 0
-        for each_char in list(itertools.repeat(0, self.key_len)):
-            if each_char is None:
-                key += '.'
-            else:
-                key += messages[w].plain_texts[each_char].shift
-            w += 1
+        # w = 0
+        # while w < self.key_len:
+        #     key += messages[w].plain_texts[0].shift
+        #     w += 1
+        #
+        # return key
+
+        # j = 0
+        # for each in itertools.product(range(0, 1, 1), repeat=self.key_len):
+        #     key = ''
+        #     for each_char in list(itertools.cycle(each)):
+        #         if each_char is None:
+        #             key += '.'
+        #         else:
+        #             key += messages[j].plain_texts[each_char].shift
+        #             j += 1
+        #     yield key
 
 
-        return key
 
     def start_combination(self):
         ''' combination cipher '''
-        self.brute = [self.pre_analysis(),]
+        pre_analysis = self.pre_analysis()
 
-        for each_key in self.brute:
+        # build a generator of possible keys
+        for each in itertools.product([0,1], repeat=self.key_len):
+            j = 0
+            key = ''
+            for each_char in each:
+                if each_char is None:
+                    key += '.'
+                else:
+                    key += pre_analysis[j].plain_texts[each_char].shift
+                    j += 1
 
+            # using each key test it
+            each_key = key
+            print(each_key)
             plain_text, key = self.decoder.runner(each_key)
-            # chiSquare = ChiSquare(plain_text)
-            # ic = chiSquare.ic
-            # print('[-] IC: %s' % str(ic))
-            # print('[-] CHI: %s' % str(chiSquare.chi_result))
-            # if chiSquare.chi_result < 100:
-            #     print(key)
-            #     print('[+] Found a possible key running diagram analysis')
-            if True:
+            chiSquare = ChiSquare(plain_text)
+            ic = chiSquare.ic
+            print('[-] IC: %s' % str(ic))
+            print('[-] CHI: %s' % str(chiSquare.chi_result))
+            if chiSquare.chi_result < 100:
+                print(key)
+                print('[+] Found a possible key running diagram analysis')
+
+                # test the resulting plain text as a transposition cipher
                 self.transDecode = Decode(plain_text)
                 for each_degree in range(2, 50):
-                    print('[-] Running %d degree' % each_degree)
+                    # print('[-] Running %d degree' % each_degree)
                     dia = Dia(plain_text, each_degree)
+                    dia.permutation()
+                    dia.run()
                     if dia.key is not None:
                         print(dia.key)
                         trans_plain_text, trans_key = self.transDecode.permutation(dia.key)
+
+                        # Look For words
                         wordSearch = WordSearch()
                         words_len = wordSearch.run(trans_plain_text)
                         print(key)
@@ -106,34 +132,34 @@ class Run:
                             with open('combination_cipher_result.txt', 'a') as results_file:
                                 results_file.write('%s | %s | %s' % (str(key), str(plain_text), str(words_len)))
 
-                    ''' Single Thread '''
-                    # for each_trans_key in transpostional_keys:
-                    #     plain_text, each_trans_key = self.transDecode.permutation(each_trans_key)
-                    #
-                    #     wordSearch = WordSearch()
-                    #     words_len = wordSearch.run(plain_text)
-                    #     print(key)
-                    #     print(plain_text)
-                    #     print(words_len)
+                        ''' Single Thread '''
+                        # for each_trans_key in transpostional_keys:
+                        #     plain_text, each_trans_key = self.transDecode.permutation(each_trans_key)
+                        #
+                        #     wordSearch = WordSearch()
+                        #     words_len = wordSearch.run(plain_text)
+                        #     print(key)
+                        #     print(plain_text)
+                        #     print(words_len)
 
 
-                    ''' Multi Thread '''
-                    # q = multiprocessing.Queue(maxsize=50)
-                    # jobs = []
-                    #
-                    # # Create workers
-                    # for i in range(0, multiprocessing.cpu_count(), 1):
-                    #     p = multiprocessing.Process(target=self.combination_cipher_worker, args=(q,))
-                    #     p.start()
-                    #     jobs.append(p)
-                    #
-                    # # Feed items into the queue
-                    # for each_item in transpostional_keys:
-                    #     q.put(each_item)
-                    #
-                    # # Wait for each worker to finish before continueing
-                    # for each_job in jobs:
-                    #     each_job.join()
+                        ''' Multi Thread '''
+                        # q = multiprocessing.Queue(maxsize=50)
+                        # jobs = []
+                        #
+                        # # Create workers
+                        # for i in range(0, multiprocessing.cpu_count(), 1):
+                        #     p = multiprocessing.Process(target=self.combination_cipher_worker, args=(q,))
+                        #     p.start()
+                        #     jobs.append(p)
+                        #
+                        # # Feed items into the queue
+                        # for each_item in transpostional_keys:
+                        #     q.put(each_item)
+                        #
+                        # # Wait for each worker to finish before continueing
+                        # for each_job in jobs:
+                        #     each_job.join()
 
     def combination_cipher_worker(self, q):
         while True:

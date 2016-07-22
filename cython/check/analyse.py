@@ -208,16 +208,25 @@ class Dia:
     def __init__(self, cipher_text, degree):
         self.cipher_text = cipher_text
         self.degree = degree
-        self.cipher_columns = [self.cipher_text[i:i + degree] for i in range(0, len(self.cipher_text), degree)]
+        self.cipher_columns = None
         self.data_set = []
         self.key = None
-        self.run(self.cipher_columns)
 
-    def run(self, cipher_columns):
+    def permutation(self):
+        self.cipher_columns = [self.cipher_text[i:i + self.degree] for i in range(0, len(self.cipher_text), self.degree)]
+
+    def columar(self):
+        from math import ceil
+        column_len = ceil(len(cipher_text) / self.degree)
+        null_count = (self.degree * column_len) - len(cipher_text)
+
+        # we appear to need to key to know where to put the nulls, might have to have a seperate dia class to do this
+
+    def run(self):
         # Test the probability of each diagram
         possible_diagrams = itertools.permutations(range(0, self.degree, 1), 2)
         for each in possible_diagrams:
-            data = self.Data(each[0], each[1], cipher_columns)
+            data = self.Data(each[0], each[1], self.cipher_columns)
             self.data_set.append(data)
 
         # Using the diagram probability data find the best scoring possibility for each position
@@ -237,10 +246,11 @@ class Dia:
         # check to see if the degree has a high enough ave score to be considered
         ave_score = sum([x.score for x in refined_data_set])
         if ave_score < 1:
-            print("[!] Ave score is %f, this isn't the right degree" % ave_score)
+            # print("[!] Ave score is %f, this isn't the right degree" % ave_score)
             return
         else:
-            print("[!] Ave score is %f, this is high enough to consider" % ave_score)
+            # print("[!] Ave score is %f, this is high enough to consider" % ave_score)
+            pass
 
         # Sort the refined data set and find the best place to start building the key
         refined_data_set.sort(key=lambda x: x.score)
