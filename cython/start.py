@@ -81,15 +81,16 @@ class Run:
         for each_key in self.brute:
 
             plain_text, key = self.decoder.runner(each_key)
-            chiSquare = ChiSquare(plain_text)
-            ic = chiSquare.ic
-            print('[-] IC: %s' % str(ic))
-            print('[-] CHI: %s' % str(chiSquare.chi_result))
-            if chiSquare.chi_result < 100:
-                print(key)
-                print('[+] Found a possible key running diagram analysis')
+            # chiSquare = ChiSquare(plain_text)
+            # ic = chiSquare.ic
+            # print('[-] IC: %s' % str(ic))
+            # print('[-] CHI: %s' % str(chiSquare.chi_result))
+            # if chiSquare.chi_result < 100:
+            #     print(key)
+            #     print('[+] Found a possible key running diagram analysis')
+            if True:
                 self.transDecode = Decode(plain_text)
-                for each_degree in range(2, 100):
+                for each_degree in range(2, 50):
                     print('[-] Running %d degree' % each_degree)
                     dia = Dia(plain_text, each_degree)
                     if dia.key is not None:
