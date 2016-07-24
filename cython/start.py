@@ -3,8 +3,8 @@ import multiprocessing
 import time
 from termcolor import colored
 
-from pad.pad import Decode
-from check.analyse import CheckIC, ChiSquare, WordSearch, Dia
+from packages.pad import Decode
+from packages.analyse import CheckIC, ChiSquare, WordSearch, Dia
 
 
 class NthMessage:
@@ -112,8 +112,8 @@ class Run:
         plain_text, key = self.decoder.runner(each_key)
         chiSquare = ChiSquare(plain_text)
         ic = chiSquare.ic
-        print('[-] IC: %s' % str(ic))
-        print('[-] CHI: %s' % str(chiSquare.chi_result))
+        # print('[-] IC: %s' % str(ic))
+        # print('[-] CHI: %s' % str(chiSquare.chi_result))
         if chiSquare.chi_result < 100:
             print(key)
             print('[+] Found a possible key running diagram analysis')

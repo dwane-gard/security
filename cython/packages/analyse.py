@@ -57,13 +57,12 @@ class CheckIC:
         self.Z = 0
 
         self.ic = 0
-    def run(self, plain_text):
 
+    def run(self, plain_text):
         # Check if we need to do text changes on first operation, using as a case study for the rest
         if self.text_changes is True:
             original_plain_text = plain_text
-            plain_text = ''.join([x for x in plain_text if x.isalpha()])
-            plain_text = ''.join([x.upper() for x in plain_text])
+            plain_text = ''.join([x.upper() for x in plain_text if x.isalpha()])
             if original_plain_text == plain_text:
                 self.text_changes = True
             else:
@@ -140,7 +139,6 @@ class ChiSquare:
             self.result = self.run()
 
         def run(self):
-
             expected_count = self.text_count*self.expected_frequency
             result = ((self.letter_count - expected_count)**2) / expected_count
             return result
@@ -243,7 +241,7 @@ class Dia:
             if top_data.score > 0:
                 refined_data_set.append(top_data)
 
-        # check to see if the degree has a high enough ave score to be considered
+        # packages to see if the degree has a high enough ave score to be considered
         ave_score = sum([x.score for x in refined_data_set])
         if ave_score < 1:
             # print("[!] Ave score is %f, this isn't the right degree" % ave_score)
@@ -1765,12 +1763,6 @@ class Dia:
             scoreDiagrams = self.ScoreDiagrams()
             score = getattr(scoreDiagrams, (a+b))
             return score
-
-
-
-
-
-
 
 if __name__ == '__main__':
         plain_text = '''So my story starts on what was a normal day taking calls on the front line for a large cable company. The job pays well and for the most part the people I deal with are fairly nice to talk to.
