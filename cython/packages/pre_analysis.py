@@ -72,7 +72,8 @@ class Kasiski:
             Chi = ChiSquare(nth_cypher_text)
             all_chi.append(Chi.chi_result)
             all_ic.append(ic)
-            # print(ic)
+            print(j)
+            print(ic)
             # print(Chi.chi_result)
             j += 1
 
@@ -189,9 +190,10 @@ PHHER RU
     # cypher_text = 'abcdeknfdslkgnadsklfnlksabdabdbadbbadnscklzmcklznclabcabc'
     kasiski = Kasiski(cypher_text)
     print(kasiski.cipher_text)
-    for each in range(1, 30, 1):
+    for each in range(9, 900, 9):
         print('Key length %d' % each)
         kasiski.finding_the_key(each)
+        input("Press Enter to continue...")
         # kasiski.analyse()
     # kasiski.analyse()
     # print(kasiski.output())

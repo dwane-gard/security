@@ -120,7 +120,7 @@ class Run:
 
             # test the resulting plain text as a transposition cipher
             self.transDecode = Decode(plain_text)
-            for each_degree in range(2, 50):
+            for each_degree in range(2, 300):
                 # print('[-] Running %d degree' % each_degree)
                 dia = Dia(plain_text, each_degree)
                 dia.permutation()
@@ -261,8 +261,9 @@ if __name__ == '__main__':
     MWZCFHIOTBQKFDHOXZFUALTOGHLCPVDSESWVWYPQSEWNVUERPRFQZFHVPZVCSRTQS
     ''' if x.isalpha()])
 
-    for each in range(36,900,9):
+    for each in range(9,36,9):
         print('Poly-alphabetic Key length: %s' % each)
+        # run = Run(each, combination_test_text)
         run = Run(each, cipher_text)
         # run.start_simple_substitution()
         run.start_combination()
