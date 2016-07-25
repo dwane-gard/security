@@ -260,6 +260,7 @@ class Dia:
 
        # Build out the key
         key = [refined_data_set[0].pos1, refined_data_set[0].pos2]
+
         count = 0
         while True:
             for each in refined_data_set:
@@ -275,7 +276,7 @@ class Dia:
             if len(key) == self.degree:
                 break
             count += 1
-            if count == 5 * self.degree:
+            if count == self.degree+1:
                 key = None
                 break
 
@@ -1943,10 +1944,13 @@ t l o e a n t p n t s l a
 r i t e o n r df f eof
 n u t w o e i o o h w m r'''.upper() if x.isalpha()])
 
-        for each_degree in range(2,14,1):
+        for each_degree in range(2,50,1):
             print('[+] Running Degree: %d' % each_degree)
             dia = Dia(ze_cipher_text, each_degree)
+            dia.permutation()
+            dia.run()
             print(dia.key)
+
 
         # dia.run()
 

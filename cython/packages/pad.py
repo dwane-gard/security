@@ -2,6 +2,8 @@ import itertools
 from functools import reduce
 from math import ceil
 import time
+
+
 class Decode:
     def __init__(self, cipher_text):
         self.cipher_text = cipher_text
@@ -28,7 +30,6 @@ class Decode:
         :param key:
         :return:
         '''
-
 
         message = ''
         next_key = key
@@ -76,17 +77,25 @@ class Decode:
         plain_text = [None] * (len(self.cipher_text))
         column_size = int((len(self.cipher_text))/(len(key)))
 
-        cipher_columns = [self.cipher_text[i:i+column_size] for i in range(0, len(self.cipher_text), column_size)]
-
-        for each_key_char in key:
-
-            if null_count > 0:
-                cipher_columns[int(each_key_char)-1] = cipher_columns[int(each_key_char)-1][:-1] + '.' + cipher_columns[int(each_key_char)-1][-1:]
-                null_count -= 1
-
         new_column_size = ceil((len(self.cipher_text))/(len(key)))
-        cipher_columns = [self.cipher_text[i:i+new_column_size] for i in range(0, len(self.cipher_text), new_column_size)]
+        self.cipher_text = [x for x in self.cipher_text]
+        text_to_be_changed = []
 
+        for each_key in reversed(key):
+            if null_count == 0:
+                break
+            text_to_be_changed.append(each_key)
+            null_count -=1
+
+        text_to_be_changed.sort()
+        loop_count = 0
+        for each_key in text_to_be_changed:
+            self.cipher_text.insert((each_key*len(key))+loop_count,'.')
+            loop_count += 2
+
+        # cipher_columns = [self.cipher_text[i:i + column_size] for i in
+        #                   range(0, len(self.cipher_text), column_size)]
+        cipher_columns = [self.cipher_text[i:i+new_column_size] for i in range(0, len(self.cipher_text), new_column_size)]
         k = len(key)
         j = 0
         for each_key_char in key:
@@ -196,12 +205,17 @@ AODVA KAONT AEYGA MOGDH EERCY MYVON
 SUOUN RLOSI EELYI RCCHR ATNWN ICSHU
 
 '''
+    test_cipher2 = 'ARESA SOSTH EYLOI IAIEP ENGDL LTAHT FATEN HMW'
+    test_cipher3 = 'TNRGD MEIRX ERWIX HAOTX EGNEX'
+    test_cipher3 = ''.join([x for x in test_cipher3 if x.isalpha()])
+    test_cipher2 = ''.join([x for x in test_cipher2 if x.isalpha()])
     test_cipher = ''.join([x for x in test_cipher if x.isalpha()])
     cipher_2 = ''.join([x for x in cipher_2 if x.isalpha()])
-    decode = Decode(cipher_2)
+    decode = Decode(test_cipher3)
     # print(decode.permutation((4,2,5,3,9,8,6,1,7)))
-    print(decode.permutation((7,1,5,0,2,3,6,8,9,4)))
-    # print(decode.columnar((4,2,5,1,6,3)))
+
+    # print(decode.permutation((7,1,5,0,2,3,6,8,9,4)))
+    print(decode.columnar((1,4,3,2,5)))
     # print(decode.columnar('POTATO'))
 
     # multiple anagraminf

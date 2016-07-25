@@ -47,6 +47,7 @@ class Run:
         self.decoder = Decode(self.cipher_text)
         self.ze_pre_analysis = self.pre_analysis()
         self.transDecode = None
+        self.wordSearch = WordSearch()
 
     def pre_analysis(self):
         # Build the de-shifted text that is the best gueess from chi-squares
@@ -64,23 +65,27 @@ class Run:
         return messages
 
     def start_combination(self):
+        '''single thread'''
+        for each in itertools.product([0], repeat=self.key_len):
+            self.combination_cipher(each)
+
         ''' Multi Thread '''
-        q = multiprocessing.Queue(maxsize=50)
-        jobs = []
-
-        # Create workers
-        for i in range(0, multiprocessing.cpu_count(), 1):
-            p = multiprocessing.Process(target=self.combination_cipher_worker, args=(q,))
-            p.start()
-            jobs.append(p)
-
-        # Feed items into the queue
-        for each_item in itertools.product([0,1], repeat=self.key_len):
-            q.put(each_item)
-
-        # Wait for each worker to finish before continueing
-        for each_job in jobs:
-            each_job.join()
+        # q = multiprocessing.Queue(maxsize=50)
+        # jobs = []
+        #
+        # # Create workers
+        # for i in range(0, multiprocessing.cpu_count(), 1):
+        #     p = multiprocessing.Process(target=self.combination_cipher_worker, args=(q,))
+        #     p.start()
+        #     jobs.append(p)
+        #
+        # # Feed items into the queue
+        # for each_item in itertools.product([0], repeat=self.key_len):
+        #     q.put(each_item)
+        #
+        # # Wait for each worker to finish before continueing
+        # for each_job in jobs:
+        #     each_job.join()
 
     def combination_cipher_worker(self, q):
         while True:
@@ -89,6 +94,26 @@ class Run:
             try:
                 obj = q.get(timeout=1)
                 self.combination_cipher(obj)
+            except:
+                # print('[!] run finished')
+                break
+        # print('ending worker')
+        return
+
+    def colmber_cipher_worker(self, q):
+        while True:
+            if q.empty():
+                time.sleep(1)
+            try:
+                cipher_text, each_trans_key = q.get(timeout=1)
+                colmnDecode = Decode(cipher_text)
+                plain_text, each_trans_key = colmnDecode.columnar(each_trans_key)
+                words_len = self.wordSearch.run(plain_text)
+                print(each_trans_key)
+                if words_len > 1:
+                    print(words_len)
+                    with open('combination_cipher_result.txt', 'a') as results_file:
+                        results_file.write('%s | %s | %s\n' % (str(each_trans_key), str(plain_text), str(words_len)))
             except:
                 # print('[!] run finished')
                 break
@@ -113,32 +138,63 @@ class Run:
         chiSquare = ChiSquare(plain_text)
         ic = chiSquare.ic
         # print('[-] IC: %s' % str(ic))
-        # print('[-] CHI: %s' % str(chiSquare.chi_result))
-        if chiSquare.chi_result < 100:
-            print(key)
-            print('[+] Found a possible key running diagram analysis')
+        print('[-] CHI: %s' % str(chiSquare.chi_result))
+        if chiSquare.chi_result < 200:
+            ''' Colmner cipher test'''
+            for each_key_size in range(2,9,1):
 
-            # test the resulting plain text as a transposition cipher
-            self.transDecode = Decode(plain_text)
-            for each_degree in range(2, 300):
-                # print('[-] Running %d degree' % each_degree)
-                dia = Dia(plain_text, each_degree)
-                dia.permutation()
-                dia.run()
-                if dia.key is not None:
-                    print(dia.key)
-                    trans_plain_text, trans_key = self.transDecode.permutation(dia.key)
+                ''' multi thread code'''
+                q = multiprocessing.Queue(maxsize=50)
+                jobs = []
 
-                    # Look For words
-                    wordSearch = WordSearch()
-                    words_len = wordSearch.run(trans_plain_text)
-                    print(key)
-                    print(trans_plain_text)
-                    print(words_len)
-                    if words_len > 1:
-                        print(words_len)
-                        with open('combination_cipher_result.txt', 'a') as results_file:
-                            results_file.write('%s | %s | %s' % (str(key), str(plain_text), str(words_len)))
+                # Create workers
+                for i in range(0, multiprocessing.cpu_count(), 1):
+                    p = multiprocessing.Process(target=self.colmber_cipher_worker, args=(q,))
+                    p.start()
+                    jobs.append(p)
+
+                # Feed items into the queue
+                for each_item in itertools.permutations(range(1, each_key_size, 1)):
+                    q.put((plain_text, each_item))
+
+                # Wait for each worker to finish before continueing
+                for each_job in jobs:
+                    each_job.join()
+
+                    # print(each_trans_key)
+                    # colmnDecode = Decode(plain_text)
+                    # trans_plain_text, each_trans_key = colmnDecode.columnar(each_trans_key)
+                    # words_len = self.wordSearch.run(trans_plain_text)
+                    # if words_len < 1:
+                    #     print(words_len)
+                    #     with open('combination_cipher_result.txt', 'a') as results_file:
+                    #         results_file.write('%s | %s | %s\n' % (str(each_trans_key), str(plain_text), str(words_len)))
+
+            ''' Permutation cipher test'''
+            # print(key)
+            # print('[+] Found a possible key running diagram analysis')
+            #
+            # # test the resulting plain text as a transposition cipher
+            # self.transDecode = Decode(plain_text)
+            # for each_degree in range(len(plain_text), len(plain_text), 1):
+            #     # print('[-] Running %d degree' % each_degree)
+            #     dia = Dia(plain_text, each_degree)
+            #     dia.permutation()
+            #     dia.run()
+            #     if dia.key is not None:
+            #         print(dia.key)
+            #         trans_plain_text, trans_key = self.transDecode.permutation(dia.key)
+            #
+            #         # Look For words
+            #         wordSearch = WordSearch()
+            #         words_len = wordSearch.run(trans_plain_text)
+            #         print(key)
+            #         print(trans_plain_text)
+            #         print(words_len)
+            #         if words_len > 1:
+            #             print(words_len)
+            #             with open('combination_cipher_result.txt', 'a') as results_file:
+            #                 results_file.write('%s | %s | %s\n' % (str(key), str(plain_text), str(words_len)))
 
     def start_simple_substitution(self):
         ''' MultiCore '''
@@ -261,7 +317,7 @@ if __name__ == '__main__':
     MWZCFHIOTBQKFDHOXZFUALTOGHLCPVDSESWVWYPQSEWNVUERPRFQZFHVPZVCSRTQS
     ''' if x.isalpha()])
 
-    for each in range(9,36,9):
+    for each in range(216,900,9):
         print('Poly-alphabetic Key length: %s' % each)
         # run = Run(each, combination_test_text)
         run = Run(each, cipher_text)

@@ -79,7 +79,6 @@ class Decode:
         cipher_columns = [self.cipher_text[i:i+column_size] for i in range(0, len(self.cipher_text), column_size)]
 
         for each_key_char in key:
-
             if null_count > 0:
                 cipher_columns[int(each_key_char)-1] = cipher_columns[int(each_key_char)-1][:-1] + '.' + cipher_columns[int(each_key_char)-1][-1:]
                 null_count -= 1
@@ -196,11 +195,15 @@ AODVA KAONT AEYGA MOGDH EERCY MYVON
 SUOUN RLOSI EELYI RCCHR ATNWN ICSHU
 
 '''
+
+    test_cipher2 = 'ARESA SOSTH EYLOI IAIEP ENGDL LTAHT FATEN HMW'
+    test_cipher2 = ''.join([x for x in test_cipher2 if x.isalpha()])
     test_cipher = ''.join([x for x in test_cipher if x.isalpha()])
     cipher_2 = ''.join([x for x in cipher_2 if x.isalpha()])
-    decode = Decode(cipher_2)
+    decode = Decode(test_cipher2)
+    print(decode.columnar((4, 2, 5, 1, 6, 3)))
     # print(decode.permutation((4,2,5,3,9,8,6,1,7)))
-    print(decode.permutation((7,1,5,0,2,3,6,8,9,4)))
+    # print(decode.permutation((7,1,5,0,2,3,6,8,9,4)))
     # print(decode.columnar((4,2,5,1,6,3)))
     # print(decode.columnar('POTATO'))
 
