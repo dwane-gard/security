@@ -109,8 +109,9 @@ class Run:
                 colmnDecode = Decode(cipher_text)
                 plain_text, each_trans_key = colmnDecode.columnar(each_trans_key)
                 words_len = self.wordSearch.run(plain_text)
-                print(each_trans_key)
+
                 if words_len > 1:
+                    print(each_trans_key)
                     print(words_len)
                     with open('combination_cipher_result.txt', 'a') as results_file:
                         results_file.write('%s | %s | %s\n' % (str(each_trans_key), str(plain_text), str(words_len)))
@@ -133,7 +134,7 @@ class Run:
 
         # using each key test it
         each_key = key
-        # print(each_key)
+        print(each_key)
         plain_text, key = self.decoder.runner(each_key)
         chiSquare = ChiSquare(plain_text)
         ic = chiSquare.ic
