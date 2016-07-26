@@ -133,7 +133,7 @@ class Run:
 
         # using each key test it
         each_key = key
-        print(each_key)
+        # print(each_key)
         plain_text, key = self.decoder.runner(each_key)
         chiSquare = ChiSquare(plain_text)
         ic = chiSquare.ic
