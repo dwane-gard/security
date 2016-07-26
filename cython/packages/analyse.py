@@ -1,5 +1,70 @@
 import itertools
 from functools import reduce
+import time
+from pad import Decode
+
+class NthMessage:
+    ''' breaks up the cipher text of  vigenere cipher into its parts so it can be treaded as a ceaser shift cipher'''
+    def __init__(self, cipher_text, degree):
+
+        self.cipher_text = cipher_text
+        self.cipher_columns = []
+        self.plain_texts = []
+
+        j = 0
+        while j < degree:
+            i = j
+            nth_cypher_text = ''
+            while i < len(self.cipher_text):
+                nth_cypher_text += self.cipher_text[i]
+                i += degree
+            j += 1
+            # print(nth_cypher_text)
+            self.cipher_columns.append(nth_cypher_text)
+
+        for each_column in self.cipher_columns:
+            Decoder = Decode(each_column)
+            result = []
+            # For each shift posibility decode
+            for each_letter in [x for x in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']:
+                result.append(self.EachMessage(each_letter, Decoder))
+
+                # sort each part by its chi of the english language
+                result.sort(key=lambda x: x.chi)
+
+            self.plain_texts.append(result)
+            # print(result[0].chi)
+            #
+            # print(result[0].shift)
+            # print(result[0].ic)
+
+    def output(self):
+
+        for each in self.plain_texts:
+            pass
+            # print('derp')
+            # print(each[0].chi)
+            # print(each[0].shift)
+        return self.plain_texts
+
+    class EachMessage:
+        def __init__(self, shift, Decoder):
+            self.shift = shift
+
+            # run a Vigenere decrypter
+            self.plain_text = Decoder.runner(self.shift)
+
+            # run a beufort decrypter
+            # self.plain_text = Decoder.beaufort_decrypt(self.shift)
+
+            self.chiSquare = ChiSquare(self.plain_text)
+            self.chi = self.chiSquare.chi_result
+            self.ic = self.chiSquare.ic
+
+
+
+
+
 
 class WordSearch:
     def __init__(self):
@@ -145,57 +210,57 @@ class ChiSquare:
 
         def find_expected_frequency(self):
             if self.letter == 'E':
-                self.expected_frequency = 0.127
+                self.expected_frequency = 0.1237
             elif self.letter == 'A':
-                self.expected_frequency = 0.082
+                self.expected_frequency = 0.0821
             elif self.letter == 'B':
-                self.expected_frequency = 0.015
+                self.expected_frequency = 0.0150
             elif self.letter == 'C':
-                self.expected_frequency = 0.028
+                self.expected_frequency = 0.0230
             elif self.letter == 'D':
-                self.expected_frequency = 0.043
+                self.expected_frequency = 0.0479
             elif self.letter == 'F':
-                self.expected_frequency = 0.022
+                self.expected_frequency = 0.0225
             elif self.letter == 'G':
-                self.expected_frequency = 0.02
+                self.expected_frequency = 0.0208
             elif self.letter == 'H':
-                self.expected_frequency = 0.061
+                self.expected_frequency = 0.0645
             elif self.letter == 'I':
-                self.expected_frequency = 0.07
+                self.expected_frequency = 0.0676
             elif self.letter == 'J':
-                self.expected_frequency = 0.002
+                self.expected_frequency = 0.0018
             elif self.letter == 'K':
-                self.expected_frequency = 0.008
+                self.expected_frequency = 0.0087
             elif self.letter == 'L':
-                self.expected_frequency = 0.04
+                self.expected_frequency = 0.0393
             elif self.letter == 'M':
-                self.expected_frequency = 0.024
+                self.expected_frequency = 0.0254
             elif self.letter == 'N':
-                self.expected_frequency = 0.067
+                self.expected_frequency = 0.0705
             elif self.letter == 'O':
-                self.expected_frequency = 0.075
+                self.expected_frequency = 0.0767
             elif self.letter == 'P':
-                self.expected_frequency = 0.019
+                self.expected_frequency = 0.0163
             elif self.letter == 'Q':
-                self.expected_frequency = 0.001
+                self.expected_frequency = 0.0009
             elif self.letter == 'R':
-                self.expected_frequency = 0.06
+                self.expected_frequency = 0.0550
             elif self.letter == 'S':
-                self.expected_frequency = 0.063
+                self.expected_frequency = 0.0617
             elif self.letter == 'T':
-                self.expected_frequency = 0.091
+                self.expected_frequency = 0.0921
             elif self.letter == 'U':
-                self.expected_frequency = 0.028
+                self.expected_frequency = 0.0291
             elif self.letter == 'V':
-                self.expected_frequency = 0.01
+                self.expected_frequency = 0.0087
             elif self.letter == 'W':
-                self.expected_frequency = 0.024
+                self.expected_frequency = 0.0254
             elif self.letter == 'X':
-                self.expected_frequency = 0.002
+                self.expected_frequency = 0.0013
             elif self.letter == 'Y':
-                self.expected_frequency = 0.02
+                self.expected_frequency = 0.0195
             elif self.letter == 'Z':
-                self.expected_frequency = 0.001
+                self.expected_frequency = 0.0006
 
 
 class Dia:
@@ -211,9 +276,11 @@ class Dia:
         self.key = None
 
     def permutation(self):
+        ''' setup the 'colmns' for a permutation cipher '''
         self.cipher_columns = [self.cipher_text[i:i + self.degree] for i in range(0, len(self.cipher_text), self.degree)]
 
     def columar(self):
+        ''' setup the 'colmbs' for a columb cipher, not yey implementd'''
         from math import ceil
         column_len = ceil(len(cipher_text) / self.degree)
         null_count = (self.degree * column_len) - len(cipher_text)
@@ -1853,11 +1920,12 @@ GYUPV DMZXR RRFCV AXQJN RIEJR TVAMR
 PHHER RU
         '''
         # plain_text = ''.join([x for x in plain_text if x.isalpha()])
-        # cipher_text = ''.join([x for x in cipher_text if x.isalpha()])
+        cipher_text = ''.join([x for x in cipher_text if x.isalpha()])
         # chiSquare = ChiSquare(plain_text)
         # print(chiSquare.ic)
         # print(chiSquare.ic_difference)
-        cipher_2 = ''.join([x for x in '''COOUS ULYDU TQOHY SEELP EUTST GTOAR
+        cipher_2 = ''.join([x for x in '''
+COOUS ULYDU TQOHY SEELP EUTST GTOAR
 IDTHM WPEER DTTEF EXUTO ROSEC UYCOU
 DUBEU LUONL IKFTE YHCER LROTU ESAOF
 ANRAI EQSOR ETLER HTFTE UISEI SDQBY
@@ -1943,13 +2011,54 @@ r d t r i s i e e r ezt
 t l o e a n t p n t s l a
 r i t e o n r df f eof
 n u t w o e i o o h w m r'''.upper() if x.isalpha()])
+        vigenere_cipher = ''.join([x for x in '''
+        ZSXNZXZGFWEPYXDDUASPAALHHRZGTEWSHCEPRMYVJEWAZSYIOIQGVREAPRPUVVLAHVRTJEMALGZBWEYNALPYVFAPFWHT
+        SPLCKJZGALPBVWEEHVEIOIATVTWTPHPPSATIOECTMETGSCYXJIEDAEWZASBJPXPDMXPCDIWANIERHPWHMVZBZIYXVVDT
+        ZTPRPEWAFMYIOIXDYRTCNASDOEGTWVPBPWPTXYTETIYIPWDJLWDJJLLHZRZLVRDRYIPCVVYDZMRCHPZCALPXYXGHLXDR
+        VRYTJXPSASZJYHTVPXLALUFXWQPCARZLTCSTHVESVIDVVSFIASDDTIZUALPHLJZARFPRHYDTBTFCAMWGLGPCAPJEHWEU
+        LAJTHVDLLAZJSHDJWTWNZXCPPKSIHRLAVKNPIPPIVQLCFLZBLWNDHBOXYINIMVZBDEWAASEKDMEWZGCDSPTCNKFXKISD
+        DIGTYQZHAGTIPIDLLWPGCMNTUSHPKEJHYIBJPVPDBVOXNMEPSIBJPTXTUXEDYINTPZPROEYCLPDPUHEWPWSPZGLJZIOP
+        SSEDMJCJZXCPAMZCDMEWVPOTYTPDWPPLOSODUXVCVASDDXZDWICPAIDPPHPFBMABLREXLEWLHCDWHZTCNCZJYXGHLXZC
+        CMOTVSCWKQTIVKPIWMNIBVPHVSQILREXTIDLLKPIJYDIVQPGZASDHVPGLTPPASQULROTYWHXALWDUKEXJOPIOMDIVVTT
+        ZSQIOIDTACATZSQXZWFTZWZPUCHPFMRTAENPSPQGVQLCVPOTYKPCAPPBHRHWVWBJPXPQPXETYEYSTILCYMRWASQUALPQ
+        HXODLWYISMVTALLIPEDZLHQDYLTHHHOGLWDILPPEOSYTUYXQLVEDCICXMCEWLENRVYYIOEETZXSPALPWHWEDZTPPRATI
+        OEXPJLTCLFPUVVPGLENWPRRPUERTUXPIJMSPCIDDTIPMWICXLRNTOEYSSMYVALPHLXJELWZUJYDIVQPGZLZLLZPGALTH
+        JEWADEDVVMYVASMTHPTIAPPSPJQTYIYIPWATUXZKLVXXUYETZATIOXSXZKFNDIWAJEWAOMXBYWXXALEGFMYVASRTALTH
+        AZDTAGZCUINILHEDALPSPKTIHPMDETCDWICAFWZWLGZJSHCTJITKLEAXJXFGLRZABGVWLALHNIEIPRRRSILGSCQGBWEG
+        HXPSICEWLASDSIZGKILAHROHAECILHMAHQTCNQPUVVYDAFPXUKLQSIEDKSXNQSMEYSATYPJWVATLHWFHLPPHZIERDLLI
+        LZPGSMVTPWLXKMGTKILAAATIOXSXZFPUVVPHVMEGPIOBFFPHARZIASEPRITIWICHVRLASCMJAIGTUXFPSPJXOEOIVEDZ
+        OMXXMAPRVYWSISZZHWPGCMNTAINWASEWLLZBLENDBVETZCNPSPEDNIEWPWEKDSCZPRRRVVCTJXWNBRQDYXFCHXPAFSFG
+        ISZZPRRRHPPCKECLHWDWVATCNEYPWTZXUXXTUXOPFWZJAXSPAWHWLRSTKVZEWIOIOMDDUQPSVREQVXSTYWPCKMYVHKZS
+        KEXCAINWUMNXHRMTJEFHLMWAIIOTHHMNALPCPQLCKXGXZXSTVRWNALTCNMSPCIWTMXLGLCZJYILASCRDPRRIVQLZLQPL
+        HMEUVVLILGSXPRDIHREAFJPAAFLSPQPPUMGTOILGKIGTYCNDTTWPPREXUXSTISZZHWEDDLJELSAALHZCAALCAXZLHMEU
+        VVLILGSQBXEWPWZCLOTCKSQVVXEDTITBPRXNTMOHZSSDUIDISCTRHRETCIYXTERXUISDDMEBBWEULIWIVYEILVEWVWPL
+        VVOHZSTHWSVTDMEWTCDJWICKPWZGDLZHHMOIOIJSZIPXMAPRVYWSNIEHVQPDUIZJAILGSMPGIYELLGZJSHYIWVZBPWPP
+        UCEWPRRHVMWTAQCHTMEWRRZLHROWLALHWVPSPGEPIPJCVXGTYCSPWTJLPXSBFEYHDICPAXSPATZXUXTIHPXDZXDDBROT
+        KPTZLLPHAECILHEDJVJPUHHTUXTCASSDDLPWHWYDMEXXSCWTMXLCKRZUYMPCKWEWHXNDTIGXZMEIOMDLHWLUAICXHWVT
+        KMQIOICTDEDPUCZCLMYWPWMJPPOXUKEWHXXXNLEQLEMALXZWLPABHRTULPEILVCXIPPHVMEDVOTIBTZCTCDTSJEDHWVB
+        YWXXALTUPGZJSHAPFEGXZMEWLPTKLHTCHWXPSPNXACZKLVQGVQHWLVPXDEDCVXGTYCQPYXZSYMGTOIHPZEWXAXWTZLZR
+        RIOXDEDLPPWXUKEDKSEWPWMJAWZJUHPSALLCRJFAPALHDMWAPRRIVGZBLSFIHROWLPAWPQATYWZCHPWNZSTWLEODCICV
+        LXEDALPGLWTSLRNTHROBLIEWPQHXALTCZINDUHDXOEOIOINPIPPGBRYXUKLVHMYHPQAALMYEBXNWHRRTHROTCIYQYSFV
+        OXSXTEDXTTWXMMPSYIXDAIQDYLTHZIEIVTMDEXZPCSTSALTHWVZQSIXXUXSTMYEJYIEWHXDLOIYWLWEPYXPSJVJXUKST
+        NSPHPREDOSHWLLLHUXLRAYLASCDEVOPCVVCTHPWNPRETYENILHHXALLCFSYTMSCNLECHOIRPCIXTHLFVHROIVPOBLLZL
+        ALLCRJFAOIHPZXSPAMNPTIZJAEYSOIWELHSXTEYSASWSTISDDWZGYCSTDEDUVVMTPRRHVQPPUILGSMPGVRTHHMOXAALH
+        USAGVFWTTEYSPALHOEAEFXZWLPAPUHEWHXHPZMEXSIQIDIPZZPLILVXNZYATYZTHVVNDTIDIVQJSLWVPUHLHRWXTPJTR
+        VYWSJSXTZTPPRATIOLPGMSCPIMEPISFIHRLRJSFCAJZGTVDBPXSIBVYHVYEWLWPCAXSTJEMALGZBWEYNHPPIAICDBXWX
+        UMYVOSHIOEYZMYWWLALHMSCWLPAXUKSXTATIOLTHPWDJLEYSOSHXAVPPSPJBHHPPUSWSTEYWHTANHKLXUJZGVRNTPRLK
+        LVJAVRRIPQPIOIWTAXPGDEDUYEXTKEYSWYEDUSFGMVZCAIYIYEYRLXZGLXLXSMRJLWDIOIXDYEWDMXSXZWEDYCTHUSXP
+        AXPGOSHCHWENZSXTVRPXZXZNVYZKLVEWLTSDUIDDTIEXTIDIOIJGLRZIHPHPFWLILVCXIPPELVDDUEYSQYDINSTCNXSG
+        VYRWHPZIPWEXSPEWPRVPISFITVDBPXSDJGLHPSYPSPJLOIYXNIEIOSDTUEDIFGFHASXTYWLCKMEBHOPHTIQTLPLAPXEA
+        LFPIAICPUCHPFXSPUODUVVCTHHTCNNFHAXSDBKSIPHDWHVPWVAEWPWZCLGLASGSPUKPSTCZJAPZDRSYAPJP
+        ''' if x.isalpha()])
 
-        for each_degree in range(2,50,1):
+        for each_degree in range(3,30,3):
             print('[+] Running Degree: %d' % each_degree)
-            dia = Dia(ze_cipher_text, each_degree)
-            dia.permutation()
-            dia.run()
-            print(dia.key)
+            # dia = Dia(ze_cipher_text, each_degree)
+            # dia.permutation()
+            # dia.run()
+            # print(dia.key)
+            nth = NthMessage(cipher_text, each_degree)
+            nth.output()
 
 
         # dia.run()

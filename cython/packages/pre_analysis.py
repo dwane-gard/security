@@ -13,7 +13,7 @@ class Kasiski:
         cipher_text = cipher_text.replace('\n', '')
         self.original_cipher_text = cipher_text
         self.cipher_text = self.original_cipher_text
-        print(len(self.cipher_text))
+        print('Length of Cipher: %d' % len(self.cipher_text))
         self.multiples_list = self.factors()
         self.alphabet = 'abcdefghijklmnopqrstuvwxyz'
         self.alphabet = [x for x in self.alphabet]
@@ -45,7 +45,7 @@ class Kasiski:
         sorted(all_possible_substrings)
 
         all_possible_substrings = (collections.Counter(all_possible_substrings))
-        print(all_possible_substrings.most_common())
+        # print(all_possible_substrings.most_common())
         return
 
     def finding_the_key(self, key_length=9):
@@ -66,21 +66,22 @@ class Kasiski:
                 nth_cypher_text += self.cipher_text[i]
                 i += key_length
             # print(nth_cypher_text)
-            checkIC = CheckIC()
 
-            ic = checkIC.run(nth_cypher_text)
             Chi = ChiSquare(nth_cypher_text)
+            ic = Chi.ic
             all_chi.append(Chi.chi_result)
             all_ic.append(ic)
-            print(j)
-            print(ic)
+            # print(j)
+            # print(ic)
+            # print(Chi.chi_result)
             # print(Chi.chi_result)
             j += 1
 
         ave_chi = reduce(lambda x, y: x + y, all_chi) / len(all_chi)
         ave_ic = reduce(lambda x, y: x + y, all_ic) / len(all_ic)
-        print(ave_ic)
-        print(ave_chi)
+        # print(all_ic)
+        print('Average IC: %f' % ave_ic)
+        print('Average Chi: %f' % ave_chi)
 
     def output(self):
         '''
@@ -190,10 +191,10 @@ PHHER RU
     # cypher_text = 'abcdeknfdslkgnadsklfnlksabdabdbadbbadnscklzmcklznclabcabc'
     kasiski = Kasiski(cypher_text)
     print(kasiski.cipher_text)
-    for each in range(9, 900, 9):
+    for each in range(3, 30, 3):
         print('Key length %d' % each)
         kasiski.finding_the_key(each)
-        input("Press Enter to continue...")
-        # kasiski.analyse()
+        # input("Press Enter to continue...")
+        kasiski.analyse()
     # kasiski.analyse()
     # print(kasiski.output())

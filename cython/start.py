@@ -4,35 +4,38 @@ import time
 from termcolor import colored
 
 from packages.pad import Decode
-from packages.analyse import CheckIC, ChiSquare, WordSearch, Dia
+from packages.analyse import CheckIC, ChiSquare, WordSearch, Dia, NthMessage
 
 
-class NthMessage:
-    def __init__(self, nth_cypher_Text):
-
-        self.cypher_text = nth_cypher_Text
-        self.plain_texts = []
-        Decoder = Decode(self.cypher_text)
-
-        # For each shift posibility decode
-        for each_letter in [x for x in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']:
-            self.plain_texts.append(self.EachMessage(each_letter, Decoder))
-
-        # sort each part by its chi of the english language
-        self.plain_texts.sort(key=lambda x: x.chi)
-    class EachMessage:
-        def __init__(self, shift, Decoder):
-            self.shift = shift
-
-            # run a Vigenere decrypter
-            self.plain_text = Decoder.runner(self.shift)
-
-            # run a beufort decrypter
-            # self.plain_text = Decoder.beaufort_decrypt(self.shift)
-
-            self.chiSquare = ChiSquare(self.plain_text)
-            self.chi = self.chiSquare.chi_result
-            self.ic = self.chiSquare.ic
+# class NthMessage:
+#     ''' breaks up the cipher text of  vigenere cipher into its parts so it can be treaded as a ceaser shift cipher'''
+#     def __init__(self, nth_cypher_text):
+#
+#         self.cypher_text = nth_cypher_text
+#         self.plain_texts = []
+#         Decoder = Decode(self.cypher_text)
+#
+#         # For each shift posibility decode
+#         for each_letter in [x for x in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']:
+#             self.plain_texts.append(self.EachMessage(each_letter, Decoder))
+#
+#         # sort each part by its chi of the english language
+#         self.plain_texts.sort(key=lambda x: x.chi)
+#         # print([(x.chi) for x in self.plain_texts])
+#
+#     class EachMessage:
+#         def __init__(self, shift, Decoder):
+#             self.shift = shift
+#
+#             # run a Vigenere decrypter
+#             self.plain_text = Decoder.runner(self.shift)
+#
+#             # run a beufort decrypter
+#             # self.plain_text = Decoder.beaufort_decrypt(self.shift)
+#
+#             self.chiSquare = ChiSquare(self.plain_text)
+#             self.chi = self.chiSquare.chi_result
+#             self.ic = self.chiSquare.ic
 
 
 class Run:
@@ -42,12 +45,38 @@ class Run:
                     'U', 'V', 'W', 'X', 'Y', 'Z']
 
         self.cipher_text = cipher_text
-        #self.brute = itertools.product(self.alphabet, repeat=key_len)
-        # self.brute = [self.pre_analysis(), ]
+        self.brute = itertools.product(self.alphabet, repeat=key_len)
+
         self.decoder = Decode(self.cipher_text)
-        self.ze_pre_analysis = self.pre_analysis()
+        nthMessage = NthMessage(self.cipher_text, key_len)
+        self.ze_pre_analysis = nthMessage.output()
+        self.brute = self.build_key()
+
         self.transDecode = None
         self.wordSearch = WordSearch()
+
+    def build_key(self):
+        # KRYMQYGSPZRDWLAZAV possible key
+        ''' Builds key from pre analysis output '''
+        pre_key = itertools.product([0], repeat=self.key_len)
+
+        # for each in [0,1,2,3,4,5,6]:
+        #     print(self.ze_pre_analysis[0][each].shift)
+        # exit()
+        for each in pre_key:
+            # print(each)
+            j = 0
+            key = ''
+            for each_char in each:
+                if each_char is None:
+                    key += '.'
+                else:
+                    # print(each_char)
+                    key += self.ze_pre_analysis[j][each_char].shift
+                    j += 1
+
+            # print(key)
+            yield key
 
     def pre_analysis(self):
         # Build the de-shifted text that is the best gueess from chi-squares
@@ -59,7 +88,7 @@ class Run:
             while i < len(self.cipher_text):
                 nth_cypher_text += self.cipher_text[i]
                 i += self.key_len
-            messages.append(NthMessage(nth_cypher_text))
+            messages.append(NthMessage(nth_cypher_text, self.key_len))
             j += 1
 
         return messages
@@ -233,9 +262,9 @@ class Run:
 
                 if ic > 0.06:
                     print(ic)
-                    print(plain_text)
+                    # print(plain_text)
                     with open('vigenere.txt', 'a') as results_file:
-                        results_file.write('%s | %s | %s | %s' % (str(key), str(plain_text), str(ic), str(chi)))
+                        results_file.write('%s | %s | %s | %s' % (str(key), str(plain_text), str(ic), str(chi)), 'a')
             except:
                 # print('[!] run finished')
                 break
@@ -317,10 +346,51 @@ if __name__ == '__main__':
     VFFEAZVXTHVLNNOPWZYOSPJHVUITRSAXSZGUILDHJCFDHTSPCGUEOTHHQVPGLQQPSHPWTHSXPMSAXPCOFRHLMOXLYY
     MWZCFHIOTBQKFDHOXZFUALTOGHLCPVDSESWVWYPQSEWNVUERPRFQZFHVPZVCSRTQS
     ''' if x.isalpha()])
-
-    for each in range(216,900,9):
+    vigenere_cipher = ''.join([x for x in '''
+        HZQYKXVVJHFEJHDJRPOILLLWAFSYQLAPEQHLFMGNKSAWWOFXOIQGARLZTIIYVZSALVGWGHFWTOSEDLICMOMBDMT
+        AQWDIWAMRVTZMXALUGHETAJXALPEQSHZPDHXHTOXELAJIMETGXCFWNZXHAIDZESQMMAIZUFIFKPGPZLBUPWPSXV
+        VQDTZMGFDZWILKAPWPYARALPBAVFWYBAAVPSKPTRWQPWPTCYADXZRMPAKJPWSMGOEDHZSOCYNGKLMFDCROKMNRL
+        AARLVPDVMCAWIDGOFRLGETPXGCFMHBNQLPWIQMMWQPCFRGKXTLXHZLSZISYSVYEIAWGAPJJMOMKTQSLCFLGLJEI
+        MDFIXBSZWRPRTDCWEDIRIOMPVVLDMODFPDKYWTWNEXJOTBLMHVSAZKCSFSIEDYEFMSJQXZKGPIHIJIJXQGAQOOW
+        GXHADOXELSUVVPWXZKYITYIAVEWKPVMGWAGTIUIKKPNIKCQUTYSWSHHCDGQUMWCZSNYLAVTXADIXYTEYIFHEJVX
+        JMAKPGHSRUIWHMRVHSDWAHAUPFWEVESSEDRJJIDOVTAQGCHMTZSSHPGBIGDWZAAVLGCEONGAOSHIASHSCVXXZIA
+        SPUUATTIYIUISZHVCLOINXYKYGYYXGHQXGBGDHXVWJWOQILSNIEEUGLICZWHVNLTYXIEIZAPVQXUIDOSFLZKLSS
+        AJIYIATMXGTQZRWLZKLTXHDSUKEXOOWHSDWMVZATDSFLLLWPIKTWGZAMLZCWHDSAFCDEJXSILONVPEMZGBLRODH
+        LVRTZXDSXVRPOWKFFMTWFPXETDEFRXZEGYQYWESFXXOIMPFHGSDIXEPSWISETAEZOPSRSJVTNEWKZWHDXEDIWLZ
+        CQRMAMZVMVDWGTJYLLLENRAYFHSVXXZBZPELEZEZXZHBISYHDXAHUSRSMNWFLJZGQVWONCMGNIFPRINLIAGTWMZ
+        WGZHIXEXWGTINUIOEYSXMFUECILLBQEPWOXGBWEDYIJGSJAXCMJISMSUESPHPEKGWYBXHIMSATXTDIKMQUQVWBE
+        DWILVLDGIREMUYETEAAHSOLBZOMNHILDGHPWWUQEFDHMMOBJNTRGLSNIEWUWLJDZXVVVFTNXEVXVXSTPMYWEVPU
+        VFHGZTEJPFWZWQGGIWYVXJMAKPEPAGAYCTZSDINFLXDIKVPXTARNGWTMVDMQMYLAZSIPHBQXOIHWAPWCCYITSIF
+        SDXAJXLHMAMQABRHIYVZFDEFEARNEMAQXGRZHCCVJHGZTEJPFLZLUASGFNIELAKTEGWZEAIGTDPAYPDWTPLAKPH
+        ESPAATITXZWDWIYVZWHZMTJMLHXNNIKHYJXMVBSZPMTHIYWZCMPDMMPXXCMFIFELDCPLLSFSSGVCMFPNOTNSUDH
+        ISZZMWWFGDGXAMUWESTZIOSXTMGGICOILFKSAWXOYIALTHFZOCCFMGNKGGCICLPFYYUAVLIYVXXSGGJCFOGOPRR
+        RMPWBOVVPHAKWZAIFKHRLEBSABEHIGALSNDSULXOEEHILWBSZHKVXHTOXHAWVRXTPSFHMJXALZKTYHIFKHKZSPE
+        EBEZGAUQUXLRBWGHYDTUPDPPYITKJQISINAQHROIHMKHSZSGSGLWTRGALHZPAQJLOCZCHBZWPWPYYSPRRIAQSYP
+        HIPHQLUZVALIJLTXZWLOYOPRMMDIMEDAQLEYXHIZSLMHXCMJNNSMHPHMYIURLVPWSHRIKIZAHQTLSAAQHGBEREG
+        ABGLLMTXSYEETOLTIEOLBZWFTVMNVSMKZIFSESTHMGTGEXOWSGLVRPHFPQWNVRMLDWCTQAYMUISDIMLAFNXYLMD
+        IZYTLIYXSDEIOCCYWLVQKEZOEOMALXNEYHSCQMLVZOWZWAAHALPNPWWSTAAXJWMAOKELWVQPDZIGIEZEKSQWGMY
+        TOIJSFAPRLDCJQBZMSCJXHARNWZXXILACNQBAPCCZAAFHOIHPETJSODGMHJDNYSTNIYCSPBTQKTOLFFIFHHIRSX
+        ALLIBSABEDXTSUGHEWOMRKIOAUOWVPNXTYBWSESCJCHROLQRLWYOSAVEZTSESFSMEXXXCDSQOEGKVGUCMEFHZXS
+        PFGGAPQMLPBLWTWWSWHJETDMSGVZHBMBZTCIWSWHRJDZIABSDWUBQDSTRGLLHXXXSLLPPVFELBGWPPPEEUMQTXX
+        LSCMMUSMKDTXOGOPXFEAREMDZPYAWSHVQRKQPXSXRMUCFGHIHGSKTWILLLPTKQHABLNQTSTUXECONIYJCDYAZSC
+        ZMPHAFDEZEJCMECIAHJWGZLXDIKPWMTLPLWSDOOWRTRELDQDATRGLSKSEWUWTIENSNULWSELAFOMYWXIEKKTGPB
+        UOLDNSMWSBXLCPLWZACMFWMJHZRADPFWZXTISRZQIKNMLIZXHWVLWTSQRUSLIHFLMLWTQWAXOMYHQGGBONMAHLL
+        WPGATPLVFCZMFULBEBUAABAPEARWYERTEFUPVRWLDWCMVOMKOXSXYEKWXKPBMQWSCIMGXLJZGTMKGPOXHWJGMES
+        ANSPHEWUWHFZWPXTQFISIFMXBVPITELGHCIGOMKILVTWHJVJXZKZSRJILPVLDSSWZIOEDCFEUHFVPEFAHDVINGV
+        YILAXCABEZVTJBWSHMTZEUCZCQJGFJZEKZPWVLZEEIHLFVMRVHZGHFLPGLELAFOMYWWQASGECEMPKSBPSULEUHS
+        TXTWRSDQTULLDWHMWLVADDDVQVPRELMWJQPMNYWVQPPZISFWDIKVVAHLMDAXDEDCATJCMGIFHVVXHESZEWTJIAL
+        WZAVRWAPSIHESAXPPPUFAWSVNPTAMJBJWUHIYZTHAVUCXZWMVUQSPWKSRKEDZEQWWQDGHBTVRZQEKTLEVLUXZVP
+        MJHYITXEEBGYAEYPOGGIYOJHYUJHXMTZXBVYHAYLVPNIGABZTNEBDIJSXEMRQOWZXMLZGJEPIFMUKSDIXZOYFJN
+        SPWLLWFGVOIWEURYVTHABAPZXDMSKYLEYSTSOWEMITSTQBLHESRVPOBMRZOAKCTNIACQSRGRJITCMZWFJGSGNBA
+        BPXHWPLXETDASGQMEFLLSCOTULSUSFGRVGBEZRMYIFRPXOJIAETAUKMSDNXALUGGLPOXXOMDHFSJMTNRHTILIPV
+        HGAUEDIKWGAPJRXPALDJSUGZLVEWQTZCYZWHTMLXXISLLLCCTZSLOWRERZILTCVITPLTPGESFOYYNNZBYDTRGLL
+        YSFVTEDCEDWMPTDISMNCEISFIYVKATOLHJKSHTSNSPSCHWQRAUPOXAVAWCLWTQGBWEDYIJGLIHBAUSZPWMWJLIW
+        PXMLHWZFXABWGLRYOEFXSPZOKTZMVXHLACRNUKXALZJSLLWONLTYMZDHXHAWVRPRMPDQSVRZLLENZYTDSVOZCXM
+        XS
+        ''' if x.isalpha()])
+    for each in range(0,900,9):
         print('Poly-alphabetic Key length: %s' % each)
         # run = Run(each, combination_test_text)
         run = Run(each, cipher_text)
-        # run.start_simple_substitution()
-        run.start_combination()
+        run.start_simple_substitution()
+        # run.start_combination()
