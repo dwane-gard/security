@@ -154,7 +154,7 @@ class Run:
                     jobs.append(p)
 
                 # Feed items into the queue
-                for each_item in itertools.permutations(range(1, each_key_size, 1)):
+                for each_item in itertools.permutations(range(each_key_size, each_key_size+1, 1)):
                     q.put((plain_text, each_item))
 
                 # Wait for each worker to finish before continueing
