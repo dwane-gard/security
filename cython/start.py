@@ -141,7 +141,7 @@ class Run:
         print('[-] CHI: %s' % str(chiSquare.chi_result))
         if chiSquare.chi_result < 200:
             ''' Colmner cipher test'''
-            for each_key_size in range(2,9,1):
+            for each_key_size in range(9,10,1):
 
                 ''' multi thread code'''
                 q = multiprocessing.Queue(maxsize=50)
@@ -154,7 +154,7 @@ class Run:
                     jobs.append(p)
 
                 # Feed items into the queue
-                for each_item in itertools.permutations(range(each_key_size, each_key_size+1, 1)):
+                for each_item in itertools.permutations(range(1, each_key_size+1, 1)):
                     q.put((plain_text, each_item))
 
                 # Wait for each worker to finish before continueing
