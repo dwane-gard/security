@@ -205,17 +205,20 @@ AODVA KAONT AEYGA MOGDH EERCY MYVON
 SUOUN RLOSI EELYI RCCHR ATNWN ICSHU
 
 '''
+    cipher_3 = open('../cipher_3_text.txt', 'r').read()
+    cipher_3 = ''.join([x for x in cipher_3 if x.isalpha()])
     test_cipher2 = 'ARESA SOSTH EYLOI IAIEP ENGDL LTAHT FATEN HMW'
     test_cipher3 = 'TNRGD MEIRX ERWIX HAOTX EGNEX'
     test_cipher3 = ''.join([x for x in test_cipher3 if x.isalpha()])
     test_cipher2 = ''.join([x for x in test_cipher2 if x.isalpha()])
     test_cipher = ''.join([x for x in test_cipher if x.isalpha()])
     cipher_2 = ''.join([x for x in cipher_2 if x.isalpha()])
-    decode = Decode(test_cipher3)
+    decode = Decode(cipher_3)
+    print(decode.runner([x for x in 'HAVE']))
     # print(decode.permutation((4,2,5,3,9,8,6,1,7)))
 
     # print(decode.permutation((7,1,5,0,2,3,6,8,9,4)))
-    print(decode.columnar((1,4,3,2,5)))
+    # print(decode.columnar((1,4,3,2,5)))
     # print(decode.columnar('POTATO'))
 
     # multiple anagraminf

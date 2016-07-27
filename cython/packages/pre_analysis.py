@@ -191,7 +191,7 @@ PHHER RU
     # cypher_text = 'abcdeknfdslkgnadsklfnlksabdabdbadbbadnscklzmcklznclabcabc'
     kasiski = Kasiski(cypher_text)
     print(kasiski.cipher_text)
-    for each in range(3, 30, 3):
+    for each in range(9, 450, 9):
         print('Key length %d' % each)
         kasiski.finding_the_key(each)
         # input("Press Enter to continue...")

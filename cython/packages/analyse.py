@@ -2046,14 +2046,14 @@ n u t w o e i o o h w m r'''.upper() if x.isalpha()])
         LFPIAICPUCHPFXSPUODUVVCTHHTCNNFHAXSDBKSIPHDWHVPWVAEWPWZCLGLASGSPUKPSTCZJAPZDRSYAPJP
         ''' if x.isalpha()])
 
-        for each_degree in range(3,30,3):
+        for each_degree in range(2,30,1):
             print('[+] Running Degree: %d' % each_degree)
-            # dia = Dia(ze_cipher_text, each_degree)
-            # dia.permutation()
-            # dia.run()
-            # print(dia.key)
-            nth = NthMessage(cipher_text, each_degree)
-            nth.output()
+            dia = Dia(ze_cipher_text, each_degree)
+            dia.permutation()
+            dia.run()
+            print(dia.key)
+            # nth = NthMessage(cipher_text, each_degree)
+            # nth.output()
 
 
         # dia.run()

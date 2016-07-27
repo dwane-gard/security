@@ -388,9 +388,9 @@ if __name__ == '__main__':
         PXMLHWZFXABWGLRYOEFXSPZOKTZMVXHLACRNUKXALZJSLLWONLTYMZDHXHAWVRPRMPDQSVRZLLENZYTDSVOZCXM
         XS
         ''' if x.isalpha()])
-    for each in range(3,30,3):
+    for each in range(40,44,1):
         print('Poly-alphabetic Key length: %s' % each)
         # run = Run(each, combination_test_text)
-        run = Run(each, cipher_text)
+        run = Run(each, vigenere_cipher)
         run.start_simple_substitution()
         # run.start_combination()

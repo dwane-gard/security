@@ -27,36 +27,21 @@ class Running:
         for each_item in self.keys:
             q.put(each_item)
 
-        # Wait for each worker to finish before continueing
-        for each_job in jobs:
-            each_job.join()
-
-        for each in self.keys:
-            plain_text, key = self.decode.runner(each)
-            chiSquarePlainText = ChiSquare(plain_text)
-            # print(chiSquarePlainText.chi_result)
-            if chiSquarePlainText.chi_result < 200:
-                chiSquareKey = ChiSquare(''.join(key))
-                if chiSquareKey.chi_result < 200:
-                    print(key)
-                    print(plain_text)
-                    with open('running_cipher.txt', 'a') as results_file:
-                        results_file.write('%s | %s' % (str(key), str(plain_text)))
-
     def worker(self, q):
         while True:
             if q.empty():
                 time.sleep(1)
             try:
                 obj = q.get(timeout=1)
-                plain_text, key = self.decode.runner(obj)
-                chiSquarePlainText = ChiSquare(plain_text)
-                # print(chiSquarePlainText.chi_result)
-                if chiSquarePlainText.chi_result < 200:
-                    chiSquareKey = ChiSquare(''.join(key))
-                    if chiSquareKey.chi_result < 200:
-                        print(key)
-                        print(plain_text)
+                chiSquareKey = ChiSquare(''.join(obj))
+                print(''.join(obj))
+
+                if chiSquareKey.chi_result < 150:
+                    print(chiSquareKey.chi_result)
+                    plain_text, key = self.decode.runner(obj)
+                    chiSquarePlainText = ChiSquare(plain_text)
+                    print(chiSquarePlainText.chi_result)
+                    if chiSquarePlainText.chi_result < 150:
                         with open('running_cipher.txt', 'a') as results_file:
                             results_file.write('%s | %s' % (str(key), str(plain_text)))
             except:
@@ -66,5 +51,5 @@ class Running:
 if __name__ == '__main__':
     cipher_text = open('cipher_3_text.txt', 'r').read()
     cipher_text = ''.join([x for x in cipher_text if x.isalpha()])
-    running = Running(cipher_text, 9)
+    running = Running(cipher_text, 20)
     running.start()
