@@ -33,18 +33,12 @@ class NthMessage:
                 result.sort(key=lambda x: x.chi)
 
             self.plain_texts.append(result)
+
             # print(result[0].chi)
-            #
             # print(result[0].shift)
             # print(result[0].ic)
 
     def output(self):
-
-        for each in self.plain_texts:
-            pass
-            # print('derp')
-            # print(each[0].chi)
-            # print(each[0].shift)
         return self.plain_texts
 
     class EachMessage:
@@ -52,7 +46,7 @@ class NthMessage:
             self.shift = shift
 
             # run a Vigenere decrypter
-            self.plain_text = Decoder.runner(self.shift)
+            self.plain_text, key = Decoder.runner(self.shift)
 
             # run a beufort decrypter
             # self.plain_text = Decoder.beaufort_decrypt(self.shift)
@@ -60,6 +54,7 @@ class NthMessage:
             self.chiSquare = ChiSquare(self.plain_text)
             self.chi = self.chiSquare.chi_result
             self.ic = self.chiSquare.ic
+
 
 
 

@@ -388,7 +388,7 @@ if __name__ == '__main__':
         PXMLHWZFXABWGLRYOEFXSPZOKTZMVXHLACRNUKXALZJSLLWONLTYMZDHXHAWVRPRMPDQSVRZLLENZYTDSVOZCXM
         XS
         ''' if x.isalpha()])
-    for each in range(0,900,9):
+    for each in range(3,30,3):
         print('Poly-alphabetic Key length: %s' % each)
         # run = Run(each, combination_test_text)
         run = Run(each, cipher_text)

@@ -4,7 +4,7 @@ from pad import Decode
 
 class Kasiski:
     '''
-    THIS IS NOT KASISKI  but ic examination at the nth character
+    THIS IS NOT JUST KASISKI  but ic examination at the nth character
     Uses Kasiski's examinstation to discover the key length for a vigenere encoded message
     Think the max might be set at 8 unsure and should be reviesd if this accours
     '''
