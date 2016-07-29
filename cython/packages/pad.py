@@ -10,6 +10,41 @@ class Decode:
         self.alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
                  'U', 'V', 'W', 'X', 'Y', 'Z']
 
+    def quag(self, keyword, indicator, indicator_pos):
+
+        # Build Alphabets
+        working_alpha = self.alphabet
+        key_alpha = [x for x in keyword]
+        # key_alpha = list(set(keyword))
+        print('1')
+        working_alpha = [x for x in working_alpha if x not in key_alpha]
+        print('2')
+        # for each in working_alpha:
+        #     key_alpha.append(each)
+
+        for each in reversed(working_alpha):
+            key_alpha.insert(0, each)
+        print('3')
+        print(indicator_pos)
+        print(key_alpha)
+        indicator_pos = key_alpha.index(indicator_pos)
+        print(indicator_pos)
+        print('4')
+        alphabets = [list(itertools.islice(itertools.dropwhile(
+            lambda x: x != y + indicator_pos, itertools.cycle(self.alphabet)), 26)) for y in indicator]
+        print('5')
+        # XOR cipher text
+        pairs = zip(self.cipher_text,itertools.cycle(alphabets))
+        print('6')
+        plain_text = ''
+        for pair in pairs:
+            # pos = [x for x, y in enumerate(pair[1]) if x == pair[0]][0]
+            pos = pair[1].index(pair[0])
+            plain_letter = key_alpha[pos]
+            plain_text += plain_letter
+        print('7')
+        return plain_text
+
     def runner(self, key):
         '''
         Vigenere decryption module

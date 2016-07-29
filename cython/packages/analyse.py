@@ -56,10 +56,47 @@ class NthMessage:
             self.ic = self.chiSquare.ic
 
 
+class NthMessageQuag:
+    ''' breaks up the cipher text of  quagmire cipher into its parts so it can be treaded as a ceaser shift cipher'''
+    def __init__(self, cipher_text, degree):
 
+        self.cipher_text = cipher_text
+        self.cipher_columns = []
+        self.plain_texts = []
 
+        j = 0
+        while j < degree:
+            i = j
+            nth_cypher_text = ''
+            while i < len(self.cipher_text):
+                nth_cypher_text += self.cipher_text[i]
+                i += degree
+            j += 1
+            # print(nth_cypher_text)
+            self.cipher_columns.append(nth_cypher_text)
 
+        for each_column in self.cipher_columns:
+            chiSquare = ChiSquare(each_column)
+            chiSquare.frequency_analysis_output()
+            exit()
+            # print(chiSquare.chi)
 
+    def output(self):
+        return self.plain_texts
+
+    class EachMessage:
+        def __init__(self, shift, Decoder):
+            self.shift = shift
+
+            # run a Vigenere decrypter
+            self.plain_text, key = Decoder.runner(self.shift)
+
+            # run a beufort decrypter
+            # self.plain_text = Decoder.beaufort_decrypt(self.shift)
+
+            self.chiSquare = ChiSquare(self.plain_text)
+            self.chi = self.chiSquare.chi_result
+            self.ic = self.chiSquare.ic
 
 class WordSearch:
     def __init__(self):
@@ -183,25 +220,83 @@ class ChiSquare:
             self.ic_difference = self.ic - 0.073
         self.chi = [self.CheckLetter(getattr(checkIC, x), len(self.plain_text), x) for x in alphabet]
         self.chi_result = sum([x.result for x in self.chi])
+        # print(self.chi_result)
 
     def output(self):
         return self.chi_result
+
+    def print_output(self):
+        print(self.chi_result)
+        print(self.ic)
+
+    def frequency_analysis_output(self):
+        for each in self.chi:
+            print(each.letter)
+            print(each.actual_frequency)
+            print(each.expected_letter)
+            # return each.letter, each.expected_letter, each.result
 
     class CheckLetter:
         def __init__(self, letter_count, text_count, letter):
             self.letter_count = letter_count
             self.text_count = text_count
+            self.actual_frequency = letter_count / text_count
             self.letter = letter
+            self.expectedFrequency = self.ExpectedFrequency()
+            self.expected_frequency = getattr(self.expectedFrequency, letter)
 
-            self.expected_frequency = 0
-            self.find_expected_frequency()
-
+            # for quag alphabets
+            # self.expected_letter = min(self.expectedFrequency.__dict__.items(), key=lambda k, v: abs(v - self.actual_frequency))
+            # self.expected_letter = min(((key, abs(value - self.actual_frequency)) for key, value in self.expectedFrequency.__dict__.items()), key=lambda v: v[0])[0]
+            self.expected_letter = self.find_expected_letter(self.actual_frequency)
             self.result = self.run()
+
+        def find_expected_letter(self, frequency):
+            x = None
+            diff = float('inf')
+            for key, value in self.expectedFrequency.__dict__.items():
+                if diff > abs(frequency - value):
+                    diff = abs(frequency - value)
+                    x = key
+            return x
+
 
         def run(self):
             expected_count = self.text_count*self.expected_frequency
             result = ((self.letter_count - expected_count)**2) / expected_count
+            # print(self.letter, self.letter_count, expected_count, result)
             return result
+
+        class ExpectedFrequency:
+            def __init__(self):
+                self.A = 0.0821
+                self.B = 0.0150
+                self.C = 0.0230
+                self.D = 0.0479
+                self.E = 0.1237
+                self.F = 0.0225
+                self.G = 0.0208
+                self.H = 0.0645
+                self.I = 0.0676
+                self.J = 0.0018
+                self.K = 0.0087
+                self.L = 0.0393
+                self.M = 0.0254
+                self.N = 0.0705
+                self.O = 0.0767
+                self.P = 0.0163
+                self.Q = 0.0009
+                self.R = 0.0550
+                self.S = 0.0617
+                self.T = 0.0921
+                self.U = 0.0291
+                self.V = 0.0087
+                self.W = 0.0254
+                self.X = 0.0013
+                self.Y = 0.0195
+                self.Z = 0.0006
+
+
 
         def find_expected_frequency(self):
             if self.letter == 'E':
@@ -277,8 +372,8 @@ class Dia:
     def columar(self):
         ''' setup the 'colmbs' for a columb cipher, not yey implementd'''
         from math import ceil
-        column_len = ceil(len(cipher_text) / self.degree)
-        null_count = (self.degree * column_len) - len(cipher_text)
+        column_len = ceil(len(self.cipher_text) / self.degree)
+        null_count = (self.degree * column_len) - len(self.cipher_text)
 
         # we appear to need to key to know where to put the nulls, might have to have a seperate dia class to do this
 
@@ -1845,7 +1940,7 @@ That's when he started crying. He goes into how he hasn't actually spoken or rea
 3 weeks later, my supervisor comes to my desk and asks me if I could come speak with her for a bit about an account for "Mr. Smith". Turns out, he sent the cable company a letter outlining how thankful he was for helping him with his issue and how it really "made an old man happy again for once in a very long time". The letter was framed and put on our front entrance to retail.
 I guess the moral of this story is no matter how nasty someone is to you over the phone, sometimes they're not always a terrible person and just going through a lot. I still think about Mr. Smith occasionally when I get those nasty customers and it makes me feel a little better.
 Anyway thanks for reading just thought I'd share how this one call changed my outlook on life :)'''
-        cipher_text = '''
+        cipher_text3 = '''
 KIWDY FAIAS YQXQF GMQDZ OHUQK NEFVL
 AZPZP CXYDJ QLVGC KXPAS IENMN JYNGA
 ODJPJ YNTCF RJUIT ECGGS PVEAB STKTN
@@ -1915,7 +2010,7 @@ GYUPV DMZXR RRFCV AXQJN RIEJR TVAMR
 PHHER RU
         '''
         # plain_text = ''.join([x for x in plain_text if x.isalpha()])
-        cipher_text = ''.join([x for x in cipher_text if x.isalpha()])
+        cipher_text3 = ''.join([x for x in cipher_text3 if x.isalpha()])
         # chiSquare = ChiSquare(plain_text)
         # print(chiSquare.ic)
         # print(chiSquare.ic_difference)
@@ -2046,14 +2141,15 @@ n u t w o e i o o h w m r'''.upper() if x.isalpha()])
         LFPIAICPUCHPFXSPUODUVVCTHHTCNNFHAXSDBKSIPHDWHVPWVAEWPWZCLGLASGSPUKPSTCZJAPZDRSYAPJP
         ''' if x.isalpha()])
 
-        for each_degree in range(2,30,1):
+        for each_degree in range(9,18,9):
             print('[+] Running Degree: %d' % each_degree)
-            dia = Dia(ze_cipher_text, each_degree)
-            dia.permutation()
-            dia.run()
-            print(dia.key)
-            # nth = NthMessage(cipher_text, each_degree)
-            # nth.output()
+            # dia = Dia(cipher_text3, each_degree)
+            # dia.permutation()
+            # dia.run()
+            # print(dia.key)
+            nth = NthMessage(cipher_text3, each_degree)
+            nth.output()
+
 
 
         # dia.run()

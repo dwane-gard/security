@@ -258,6 +258,7 @@ class Run:
                 chiSquare = ChiSquare(plain_text)
                 chi = chiSquare.output()
                 ic = chiSquare.ic
+                # print(plain_text)
                 print('%s | %s | %s' % (str(key), str(ic), str(chi)))
 
                 if ic > 0.06:
@@ -388,9 +389,15 @@ if __name__ == '__main__':
         PXMLHWZFXABWGLRYOEFXSPZOKTZMVXHLACRNUKXALZJSLLWONLTYMZDHXHAWVRPRMPDQSVRZLLENZYTDSVOZCXM
         XS
         ''' if x.isalpha()])
-    for each in range(40,44,1):
+    quag = ''.join([x for x in '''NUOLL FDDFN EWFQP OKGNJ DGGJF BBQFB AXFPT XMFRQ LMGKY BPMDT PLKGP
+VKFSF HSODK IDTDS SAMDN ORMWT JJBOP IBOKN DXBMP QQBPV MFRDQ BNUQU
+MBNHB NDTTQ QBMHC DRVDC EVMVA RYUGQ NLOWE WBJOK TVTCB PQCRG YNEOH
+GAQNR KIOFV QZFDJ FPRVP SPVDS SAMKB MRNWC VYELO IGSFP LJVFG TQBGY
+QYQAY PBQDM QBQIX VJSQD CFCWE KAFDT TTSIW CQTLV OSTQS UIMPG QXQWP
+VJYPO FTXLU FRQFH NIXNV QVFXH FEQRX FCJ''' if x.isalpha()])
+    for each in range(1,20,1):
         print('Poly-alphabetic Key length: %s' % each)
         # run = Run(each, combination_test_text)
-        run = Run(each, vigenere_cipher)
+        run = Run(each, quag)
         run.start_simple_substitution()
         # run.start_combination()
