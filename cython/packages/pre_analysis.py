@@ -71,16 +71,16 @@ class Kasiski:
             ic = Chi.ic
             all_chi.append(Chi.chi_result)
             all_ic.append(ic)
-            # print(j)
-            # print(ic)
-            # print(Chi.chi_result)
+            print(j)
+            print(ic)
+            print(Chi.chi_result)
             j += 1
 
-        ave_chi = reduce(lambda x, y: x + y, all_chi) / len(all_chi)
-        ave_ic = reduce(lambda x, y: x + y, all_ic) / len(all_ic)
+        # ave_chi = reduce(lambda x, y: x + y, all_chi) / len(all_chi)
+        # ave_ic = reduce(lambda x, y: x + y, all_ic) / len(all_ic)
         # print(all_ic)
-        print('Average IC: %f' % ave_ic)
-        print('Average Chi: %f' % ave_chi)
+        # print('Average IC: %f' % ave_ic)
+        # print('Average Chi: %f' % ave_chi)
 
 
     def output(self):

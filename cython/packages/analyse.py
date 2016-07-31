@@ -4,7 +4,7 @@ import time
 from pad import Decode
 
 class NthMessage:
-    ''' breaks up the cipher text of  vigenere cipher into its parts so it can be treaded as a ceaser shift cipher'''
+    ''' breaks up the cipher text of  vigenere cipher into its parts so it can be treated as a ceaser shift cipher'''
     def __init__(self, cipher_text, degree):
 
         self.cipher_text = cipher_text
@@ -40,6 +40,12 @@ class NthMessage:
 
     def output(self):
         return self.plain_texts
+
+    def print_output(self):
+        for each in self.plain_texts:
+            print(each.result[0].chi)
+            print(each.result[0].shift)
+            print(each.result[0].ic)
 
     class EachMessage:
         def __init__(self, shift, Decoder):
@@ -78,7 +84,7 @@ class NthMessageQuag:
         for each_column in self.cipher_columns:
             chiSquare = ChiSquare(each_column)
             chiSquare.frequency_analysis_output()
-            exit()
+            # exit()
             # print(chiSquare.chi)
 
     def output(self):
@@ -231,9 +237,10 @@ class ChiSquare:
 
     def frequency_analysis_output(self):
         for each in self.chi:
-            print(each.letter)
-            print(each.actual_frequency)
-            print(each.expected_letter)
+            pass
+            # print(each.letter)
+            # print(each.actual_frequency)
+            # print(each.expected_letter)
             # return each.letter, each.expected_letter, each.result
 
     class CheckLetter:
@@ -242,13 +249,15 @@ class ChiSquare:
             self.text_count = text_count
             self.actual_frequency = letter_count / text_count
             self.letter = letter
+
             self.expectedFrequency = self.ExpectedFrequency()
             self.expected_frequency = getattr(self.expectedFrequency, letter)
 
             # for quag alphabets
             # self.expected_letter = min(self.expectedFrequency.__dict__.items(), key=lambda k, v: abs(v - self.actual_frequency))
             # self.expected_letter = min(((key, abs(value - self.actual_frequency)) for key, value in self.expectedFrequency.__dict__.items()), key=lambda v: v[0])[0]
-            self.expected_letter = self.find_expected_letter(self.actual_frequency)
+            # self.expected_letter = self.find_expected_letter(self.actual_frequency)
+            self.expected_letter = None
             self.result = self.run()
 
         def find_expected_letter(self, frequency):

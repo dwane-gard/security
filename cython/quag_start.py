@@ -1,6 +1,7 @@
 # Decodes a running cipher
 from packages.pad import Decode, Encode
-from packages.analyse import NthMessageQuag
+from packages.analyse import NthMessageQuag, NthMessage, ChiSquare
+from packages.pre_analysis import Kasiski
 import itertools
 import multiprocessing
 import time
@@ -8,55 +9,40 @@ import time
 class Quag:
     def __init__(self, cipher_text, degree):
         self.cipher_text = cipher_text
-        alpha = [x for x in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']
+        self.cipher_columns = []
+        j = 0
+        while j < degree:
+            i = j
+            nth_cypher_text = ''
+            while i < len(self.cipher_text):
+                nth_cypher_text += self.cipher_text[i]
+                i += degree
+            j += 1
+            # print(nth_cypher_text)
+            self.cipher_columns.append(nth_cypher_text)
+
+        self.decoder = Decode(self.cipher_columns[0])
+        self.alpha = [x for x in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']
         # self.keys = itertools.product(alpha, repeat=degree)
         self.degree = degree
 
-
-    def analyse(self):
-        NthMessageQuag(self.cipher_text, self.degree)
+    def analyse(self, plain_text, key_alpha):
+        chiSquare = ChiSquare(plain_text)
+        chi = chiSquare.output()
+        ic = chiSquare.ic
+        # print('%s | %s | %s' % (str(key_alpha), str(ic), str(chi)))
+        if chi < 200:
+            print('%s | %s | %s' % (str(key_alpha), str(ic), str(chi)))
+            # print(plain_text)
+            with open('quag_result.txt', 'a') as results_file:
+                results_file.write('%s | %s | %s | %s' % (str(key_alpha), str(plain_text), str(ic), str(chi)))
 
     def start_single(self):
-        # print(cipher_text)
-        plain_text = ''.join([x for x in '''
-        SOMYSTORYSTARTSONWHATWASANORMALDAYTAKINGCALLSONTHEFRONTLINEFORALARGECABLECOMPANYTHEJOBPAYSWELLANDFORTHEMOSTPART
-        THEPEOPLEIDEALWITHAREFAIRLYNICETOTALKTOQUITEOFTENWELLGETCALLSFROMSENIORSESPECIALLYINTHEMORNINGWHOHAVEPREMISEEQU
-        IPMENTISSUESSUCHASSNOWONSCREENORNOSIGNALONTHEIRTVSETSCONNECTEDTOOURDIGITALEQUIPMENTNOWMYHEARTDOESGOOUTTOSOMEOFT
-        HESEFOLKBECAUSEUPUNTILRECENTLYPASTFEWYEARSWEWOULDSUPPLYSTRAIGHTANALOGCABLETOMANYHOMESCOAXDIRECTFROMWALLTOTVWITH
-        SCROLLINGGUIDEHOWEVERMOSTCITIESWESERVICENOWADAYSREQUIREOURDIGITALEQUIPMENTTORECEIVECHANNELSANDTHISHASCAUSEDALOT
-        OFFRUSTRATIONWITHOLDERPEOPLEWHODONTKNOWHOWTOOPERATESAIDEQUIPMENTIEALWAYSHAVINGYOURTVSETONVIDEOORHDMITOGETPICTUR
-        ESOOFTENTIMESWEGETCUSTOMERSWHOAREREPEATOFFENDERSWITHLONGTICKETHISTORIESOFTHESETYPESOFISSUESSOANYWAYIGETACALLFRO
-        MANOLDERGENTLEMANWHOSQUITEBITTERANDMEANRIGHTOFFTHEBATDOESNTLIKETHATIASKEDFORHISADDRESSTELEPHONENUMBERTOVERIFYTH
-        EACCOUNTHATESTHATHEHASTOSPEAKWITHAMACHINEBEFOREREACHINGANAGENTETCIHAVESOMEEXPERIENCEHANDLINGTHESETYPESOFCUSTOME
-        RSHOWEVERTHISCALLWASGOINGTOBEALITTLEDIFFERENTISPENTOVERMINUTESWITHTHISGUYWELLCALLHIMMRSMITHTRYINGTOGETHISTVSETC
-        ONNECTEDTOTHEDIGITALBOXPROPERLYSOHECOULDRECEIVEAPICTURENOLUCKHEWASGETTINGCLEARLYFRUSTRATEDBYTHEWHOLEORDEALANDST
-        ARTEDBLAMINGMEFORNOTBEINGABLETODOMYJOBPROPERLYHOWIWASUSELESSETCWHATEVERLIKEISAIDIVEDEALTWITHTHISBEFORESOITRIEDM
-        YBESTNOTTOTAKEITPERSONALLYBUTEVENTUALLYIHADTOASKHIMIFWECOULDBOOKASERVICETECHTOTHEHOMEACOURTESYCALLTOGETHISTVWOR
-        KINGCORRECTLYUNFORTUNATELYOURBOOKINGCALENDARWASSHOWINGANAPPOINTMENTDAYSOUTTHATSWHENHEDROPPEDTHISONMEDONTBOTHERS
-        ENDINGAGODDAMNTECHNICIANBECAUSEILLBEDEADBYTHENIMANDTVISTHEONLYTHINGIHAVELEFTAREYOUREALLYGOINGTOMAKEMEWAITFORATE
-        CHIINSTANTLYFELTBADIMEANIVEHEARDEVERYCOMPLAINTINTHEBOOKASTOWHYPEOPLEDONTWANTTOWAITFORATECHBUTTHISONEKINDOFGOTTO
-        MEIMINMYMIDSSOHONESTLYICANTEVENIMAGINEHOWITMUSTFEELTOUTTERTHOSEWORDSSOISPOKEWITHMYSUPERVISORWHOSAIDTHEYDSEEIFWE
-        COULDGETSOMEONEOUTEARLIERBUTWECOULDNTPROMISEANYTHINGSOILETMRSMITHKNOWANDHEWASPREDICTABLYNOTVERYHAPPYWITHMYANSWE
-        RATTHATPOINTITALMOSTSOUNDEDLIKEHESTARTEDTOCRYANDWENTINTOHOWHEHASNOFAMILYLEFTANDNOFRIENDSTHATCOMEVISITTHISWASAFT
-        ERIASKEDIFTHEREWASANYONEINHISBUILDINGTHATMIGHTBEABLETOHELPMANIFELTTERRIBLESOITOOKITUPONMYSELFTOASKMRSMITHIFICOU
-        LDPAYAVISITHELIVEDINASMALLCITYOVERFROMWHEREIWASNOTVERYFARTODRIVEHEWASALITTLESHOCKEDIWASWILLINGTODOTHISBUTSOUNDE
-        DTHANKFULIWASWILLINGTOCOMEOUTANDHELPHIMPERSONALLYSOIHEADOVERGETTOTHERESIDENCEANDMEETHIMWITHINSECONDSIHADTHECABL
-        ERUNNINGAGAINSIMPLEINPUTCHANGEANDEVENBROUGHTHIMASIMPLIFIEDREMOTEFORHISSETTOPBOXTOAVOIDTHISPROBLEMINTHEFUTURETHA
-        TSWHENHESTARTEDCRYINGHEGOESINTOHOWHEHASNTACTUALLYSPOKENORREALLYINTERACTEDWITHANYONEFORYEARSHEGAVEMEAHUGANDTOLDM
-        EHOWTHANKFULHEWASTHATICAMEOUTANDHELPEDHIMANDTOLDMEHOWSORRYHEWASFORBEINGSOMEANEARLIERONISAIDITWASNOPROBLEMANDIWA
-        SHAPPYTOHELPANDTHATWASITILEFTWEEKSLATERMYSUPERVISORCOMESTOMYDESKANDASKSMEIFICOULDCOMESPEAKWITHHERFORABITABOUTAN
-        ACCOUNTFORMRSMITHTURNSOUTHESENTTHECABLECOMPANYALETTEROUTLININGHOWTHANKFULHEWASFORHELPINGHIMWITHHISISSUEANDHOWIT
-        REALLYMADEANOLDMANHAPPYAGAINFORONCEINAVERYLONGTIMETHELETTERWASFRAMEDANDPUTONOURFRONTENTRANCETORETAILIGUESSTHEMO
-        RALOFTHISSTORYISNOMATTERHOWNASTYSOMEONEISTOYOUOVERTHEPHONESOMETIMESTHEYRENOTALWAYSATERRIBLEPERSONANDJUSTGOINGTH
-        ROUGHALOTISTILLTHINKABOUTMRSMITHOCCASIONALLYWHENIGETTHOSENASTYCUSTOMERSANDITMAKESMEFEELALITTLEBETTERANYWAYTHANK
-        SFORREADINGJUSTTHOUGHTIDSHAREHOWTHISONECALLCHANGEDMYOUTLOOKONLIFE''' if x.isalpha()])
-        encode = Encode(plain_text)
-        self.cipher_text = encode.quag('HELLO', 'DERP', 'A')
-        print(self.cipher_text)
-        decode = Decode(self.cipher_text)
-        plain_text = decode.quag('HELLO', 'DERP', 'A')
-        print(plain_text)
-        # self.analyse()
+        for each_alphabet in itertools.permutations(self.alpha):
+            # print(each_alphabet)
+            decoder = Decode(self.cipher_columns[0])
+            plain_text = decoder.quag_breaker(each_alphabet)
+            self.analyse(plain_text, each_alphabet)
 
     def start(self):
         ''' MultiCore '''
@@ -70,22 +56,25 @@ class Quag:
             jobs.append(p)
 
         # Feed items into the queue
-        for each_item in self.keys:
-            q.put(each_item)
+        for each_alphabet in itertools.permutations(self.alpha):
+            q.put(each_alphabet)
 
     def worker(self, q):
         while True:
             if q.empty():
                 time.sleep(1)
             try:
-                pass
+                each_alphabet = q.get(timeout=1)
+                print(each_alphabet)
+                plain_text = self.decoder.quag_breaker(self.cipher_columns[0])
+                self.analyse(plain_text, each_alphabet)
             except:
                 break
         return
 
 if __name__ == '__main__':
-    cipher_text = open('cipher_3_text.txt', 'r').read()
-    cipher_text = ''.join([x for x in cipher_text if x.isalpha()])
+    cipher_text3 = open('cipher_3_text.txt', 'r').read()
+    cipher_text3 = ''.join([x for x in cipher_text3 if x.isalpha()])
     test_text = ''.join([x for x in '''
     RDAJR TQCXS GPQTF ONWNP SWRDD OQCME PSDYG PLKBU FEPNR DBEZB VCCOG NJOOT
      CRRND RWMFE SNAGQ YOEBJ SAOWC FCPXS JMBCR ZGIQC SAOYC SGADR GEZBC MCPPM
@@ -145,6 +134,6 @@ if __name__ == '__main__':
      MBVMA CRNJT GNAFO ESBEP NYJPX TNPNM FTCRE MDHXZ ILHDS TNOTJ NEJHF LDROL
      CWGLJ SQZAG RNBGN PNJOS MYQFS CQOLD BNJIO
     ''' if x.isalpha()])
-    quag = Quag(test_text, 9)
+    quag = Quag(cipher_text3, 9)
     # running.start()
-    quag.start_single()
+    quag.start()
