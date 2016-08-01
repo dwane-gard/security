@@ -1,6 +1,6 @@
 # Decodes a running cipher
 from packages.pad import Decode, Encode
-from packages.analyse import NthMessageQuag, NthMessage, ChiSquare
+from packages.analyse import NthMessageQuag, NthMessage, ChiSquare, QuagFrequency
 from packages.pre_analysis import Kasiski
 import itertools
 import multiprocessing
@@ -25,6 +25,105 @@ class Quag:
         self.alpha = [x for x in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']
         # self.keys = itertools.product(alpha, repeat=degree)
         self.degree = degree
+
+    def pre_analyse(self, cipher_text, degree):
+        self.alpha.append('A')
+        test_duplicate = self.list_duplicates_of(self.alpha, 'A')
+        print( test_duplicate)
+        exit()
+
+
+
+
+        cipher_columns = []
+        j = 0
+        while j < degree:
+            i = j
+            nth_cypher_text = ''
+            while i < len(cipher_text):
+                nth_cypher_text += cipher_text[i]
+                i += degree
+            j += 1
+            # print(nth_cypher_text)
+            cipher_columns.append(nth_cypher_text)
+
+        for each_column in cipher_columns:
+            quagFrequency = QuagFrequency(each_column)
+
+            # key_alpha = []
+            # for each_letter in self.alpha:
+            #     key_alpha.append(getattr(quagFrequency, each_letter))
+            # key_alphas = [key_alpha,]
+            #
+            # # if there are duplicates
+            # for each_alpha in key_alphas:
+            #     while len([x[0].letter for x in each_alpha]) != len(set([x[0].letter for x in each_alpha])):
+            #         for each_letter in self.alpha:
+            #             duplicates = self.list_duplicates_of(key_alpha, each_letter)
+            #             for each_duplicate in duplicates:
+            #                 key_alpha[each_duplicate] += 1
+            #                 key_alphas.append(key_alpha)
+            #
+            derp_alpha = [0] * 26
+            print(derp_alpha)
+            derp_alphas = [derp_alpha]
+
+            running = True
+            count = 0
+            while running is True:
+                change_count = len(derp_alphas)
+                for each_alpha in derp_alphas:
+                    # # create actual alphabet for key, Check for dupliucate items
+                    print(each_alpha)
+                    if len([getattr(quagFrequency, i)[x].letter for x, i in zip(each_alpha, self.alpha)]) != \
+                            len(set([getattr(quagFrequency, i)[x].letter for x, i in zip(each_alpha, self.alpha)])):
+
+                        # get list of duplicate items
+                        for each_letter in self.alpha:
+                            duplicates = self.list_duplicates_of([getattr(quagFrequency, i)[x].letter for x, i in zip(each_alpha, self.alpha)], each_letter)
+                            print(duplicates)
+                            print([getattr(quagFrequency, i)[x].letter for x, i in zip(each_alpha, self.alpha)])
+                            for each_duplicate in duplicates:
+                                working_with_duplicates = each_alpha
+                                working_with_duplicates[each_duplicate] += 1
+
+                                if 26 in working_with_duplicates:
+                                    print('found a dodgy one')
+                                    print(exit)
+                                    pass
+
+                                else:
+                                    derp_alphas.append(working_with_duplicates)
+                                    # print(derp_alphas)
+
+                                count += 1
+                                break
+                            # derp_alphas.remove(each_alpha)
+
+                        # break
+                    else:
+                        print('this one is perfecet')
+                        exit()
+                        # use alphabet to break cipher
+                        pass
+
+                if count == 0:
+                    running = False
+            print('[!] Found nothing')
+            exit()
+
+    def list_duplicates_of(self, seq, item):
+        start_at = -1
+        locs = []
+        while True:
+            try:
+                loc = seq.index(item, start_at + 1)
+            except ValueError:
+                break
+            else:
+                locs.append(loc)
+                start_at = loc
+        return locs
 
     def analyse(self, plain_text, key_alpha):
         chiSquare = ChiSquare(plain_text)
@@ -134,6 +233,9 @@ if __name__ == '__main__':
      MBVMA CRNJT GNAFO ESBEP NYJPX TNPNM FTCRE MDHXZ ILHDS TNOTJ NEJHF LDROL
      CWGLJ SQZAG RNBGN PNJOS MYQFS CQOLD BNJIO
     ''' if x.isalpha()])
-    quag = Quag(cipher_text3, 9)
+
     # running.start()
-    quag.start()
+    # quag.start()
+
+    quag = Quag(cipher_text3, 9)
+    quag.pre_analyse(cipher_text3, 9)

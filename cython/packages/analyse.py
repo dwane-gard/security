@@ -69,7 +69,7 @@ class NthMessageQuag:
         self.cipher_text = cipher_text
         self.cipher_columns = []
         self.plain_texts = []
-
+        self.results = []
         j = 0
         while j < degree:
             i = j
@@ -82,13 +82,11 @@ class NthMessageQuag:
             self.cipher_columns.append(nth_cypher_text)
 
         for each_column in self.cipher_columns:
-            chiSquare = ChiSquare(each_column)
-            chiSquare.frequency_analysis_output()
-            # exit()
-            # print(chiSquare.chi)
+            quagFrequency = QuagFrequency(each_column)
+
 
     def output(self):
-        return self.plain_texts
+        return self.results
 
     class EachMessage:
         def __init__(self, shift, Decoder):
@@ -103,6 +101,127 @@ class NthMessageQuag:
             self.chiSquare = ChiSquare(self.plain_text)
             self.chi = self.chiSquare.chi_result
             self.ic = self.chiSquare.ic
+
+class QuagFrequency:
+    def __init__(self, cipher_text):
+        self.alphabet = [x for x in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']
+
+        self.cipher_text = ''.join([x.upper() for x in cipher_text if x.isalpha()])
+        checkIC = CheckIC()
+        checkIC.run(self.cipher_text)
+
+        self.A = self.CheckLetter(getattr(checkIC, 'A'), len(self.cipher_text), 'A').output()
+        self.B = self.CheckLetter(getattr(checkIC, 'B'), len(self.cipher_text), 'B').output()
+        self.C = self.CheckLetter(getattr(checkIC, 'C'), len(self.cipher_text), 'C').output()
+        self.D = self.CheckLetter(getattr(checkIC, 'D'), len(self.cipher_text), 'D').output()
+        self.E = self.CheckLetter(getattr(checkIC, 'E'), len(self.cipher_text), 'E').output()
+        self.F = self.CheckLetter(getattr(checkIC, 'F'), len(self.cipher_text), 'F').output()
+        self.G = self.CheckLetter(getattr(checkIC, 'G'), len(self.cipher_text), 'G').output()
+        self.H = self.CheckLetter(getattr(checkIC, 'H'), len(self.cipher_text), 'H').output()
+        self.I = self.CheckLetter(getattr(checkIC, 'I'), len(self.cipher_text), 'I').output()
+        self.J = self.CheckLetter(getattr(checkIC, 'J'), len(self.cipher_text), 'J').output()
+        self.K = self.CheckLetter(getattr(checkIC, 'K'), len(self.cipher_text), 'K').output()
+        self.L = self.CheckLetter(getattr(checkIC, 'L'), len(self.cipher_text), 'L').output()
+        self.M = self.CheckLetter(getattr(checkIC, 'M'), len(self.cipher_text), 'M').output()
+        self.N = self.CheckLetter(getattr(checkIC, 'N'), len(self.cipher_text), 'N').output()
+        self.O = self.CheckLetter(getattr(checkIC, 'O'), len(self.cipher_text), 'O').output()
+        self.P = self.CheckLetter(getattr(checkIC, 'P'), len(self.cipher_text), 'P').output()
+        self.Q = self.CheckLetter(getattr(checkIC, 'Q'), len(self.cipher_text), 'Q').output()
+        self.R = self.CheckLetter(getattr(checkIC, 'R'), len(self.cipher_text), 'R').output()
+        self.S = self.CheckLetter(getattr(checkIC, 'S'), len(self.cipher_text), 'S').output()
+        self.T = self.CheckLetter(getattr(checkIC, 'T'), len(self.cipher_text), 'T').output()
+        self.U = self.CheckLetter(getattr(checkIC, 'U'), len(self.cipher_text), 'U').output()
+        self.V = self.CheckLetter(getattr(checkIC, 'V'), len(self.cipher_text), 'V').output()
+        self.W = self.CheckLetter(getattr(checkIC, 'W'), len(self.cipher_text), 'W').output()
+        self.X = self.CheckLetter(getattr(checkIC, 'X'), len(self.cipher_text), 'X').output()
+        self.Y = self.CheckLetter(getattr(checkIC, 'Y'), len(self.cipher_text), 'Y').output()
+        self.Z = self.CheckLetter(getattr(checkIC, 'Z'), len(self.cipher_text), 'Z').output()
+
+    class CheckLetter:
+        def __init__(self, letter_count, text_count, letter):
+            alpha = [x for x in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']
+            actual_count = letter_count
+            self.letter = letter
+            self.testFrequency = self.ExpectedFrequency()
+
+
+            self.A = self.Data('A', actual_count, self.testFrequency, text_count)
+            self.B = self.Data('B', actual_count, self.testFrequency, text_count)
+            self.C = self.Data('C', actual_count, self.testFrequency, text_count)
+            self.D = self.Data('D', actual_count, self.testFrequency, text_count)
+            self.E = self.Data('E', actual_count, self.testFrequency, text_count)
+            self.F = self.Data('F', actual_count, self.testFrequency, text_count)
+            self.G = self.Data('G', actual_count, self.testFrequency, text_count)
+            self.H = self.Data('H', actual_count, self.testFrequency, text_count)
+            self.I = self.Data('I', actual_count, self.testFrequency, text_count)
+            self.J = self.Data('J', actual_count, self.testFrequency, text_count)
+            self.K = self.Data('K', actual_count, self.testFrequency, text_count)
+            self.L = self.Data('L', actual_count, self.testFrequency, text_count)
+            self.M = self.Data('M', actual_count, self.testFrequency, text_count)
+            self.N = self.Data('N', actual_count, self.testFrequency, text_count)
+            self.O = self.Data('O', actual_count, self.testFrequency, text_count)
+            self.P = self.Data('P', actual_count, self.testFrequency, text_count)
+            self.Q = self.Data('Q', actual_count, self.testFrequency, text_count)
+            self.R = self.Data('R', actual_count, self.testFrequency, text_count)
+            self.S = self.Data('S', actual_count, self.testFrequency, text_count)
+            self.T = self.Data('T', actual_count, self.testFrequency, text_count)
+            self.U = self.Data('U', actual_count, self.testFrequency, text_count)
+            self.V = self.Data('V', actual_count, self.testFrequency, text_count)
+            self.W = self.Data('W', actual_count, self.testFrequency, text_count)
+            self.X = self.Data('X', actual_count, self.testFrequency, text_count)
+            self.Y = self.Data('Y', actual_count, self.testFrequency, text_count)
+            self.Z = self.Data('Z', actual_count, self.testFrequency, text_count)
+
+            self.return_list = [getattr(self, x) for x in alpha]
+            self.return_list.sort(key=lambda x: x.chi)
+
+        def output(self):
+            return self.return_list
+
+        class Data:
+            def __init__(self, letter, actual_count, testFrequency, text_count):
+                self.testFrequency = testFrequency
+                self.actual_count = actual_count
+                self.text_count = text_count
+                self.letter = letter
+                self.chi = self.run(letter)
+
+            def run(self, letter):
+                test_frequency = getattr(self.testFrequency, letter)
+                test_count = self.text_count * test_frequency
+                result = ((self.actual_count - test_count) ** 2) / test_count
+                return result
+
+        class ExpectedFrequency:
+            def __init__(self):
+                self.A = 0.0821
+                self.B = 0.0150
+                self.C = 0.0230
+                self.D = 0.0479
+                self.E = 0.1237
+                self.F = 0.0225
+                self.G = 0.0208
+                self.H = 0.0645
+                self.I = 0.0676
+                self.J = 0.0018
+                self.K = 0.0087
+                self.L = 0.0393
+                self.M = 0.0254
+                self.N = 0.0705
+                self.O = 0.0767
+                self.P = 0.0163
+                self.Q = 0.0009
+                self.R = 0.0550
+                self.S = 0.0617
+                self.T = 0.0921
+                self.U = 0.0291
+                self.V = 0.0087
+                self.W = 0.0254
+                self.X = 0.0013
+                self.Y = 0.0195
+                self.Z = 0.0006
+
+
 
 class WordSearch:
     def __init__(self):

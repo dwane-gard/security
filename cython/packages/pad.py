@@ -3,13 +3,13 @@ from functools import reduce
 from math import ceil
 import time
 
+
 class Encode:
     def __init__(self, plain_text):
         self.plain_text = plain_text
 
         self.alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
                          'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-
 
     def quag(self, keyword, indicator, indicator_pos):
         # Build Alphabets
@@ -55,7 +55,6 @@ class Decode:
             plain_text += key_alphabet[ze_key_index]
 
         return plain_text
-
 
     def quag(self, keyword, indicator, indicator_pos):
         ''' Quagmire cipher brute force decoder'''
