@@ -27,14 +27,8 @@ class Quag:
         self.degree = degree
 
     def pre_analyse(self, cipher_text, degree):
-        self.alpha.append('A')
-        test_duplicate = self.list_duplicates_of(self.alpha, 'A')
-        print( test_duplicate)
-        exit()
 
-
-
-
+        result_alpha = []
         cipher_columns = []
         j = 0
         while j < degree:
@@ -47,70 +41,59 @@ class Quag:
             # print(nth_cypher_text)
             cipher_columns.append(nth_cypher_text)
 
+#
+#
         for each_column in cipher_columns:
+            column_result_alpha = []
             quagFrequency = QuagFrequency(each_column)
 
-            # key_alpha = []
-            # for each_letter in self.alpha:
-            #     key_alpha.append(getattr(quagFrequency, each_letter))
-            # key_alphas = [key_alpha,]
-            #
-            # # if there are duplicates
-            # for each_alpha in key_alphas:
-            #     while len([x[0].letter for x in each_alpha]) != len(set([x[0].letter for x in each_alpha])):
-            #         for each_letter in self.alpha:
-            #             duplicates = self.list_duplicates_of(key_alpha, each_letter)
-            #             for each_duplicate in duplicates:
-            #                 key_alpha[each_duplicate] += 1
-            #                 key_alphas.append(key_alpha)
-            #
             derp_alpha = [0] * 26
-            print(derp_alpha)
             derp_alphas = [derp_alpha]
 
             running = True
             count = 0
+            delete_these_alphas = []
             while running is True:
-                change_count = len(derp_alphas)
+                for each in delete_these_alphas:
+                    derp_alphas.remove(each)
+                delete_these_alphas = []
+
                 for each_alpha in derp_alphas:
                     # # create actual alphabet for key, Check for dupliucate items
-                    print(each_alpha)
+                    # print(each_alpha)
                     if len([getattr(quagFrequency, i)[x].letter for x, i in zip(each_alpha, self.alpha)]) != \
                             len(set([getattr(quagFrequency, i)[x].letter for x, i in zip(each_alpha, self.alpha)])):
 
-                        # get list of duplicate items
                         for each_letter in self.alpha:
                             duplicates = self.list_duplicates_of([getattr(quagFrequency, i)[x].letter for x, i in zip(each_alpha, self.alpha)], each_letter)
-                            print(duplicates)
-                            print([getattr(quagFrequency, i)[x].letter for x, i in zip(each_alpha, self.alpha)])
-                            for each_duplicate in duplicates:
-                                working_with_duplicates = each_alpha
-                                working_with_duplicates[each_duplicate] += 1
-
-                                if 26 in working_with_duplicates:
-                                    print('found a dodgy one')
-                                    print(exit)
-                                    pass
-
-                                else:
+                            # print([getattr(quagFrequency, i)[x].letter for x, i in zip(each_alpha, self.alpha)])
+                            if len(duplicates) > 1:
+                                for each_duplicate in duplicates:
+                                    # print('Checking for duplicates: %s' % str(each_letter))
+                                    working_with_duplicates = each_alpha
+                                    if working_with_duplicates[each_duplicate] < 25:
+                                        working_with_duplicates[each_duplicate] += 1
+                                    else:
+                                        # maybe should ditch it here
+                                        pass
+                                    # else:
+                                    delete_these_alphas.append(each_alpha)
                                     derp_alphas.append(working_with_duplicates)
+                                    break
                                     # print(derp_alphas)
 
-                                count += 1
-                                break
-                            # derp_alphas.remove(each_alpha)
-
-                        # break
                     else:
-                        print('this one is perfecet')
-                        exit()
-                        # use alphabet to break cipher
-                        pass
+                        # print('this one is perfecet')
+                        # print(each_alpha)
+                        if [getattr(quagFrequency, i)[x].letter for x, i in zip(each_alpha, self.alpha)] not in result_alpha:
+                            result_alpha.append([getattr(quagFrequency, i)[x].letter for x, i in zip(each_alpha, self.alpha)])
+                            # time.sleep(2)
+                        delete_these_alphas.append(each_alpha)
 
-                if count == 0:
-                    running = False
-            print('[!] Found nothing')
-            exit()
+
+                break
+            # result_alpha.append(column_result_alpha)
+        return result_alpha
 
     def list_duplicates_of(self, seq, item):
         start_at = -1
@@ -136,12 +119,40 @@ class Quag:
             with open('quag_result.txt', 'a') as results_file:
                 results_file.write('%s | %s | %s | %s' % (str(key_alpha), str(plain_text), str(ic), str(chi)))
 
-    def start_single(self):
-        for each_alphabet in itertools.permutations(self.alpha):
-            # print(each_alphabet)
-            decoder = Decode(self.cipher_columns[0])
-            plain_text = decoder.quag_breaker(each_alphabet)
-            self.analyse(plain_text, each_alphabet)
+    def start_single(self, cipher_text, degree):
+        # print(degree)
+        key_alphas = self.pre_analyse(cipher_text, degree)
+        for each in key_alphas:
+            print(each)
+        # exit()
+        full_plain_text = ''
+        cipher_columns = []
+        j = 0
+        while j < degree:
+            i = j
+            nth_cypher_text = ''
+            while i < len(cipher_text):
+                nth_cypher_text += cipher_text[i]
+                i += degree
+            j += 1
+            # print(nth_cypher_text)
+            cipher_columns.append(nth_cypher_text)
+
+        pairs = zip(key_alphas, cipher_columns)
+        for each_pair in pairs:
+            decoder = Decode(each_pair[1])
+            plain_text = decoder.quag_breaker(each_pair[0])
+            full_plain_text += plain_text + ' | '
+        self.analyse(full_plain_text, ['A'])
+        print(full_plain_text)
+
+
+
+        # for each_alphabet in itertools.permutations(self.alpha):
+        #     # print(each_alphabet)
+        #     decoder = Decode(self.cipher_columns[0])
+        #     plain_text = decoder.quag_breaker(each_alphabet)
+        #     self.analyse(plain_text, each_alphabet)
 
     def start(self):
         ''' MultiCore '''
@@ -236,6 +247,8 @@ if __name__ == '__main__':
 
     # running.start()
     # quag.start()
-
-    quag = Quag(cipher_text3, 9)
-    quag.pre_analyse(cipher_text3, 9)
+    for degree in range(2,18,1):
+        quag = Quag(cipher_text3, degree)
+        quag.start_single(cipher_text3, degree)
+        # quag.pre_analyse(cipher_text3, 9)
+        time.sleep(10)
