@@ -101,7 +101,13 @@ class NthMessageQuag:
             self.chiSquare = ChiSquare(self.plain_text)
             self.chi = self.chiSquare.chi_result
             self.ic = self.chiSquare.ic
+class QuagRemoveDuplicates:
+    ''' Remove duplicates from a proposed alphabet to break a quagmire cipher'''
+    def __init__(self, alpha):
 
+    def run(self):
+    def output(self):
+        return resul_alpha
 class QuagFrequency:
     def __init__(self, cipher_text):
         self.alphabet = [x for x in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']

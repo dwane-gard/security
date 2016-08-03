@@ -46,78 +46,34 @@ class Quag:
             initial_alpha = [0] * 26
             alphas_to_check = [initial_alpha]
             result_alphas = []
+            done_alpha = []
             while len(alphas_to_check) > 0:
-                working_alpha = alphas_to_check.pop()
-                print(working_alpha)
-                print([getattr(quagFrequency, i)[x].letter for x, i in zip(working_alpha, self.alpha)])
 
-                duplicates = self.list_duplicates_of([getattr(quagFrequency, i)[x].letter for x, i in zip(working_alpha,self.alpha)])
-                if len(duplicates) > 0:
-                    for each_duplicate in duplicates:
-                        alphas_to_check.insert(0, [x if y != each_duplicate else x+1 for y, x in enumerate(working_alpha)])
+                working_alpha = alphas_to_check.pop()
+                # print(working_alpha)
+                if len(alphas_to_check) > 50000:
+                    exit(0)
+                if working_alpha in done_alpha:
+                    pass
+
                 else:
-                    result_alphas.append(working_alpha)
-                    print(working_alpha)
-                    print([getattr(quagFrequency, i)[x].letter for x, i in zip(working_alpha, self.alpha)])
-                    time.sleep(2)
+                    # print(working_alpha)
+                    duplicates = self.list_duplicates_of([getattr(quagFrequency, i)[x].letter for x, i in zip(working_alpha,self.alpha)])
+                    if len(duplicates) > 0:
+                        for each_duplicate in duplicates:
+                            alphas_to_check.insert(0, [x if y != each_duplicate else x+1 for y, x in enumerate(working_alpha)])
+                            done_alpha.append(working_alpha)
+                            # print(len(alphas_to_check))
+
+                    else:
+                        result_alphas.append(working_alpha)
+                        print(working_alpha)
+                        print([getattr(quagFrequency, i)[x].letter for x, i in zip(working_alpha, self.alpha)])
+                        time.sleep(2)
 
             print(result_alphas)
             exit()
 
-
-
-
-#
-        ''' old way'''
-        # for each_column in cipher_columns:
-        #     column_result_alpha = []
-        #     quagFrequency = QuagFrequency(each_column)
-        #
-        #     derp_alpha = [0] * 26
-        #     derp_alphas = [derp_alpha]
-        #
-        #     running = True
-        #     count = 0
-        #     delete_these_alphas = []
-        #     while running is True:
-        #         for each in delete_these_alphas:
-        #             derp_alphas.remove(each)
-        #         delete_these_alphas = []
-        #
-        #         for each_alpha in derp_alphas:
-        #             # # create actual alphabet for key, Check for dupliucate items
-        #             # print(each_alpha)
-        #             if len([getattr(quagFrequency, i)[x].letter for x, i in zip(each_alpha, self.alpha)]) != \
-        #                     len(set([getattr(quagFrequency, i)[x].letter for x, i in zip(each_alpha, self.alpha)])):
-        #
-        #                 for each_letter in self.alpha:
-        #                     duplicates = self.list_duplicates_of([getattr(quagFrequency, i)[x].letter for x, i in zip(each_alpha, self.alpha)], each_letter)
-        #                     # print([getattr(quagFrequency, i)[x].letter for x, i in zip(each_alpha, self.alpha)])
-        #                     if len(duplicates) > 1:
-        #
-        #                         for each_duplicate in duplicates:
-        #                             # print('Checking for duplicates: %s' % str(each_letter))
-        #                             working_with_duplicates = each_alpha
-        #                             if working_with_duplicates[each_duplicate] < 25:
-        #                                 working_with_duplicates[each_duplicate] += 1
-        #                             else:
-        #                                 delete_these_alphas.append(each_alpha)
-        #                                 derp_alphas.append(working_with_duplicates)
-        #                             break
-        #                             print(derp_alphas)
-        #
-        #             else:
-        #                 # print('this one is perfecet')
-        #                 # print(each_alpha)
-        #                 if [getattr(quagFrequency, i)[x].letter for x, i in zip(each_alpha, self.alpha)] not in result_alpha:
-        #                     result_alpha.append([getattr(quagFrequency, i)[x].letter for x, i in zip(each_alpha, self.alpha)])
-        #                     # time.sleep(2)
-        #                 delete_these_alphas.append(each_alpha)
-        #
-        #
-        #         break
-        #     # result_alpha.append(column_result_alpha)
-        # return result_alpha
 
     def list_duplicates_of(self, seq):
         location = []
