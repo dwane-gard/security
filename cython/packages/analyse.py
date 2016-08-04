@@ -104,10 +104,12 @@ class NthMessageQuag:
 class QuagRemoveDuplicates:
     ''' Remove duplicates from a proposed alphabet to break a quagmire cipher'''
     def __init__(self, alpha):
-
+        None
     def run(self):
+        return None
     def output(self):
-        return resul_alpha
+        result_alpha = None
+        return result_alpha
 class QuagFrequency:
     def __init__(self, cipher_text):
         self.alphabet = [x for x in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']

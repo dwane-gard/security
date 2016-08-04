@@ -40,6 +40,15 @@ class Quag:
             j += 1
             # print(nth_cypher_text)
             cipher_columns.append(nth_cypher_text)
+        print(cipher_columns)
+        print(self.alpha)
+        for each_column in cipher_columns:
+            quagFrequency = QuagFrequency(each_column)
+            initial_alpha = [0] * 26
+            print([getattr(quagFrequency, i)[x].letter for x, i in zip(initial_alpha, self.alpha)])
+            print([str(getattr(quagFrequency, i)[x].actual_count) for x, i in zip(initial_alpha, self.alpha)])
+
+        exit()
         '''new way '''
         for each_column in cipher_columns:
             quagFrequency = QuagFrequency(each_column)
@@ -232,8 +241,8 @@ if __name__ == '__main__':
     # quag.start()
 
 
-    for degree in range(2,18,1):
-        quag = Quag(cipher_text3, degree)
-        quag.start_single(cipher_text3, degree)
+    # for degree in range(1,18,1):
+    quag = Quag(cipher_text3, 9)
+    quag.start_single(cipher_text3, 9)
         # quag.pre_analyse(cipher_text3, 9)
-        time.sleep(10)
+    time.sleep(10)
