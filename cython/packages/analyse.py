@@ -182,7 +182,8 @@ class QuagFrequency:
 
             self.return_list = [getattr(self, x) for x in alpha]
             self.return_list.sort(key=lambda x: x.chi)
-
+            # print(self.letter)
+            # print([str(x.chi) + x.letter for x in self.return_list])
         def output(self):
             return self.return_list
 
@@ -190,6 +191,7 @@ class QuagFrequency:
             def __init__(self, letter, actual_count, testFrequency, text_count):
                 self.testFrequency = testFrequency
                 self.actual_count = actual_count
+                self.actual_frequency = actual_count/text_count
                 self.text_count = text_count
                 self.letter = letter
                 self.chi = self.run(letter)
@@ -198,6 +200,7 @@ class QuagFrequency:
                 test_frequency = getattr(self.testFrequency, letter)
                 test_count = self.text_count * test_frequency
                 result = ((self.actual_count - test_count) ** 2) / test_count
+                # print('%s: chi(%s) count(%s)' % (letter, str(result), str(self.actual_count)))
                 return result
 
         class ExpectedFrequency:
@@ -386,6 +389,7 @@ class ChiSquare:
             # self.expected_letter = self.find_expected_letter(self.actual_frequency)
             self.expected_letter = None
             self.result = self.run()
+
 
         def find_expected_letter(self, frequency):
             x = None

@@ -30,7 +30,7 @@ class Quag:
 
         result_alpha = []
         cipher_columns = []
-        j = 0
+        j = 0y 195
         while j < degree:
             i = j
             nth_cypher_text = ''
@@ -40,48 +40,79 @@ class Quag:
             j += 1
             # print(nth_cypher_text)
             cipher_columns.append(nth_cypher_text)
-        print(cipher_columns)
-        print(self.alpha)
-        for each_column in cipher_columns:
-            quagFrequency = QuagFrequency(each_column)
-            initial_alpha = [0] * 26
-            print([getattr(quagFrequency, i)[x].letter for x, i in zip(initial_alpha, self.alpha)])
-            print([str(getattr(quagFrequency, i)[x].actual_count) for x, i in zip(initial_alpha, self.alpha)])
 
-        exit()
+            ''' for testing '''
+        # print(cipher_columns)
+        # print(self.alpha)
+        # # for each_column in cipher_columns:
+        # quagFrequency = QuagFrequency(cipher_columns[0])
+        # initial_alpha = [5] * 26
+        # print([getattr(quagFrequency, i)[x].letter for x, i in zip(initial_alpha, self.alpha)])
+        # print([str(getattr(quagFrequency, i)[x].actual_count) for x, i in zip(initial_alpha, self.alpha)])
+        #
+        # test_frequency = QuagFrequency.CheckLetter.ExpectedFrequency()
+        # # for each_letter in self.alpha:
+        #     # print('%s: %s' % (each_letter, str(getattr(test_frequency, each_letter)*len(each_column))))
+        # letter_freq = ([(x, float(getattr(test_frequency, x)*len(cipher_columns[1]))) for x in self.alpha])
+        # letter_freq.sort(key= lambda x: x[1])
+        # letter_freq = reversed(letter_freq)
+        # for each in letter_freq:
+        #     print(each)
+        # exit()
         '''new way '''
+        plain_text_columns = []
         for each_column in cipher_columns:
             quagFrequency = QuagFrequency(each_column)
             initial_alpha = [0] * 26
-            alphas_to_check = [initial_alpha]
-            result_alphas = []
-            done_alpha = []
-            while len(alphas_to_check) > 0:
 
-                working_alpha = alphas_to_check.pop()
-                # print(working_alpha)
-                if len(alphas_to_check) > 50000:
-                    exit(0)
-                if working_alpha in done_alpha:
-                    pass
+            new_decoder = Decode(each_column)
 
-                else:
-                    # print(working_alpha)
-                    duplicates = self.list_duplicates_of([getattr(quagFrequency, i)[x].letter for x, i in zip(working_alpha,self.alpha)])
-                    if len(duplicates) > 0:
-                        for each_duplicate in duplicates:
-                            alphas_to_check.insert(0, [x if y != each_duplicate else x+1 for y, x in enumerate(working_alpha)])
-                            done_alpha.append(working_alpha)
-                            # print(len(alphas_to_check))
+            plain_text_columns.append(new_decoder.quag_breaker([getattr(quagFrequency, i)[x].letter for x, i in zip(initial_alpha,self.alpha)]))
 
-                    else:
-                        result_alphas.append(working_alpha)
-                        print(working_alpha)
-                        print([getattr(quagFrequency, i)[x].letter for x, i in zip(working_alpha, self.alpha)])
-                        time.sleep(2)
+        plain_text = [None] * len(cipher_text)
+        k = -1
+        for each in plain_text_columns:
+            i = k+1
+            j = 0
+            while i < len(cipher_text):
+                plain_text[i] = each[j]
+                i += self.degree
+                j += 1
+            k += 1
 
-            print(result_alphas)
-            exit()
+        print(''.join(plain_text))
+        exit()
+
+        ''' removing duplicates'''
+            # alphas_to_check = [initial_alpha]
+            # result_alphas = []
+            # done_alpha = []
+            # while len(alphas_to_check) > 0:
+            #
+            #     working_alpha = alphas_to_check.pop()
+            #     # print(working_alpha)
+            #     if len(alphas_to_check) > 50000:
+            #         exit(0)
+            #     if working_alpha in done_alpha:
+            #         pass
+            #
+            #     else:
+            #         # print(working_alpha)
+            #         duplicates = self.list_duplicates_of([getattr(quagFrequency, i)[x].letter for x, i in zip(working_alpha,self.alpha)])
+            #         if len(duplicates) > 0:
+            #             for each_duplicate in duplicates:
+            #                 alphas_to_check.insert(0, [x if y != each_duplicate else x+1 for y, x in enumerate(working_alpha)])
+            #                 done_alpha.append(working_alpha)
+            #                 # print(len(alphas_to_check))
+            #
+            #         else:
+            #             result_alphas.append(working_alpha)
+            #             print(working_alpha)
+            #             print([getattr(quagFrequency, i)[x].letter for x, i in zip(working_alpha, self.alpha)])
+            #             time.sleep(2)
+            #
+            # print(result_alphas)
+            # exit()
 
 
     def list_duplicates_of(self, seq):
@@ -239,7 +270,13 @@ if __name__ == '__main__':
 
     # running.start()
     # quag.start()
-
+    test_quag_text = ''.join([x for x in '''
+IBWVUPLTP  JTKPPMYCT  DVXYGNYQY  NTWNFSUIX  NACXCFTGV
+AIKPSRTCO  JJWPRRVOL  AAARURJNU  IXMXPQBVU  IBWOGPCDP
+LNNRDFPSL  IBUGOCDOT  WKCPIRQRV  QGYGCXLVM  NOBEQFVOL
+GBWGPATNJ  LYWRMWEKL  AAVICVEAQ  BKUVFJURD  VIOZMPTZO
+VSLIHQBQX  FLLLWHPUS  GVXP
+''' if x.isalpha()])
 
     # for degree in range(1,18,1):
     quag = Quag(cipher_text3, 9)
