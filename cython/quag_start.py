@@ -30,7 +30,7 @@ class Quag:
 
         result_alpha = []
         cipher_columns = []
-        j = 0y 195
+        j = 0
         while j < degree:
             i = j
             nth_cypher_text = ''
@@ -60,18 +60,31 @@ class Quag:
         #     print(each)
         # exit()
         '''new way '''
+        ''' NEW PLAN! need to link all the collumns in the same analyssi to imporve the ample size'''
+        # returns the best guess if it is significantly better
+        objective_plain_text_columns = []
+
+        # Returns the best guess
         plain_text_columns = []
+
         for each_column in cipher_columns:
             quagFrequency = QuagFrequency(each_column)
             initial_alpha = [0] * 26
-
             new_decoder = Decode(each_column)
-
             plain_text_columns.append(new_decoder.quag_breaker([getattr(quagFrequency, i)[x].letter for x, i in zip(initial_alpha,self.alpha)]))
+
+            objectve_key = [getattr(quagFrequency, i)[x].letter if (getattr(quagFrequency, i)[x].chi*20 < getattr(quagFrequency, i)[x+1].chi) else '.'
+                            for x, i in zip(initial_alpha,self.alpha) ]
+            objective_plain_text_columns.append(new_decoder.quag_breaker(objectve_key))
+            print(objectve_key)
+            # exit()
+            # objective_plain_text_columns.append(new_decoder.quag_breaker(
+            #     [getattr(quagFrequency, i)[x].letter for x, i in zip(initial_alpha,self.alpha)
+            #      if (getattr(quagFrequency, i)[x].chi*5 < getattr(quagFrequency, i)[x+1].chi)]))
 
         plain_text = [None] * len(cipher_text)
         k = -1
-        for each in plain_text_columns:
+        for each in objective_plain_text_columns:
             i = k+1
             j = 0
             while i < len(cipher_text):
@@ -114,7 +127,7 @@ class Quag:
             # print(result_alphas)
             # exit()
 
-
+    @staticmethod
     def list_duplicates_of(self, seq):
         location = []
         for each_letter in set(seq):
@@ -132,6 +145,7 @@ class Quag:
                 location.extend(this_letter_location)
         return location
 
+    @staticmethod
     def analyse(self, plain_text, key_alpha):
         chiSquare = ChiSquare(plain_text)
         chi = chiSquare.output()
