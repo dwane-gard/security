@@ -63,6 +63,7 @@ class Quag:
         ''' NEW PLAN! need to link all the collumns in the same analyssi to imporve the ample size'''
         # returns the best guess if it is significantly better
         objective_plain_text_columns = []
+        objective_keys = []
 
         # Returns the best guess
         plain_text_columns = []
@@ -70,17 +71,68 @@ class Quag:
         for each_column in cipher_columns:
             quagFrequency = QuagFrequency(each_column)
             initial_alpha = [0] * 26
-            new_decoder = Decode(each_column)
-            plain_text_columns.append(new_decoder.quag_breaker([getattr(quagFrequency, i)[x].letter for x, i in zip(initial_alpha,self.alpha)]))
+            # new_decoder = Decode(each_column)
+            # plain_text_columns.append(new_decoder.quag_breaker([getattr(quagFrequency, i)[x].letter for x, i in zip(initial_alpha,self.alpha)]))
 
-            objectve_key = [getattr(quagFrequency, i)[x].letter if (getattr(quagFrequency, i)[x].chi*20 < getattr(quagFrequency, i)[x+1].chi) else '.'
-                            for x, i in zip(initial_alpha,self.alpha) ]
-            objective_plain_text_columns.append(new_decoder.quag_breaker(objectve_key))
-            print(objectve_key)
-            # exit()
-            # objective_plain_text_columns.append(new_decoder.quag_breaker(
-            #     [getattr(quagFrequency, i)[x].letter for x, i in zip(initial_alpha,self.alpha)
-            #      if (getattr(quagFrequency, i)[x].chi*5 < getattr(quagFrequency, i)[x+1].chi)]))
+            # objective_key = [getattr(quagFrequency, i)[x].letter if (getattr(quagFrequency, i)[x].chi*50 < getattr(quagFrequency, i)[x+1].chi) else '.'
+            #                 for x, i in zip(initial_alpha,self.alpha)]
+
+            objective_key = [getattr(quagFrequency, i)[x].letter
+                            for x, i in zip(initial_alpha, self.alpha)]
+
+
+            objective_keys.append(objective_key)
+
+        objective_keys[0][10] = 't'
+
+        objective_keys[1][8]  = 'h'
+        objective_keys[1][18] = 'o'
+
+        objective_keys[2][22] = 'e'
+        objective_keys[2][16] = 't'
+
+        objective_keys[2][14] = 'a'
+
+
+        objective_keys[3][18] = 't'
+
+
+        objective_keys[4][18] = 'o'
+
+
+        objective_keys[5][21] = 'o'
+
+        objective_keys[6][14] = 'e'
+
+        objective_keys[8][22] = 'o'
+
+
+        # # gueesing
+        # objective_keys[3][3] = 'f'
+        #
+        # objective_keys[4][24] = 'i'
+        # objective_keys[5][5] = 'l'
+        # objective_keys[6][0]  = 'e'
+        # objective_keys[7][8] = 'h'
+
+        objective_keys[3][3] = 'f'
+        objective_keys[4][24] = 'a'
+        objective_keys[5][5] = 'm'
+        objective_keys[6][0] = 'e'
+
+        objective_keys[5][5] = 'm'
+        objective_keys[6][6] = 'a'
+        objective_keys[7][12] = 't'
+        objective_keys[8][16] = 'h'
+
+        for objective_key, cipher_text_column in zip(objective_keys, cipher_columns):
+            quagFrequency = QuagFrequency(each_column)
+            new_decoder = Decode(cipher_text_column)
+            objective_plain_text_columns.append(new_decoder.quag_breaker(objective_key))
+            plain_text_columns.append(new_decoder.quag_breaker(
+                [getattr(quagFrequency, i)[x].letter for x, i in zip(initial_alpha, self.alpha)]))
+            print(objective_key)
+
 
         plain_text = [None] * len(cipher_text)
         k = -1
@@ -93,7 +145,8 @@ class Quag:
                 j += 1
             k += 1
 
-        print(''.join(plain_text))
+        derp = (''.join(plain_text))
+        print([derp[i:i+9] for i in range(0, len(derp), 9)])
         exit()
 
         ''' removing duplicates'''

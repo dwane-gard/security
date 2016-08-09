@@ -1,7 +1,7 @@
 import itertools
 from functools import reduce
 import time
-from pad import Decode
+from packages.pad import Decode
 
 class NthMessage:
     ''' breaks up the cipher text of  vigenere cipher into its parts so it can be treated as a ceaser shift cipher'''
@@ -101,15 +101,26 @@ class NthMessageQuag:
             self.chiSquare = ChiSquare(self.plain_text)
             self.chi = self.chiSquare.chi_result
             self.ic = self.chiSquare.ic
-class QuagRemoveDuplicates:
-    ''' Remove duplicates from a proposed alphabet to break a quagmire cipher'''
-    def __init__(self, alpha):
-        None
+class WordBuilder:
+    ''' Build a word from possible characters'''
+    def __init__(self, possible_words):
+        self.keys = open('sowpods.txt', 'r').readlines()
+        self.keys = [x[0:-1].upper() for x in self.keys]
+
+        self.possible_words = possible_words
+
     def run(self):
-        return None
-    def output(self):
-        result_alpha = None
-        return result_alpha
+        for possible_word in self.possible_words:
+            possible_word = ''.join(possible_word)
+            for key in self.keys:
+
+                if possible_word == key:
+                    print(possible_word)
+
+
+
+
+
 class QuagFrequency:
     def __init__(self, cipher_text):
         self.alphabet = [x for x in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']
@@ -184,6 +195,7 @@ class QuagFrequency:
             self.return_list.sort(key=lambda x: x.chi)
             # print(self.letter)
             # print([str(x.chi) + x.letter for x in self.return_list])
+
         def output(self):
             return self.return_list
 
@@ -232,14 +244,12 @@ class QuagFrequency:
                 self.Y = 0.0195
                 self.Z = 0.0006
 
-
-
 class WordSearch:
     def __init__(self):
         self.keys = open('sowpods.txt', 'r').readlines()
         self.keys = [x[0:-1].upper() for x in self.keys]
-        self.keys = [x for x in self.keys if len(x) != 2]
-        self.keys = [x for x in self.keys if len(x) != 3]
+        # self.keys = [x for x in self.keys if len(x) != 2]
+        # self.keys = [x for x in self.keys if len(x) != 3]
         self.len_plain_text = None
 
     def run(self, plain_text):
@@ -2081,7 +2091,7 @@ That's when he started crying. He goes into how he hasn't actually spoken or rea
 I guess the moral of this story is no matter how nasty someone is to you over the phone, sometimes they're not always a terrible person and just going through a lot. I still think about Mr. Smith occasionally when I get those nasty customers and it makes me feel a little better.
 Anyway thanks for reading just thought I'd share how this one call changed my outlook on life :)'''
         cipher_text3 = '''
-KIWDY FAIAS YQXQF GMQDZ OHUQK NEFVL
+KIWDY FAIAS YQXQF GMQDZcython OHUQK NEFVL
 AZPZP CXYDJ QLVGC KXPAS IENMN JYNGA
 ODJPJ YNTCF RJUIT ECGGS PVEAB STKTN
 BJOHZ OKDHA SGHPR LAEFU OSKRW ANNLG
