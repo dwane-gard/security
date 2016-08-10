@@ -68,46 +68,100 @@ class Quag:
         # Returns the best guess
         plain_text_columns = []
 
+
         for each_column in cipher_columns:
             quagFrequency = QuagFrequency(each_column)
             initial_alpha = [0] * 26
             # new_decoder = Decode(each_column)
             # plain_text_columns.append(new_decoder.quag_breaker([getattr(quagFrequency, i)[x].letter for x, i in zip(initial_alpha,self.alpha)]))
 
-            # objective_key = [getattr(quagFrequency, i)[x].letter if (getattr(quagFrequency, i)[x].chi*50 < getattr(quagFrequency, i)[x+1].chi) else '.'
-            #                 for x, i in zip(initial_alpha,self.alpha)]
-
-            objective_key = [getattr(quagFrequency, i)[x].letter
-                            for x, i in zip(initial_alpha, self.alpha)]
-
+            objective_key = [getattr(quagFrequency, i)[x].letter if (getattr(quagFrequency, i)[x].chi*50 < getattr(quagFrequency, i)[x+1].chi) else '.'
+                            for x, i in zip(initial_alpha,self.alpha)]
+            #
+            # objective_key = [getattr(quagFrequency, i)[x].letter
+            #                 for x, i in zip(initial_alpha, self.alpha)]
 
             objective_keys.append(objective_key)
 
         objective_keys[0][10] = 't'
-
         objective_keys[1][8]  = 'h'
-        objective_keys[1][18] = 'o'
-
         objective_keys[2][22] = 'e'
-        objective_keys[2][16] = 't'
-
         objective_keys[2][14] = 'a'
-
-
         objective_keys[3][18] = 't'
 
+        # Statment
+        objective_keys[1][4] = 't'
+        objective_keys[7][18] = 'n'
+        objective_keys[8][13] = 't'
 
-        objective_keys[4][18] = 'o'
+        # None
+        objective_keys[4][19] = 'n'
 
+        # good probabioty tells
+        # objective_keys[1][18] = 'o'
 
-        objective_keys[5][21] = 'o'
+        # objective_keys[4][18] = 'o'
+        # objective_keys[5][21] = 'o'
 
-        objective_keys[6][14] = 'e'
+        # objective_keys[6][14] = 'e' doubles up
 
-        objective_keys[8][22] = 'o'
+        # objective_keys[8][22] = 'o'
 
 
         # # gueesing
+
+        objective_keys[0][18] = 'm'
+        objective_keys[1][24] = 'a'
+        objective_keys[2][16] = 't'
+        objective_keys[3][23] = 'h'
+        objective_keys[4][16] = 'e'
+        objective_keys[5][5] = 'm'
+        objective_keys[6][6] = 'a'
+        objective_keys[7][12] = 't'
+        objective_keys[8][16] = 'i'
+        objective_keys[0][3] = 'c'
+        objective_keys[1][25] = 'i'
+        #a fits
+        objective_keys[3][7] = 'n'
+
+        objective_keys[3][3] = 'f'
+        objective_keys[4][24] = 'a'
+        objective_keys[5][5] = 'm'
+        objective_keys[6][0] = 'o'
+        objective_keys[7][8] = 'u'
+        objective_keys[8][0] = 's'
+
+        objective_keys[4][20] = 'f'
+        objective_keys[5][16] = 'r'
+        objective_keys[6][10] = 'e'
+        objective_keys[7][13] = 'e'
+        objective_keys[8][4] = 'm'
+        objective_keys[0][5] = 'a'
+        objective_keys[1][21] = 'n'
+        objective_keys[2][11] = 'd'
+        objective_keys[3][0] = 'y'
+        objective_keys[4][25] = 's'
+        objective_keys[5][15] = 'o'
+        objective_keys[6][25] = 'n'
+
+        objective_keys[7][15] = 'w'
+        objective_keys[8][2]  = 'a'
+        objective_keys[0][23] = 's'
+
+        # a fits
+        objective_keys[2][3] = 's'
+        objective_keys[3][9] = 'k'
+        # e fits
+        objective_keys[5][11] = 'd'
+        #
+        # objective_keys[6][21] = 'd'
+        # objective_keys[7][6] = 'o'
+        #
+        # objective_keys[8]
+
+
+
+
         # objective_keys[3][3] = 'f'
         #
         # objective_keys[4][24] = 'i'
@@ -115,24 +169,41 @@ class Quag:
         # objective_keys[6][0]  = 'e'
         # objective_keys[7][8] = 'h'
 
-        objective_keys[3][3] = 'f'
-        objective_keys[4][24] = 'a'
-        objective_keys[5][5] = 'm'
-        objective_keys[6][0] = 'e'
 
-        objective_keys[5][5] = 'm'
-        objective_keys[6][6] = 'a'
-        objective_keys[7][12] = 't'
-        objective_keys[8][16] = 'h'
 
+        # objective_keys[5][5] = 'm'
+        # objective_keys[6][6] = 'a'
+        # objective_keys[7][12] = 't'
+        # objective_keys[8][16] = 'h'
+
+        # objective_keys[0][1] = 's'
+        # objective_keys[1][24] = 't'
+        # objective_keys[2][0] = 'u'
+        # objective_keys[3][22] = 'd'
+        # objective_keys[4][16] = 'e'
+        # objective_keys[5][21] = 'n'
+
+        # objective_keys[3][3] = 'w'
+        # objective_keys[4][24] = 'i'
+        # objective_keys[5][5] = 'd'
+        # objective_keys[6][0] = 't'
+        # objective_keys[7][8] = 'h'
+        #
+        # objective_keys[8][0] = 'a'
+
+        # objective_keys[3][19] = 'u'
+        # objective_keys[4][18] = 'n'
+        # objective_keys[5][19] = ''
+        print([str(x) for x in range(0,25,1)])
         for objective_key, cipher_text_column in zip(objective_keys, cipher_columns):
+            print(objective_key)
+
             quagFrequency = QuagFrequency(each_column)
             new_decoder = Decode(cipher_text_column)
             objective_plain_text_columns.append(new_decoder.quag_breaker(objective_key))
+
             plain_text_columns.append(new_decoder.quag_breaker(
                 [getattr(quagFrequency, i)[x].letter for x, i in zip(initial_alpha, self.alpha)]))
-            print(objective_key)
-
 
         plain_text = [None] * len(cipher_text)
         k = -1

@@ -107,15 +107,33 @@ class WordBuilder:
         self.keys = open('sowpods.txt', 'r').readlines()
         self.keys = [x[0:-1].upper() for x in self.keys]
 
+        self.cut_keys = self.keys
+        self.cut_keys = [x for x in self.cut_keys if len(x) != 2]
+        self.cut_keys = [x for x in self.cut_keys if len(x) != 3]
+
         self.possible_words = possible_words
 
-    def run(self):
+    def run_equal(self):
         for possible_word in self.possible_words:
             possible_word = ''.join(possible_word)
             for key in self.keys:
 
                 if possible_word == key:
-                    print(possible_word)
+                    print('EQ: %s' % possible_word)
+
+    def run_in(self):
+
+
+        for possible_word in self.possible_words:
+            possible_word = ''.join(possible_word)
+            for key in self.cut_keys:
+
+                # if possible_word in key:
+                #
+                #     print('In: %s' % possible_word)
+                if key in possible_word:
+                    print('Part of: %s' % key)
+
 
 
 
