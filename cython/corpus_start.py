@@ -1,6 +1,7 @@
 from packages.analyse import ChiSquare, TwinIndex, CheckIC
 import plotly
 import plotly.graph_objs
+import multiprocessing
 ''' for anaylising a corpus '''
 
 class CorpusAnalysis:
@@ -20,9 +21,15 @@ class CorpusAnalysis:
                         print(title)
                         corpus = open_txt_file.read()
                         colour = colours.pop()
-                        self.twin_data.append(CorpusTwinIndex(corpus, title, colour).output())
-                        self.ic_data.append(CorpusIC(corpus, title, colour).output())
-                        self.chi_data.append(CorpusCharacterFrequency(corpus, title, colour).output())
+                        corpusTwinIndex = CorpusTwinIndex(corpus, title, colour).output()
+                        self.twin_data.append(corpusTwinIndex)
+
+                        corpusIC = CorpusIC(corpus, title, colour).output()
+                        multiprocessing.Process(target=CorpusIC().output(), args=(corpus, title, colour, plot_points))
+                        self.ic_data.append(corpusIC)
+
+                        corpusCharacterFrequency = CorpusCharacterFrequency(corpus, title, colour).output()
+                        self.chi_data.append(corpusCharacterFrequency)
                         break
 
     def output_twin(self):
@@ -34,9 +41,9 @@ class CorpusAnalysis:
         plotly.offline.plot(fig, filename='twin_index.html')
 
     def output_ic(self):
-        layout = dict(title='Incendence Coeffient Vs Character Count',
-                      xaxis=dict(title='Character count'),
-                      yaxis=dict(title='Incedence Coeefetient'),
+        layout = dict(title='Index of Coincidence Vs Character Count',
+                      xaxis=dict(title='Character Count'),
+                      yaxis=dict(title='Index of Coincidence'),
                       )
 
         fig = dict(data=self.ic_data, layout=layout)
@@ -44,7 +51,7 @@ class CorpusAnalysis:
 
     def output_chi(self):
         layout = dict(title='Chi Square Vs Character Count',
-                      xaxis=dict(title='Character count'),
+                      xaxis=dict(title='Character Count'),
                       yaxis=dict(title='Chi Square'),
                       )
 

@@ -370,7 +370,6 @@ class CheckIC:
         return float(self.ic)
 
     def run_normalisation(self, corpus):
-        import sys
         characters = [corpus[i:i + 10] for i in range(0, len(corpus), 10)]
         character_count = 0
         checked_corpus = ''
@@ -379,10 +378,6 @@ class CheckIC:
         for character in characters:
             character_count += 10
             checked_corpus += character
-            try:
-                sys.stdout.write(character)
-            except:
-                pass
             try:
                 plot_points_x.append(character_count)
                 plot_points_y.append(self.run(checked_corpus))
@@ -409,8 +404,6 @@ class ChiSquare:
         # print(self.chi_result)
 
     def normalisation(self):
-        import sys
-
         corpus = self.plain_text
         characters = [corpus[i:i + 10] for i in range(0, len(corpus), 10)]
         character_count = 0
@@ -420,10 +413,6 @@ class ChiSquare:
         for character in characters:
             character_count += 10
             checked_corpus += character
-            try:
-                sys.stdout.write(character)
-            except:
-                pass
             try:
                 plot_points_x.append(character_count)
                 plot_points_y.append(ChiSquare(checked_corpus).chi_result)
