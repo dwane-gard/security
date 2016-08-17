@@ -1,6 +1,6 @@
 import functools
-from analyse import CheckIC, ChiSquare
-from pad import Decode
+from packages.analyse import CheckIC, ChiSquare
+from packages.pad import Decode
 
 class Kasiski:
     '''

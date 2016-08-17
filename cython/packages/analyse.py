@@ -369,6 +369,28 @@ class CheckIC:
 
         return float(self.ic)
 
+    def run_normalisation(self, corpus):
+        import sys
+        characters = [corpus[i:i + 10] for i in range(0, len(corpus), 10)]
+        character_count = 0
+        checked_corpus = ''
+        plot_points_x = []
+        plot_points_y = []
+        for character in characters:
+            character_count += 10
+            checked_corpus += character
+            try:
+                sys.stdout.write(character)
+            except:
+                pass
+            try:
+                plot_points_x.append(character_count)
+                plot_points_y.append(self.run(checked_corpus))
+
+            except:
+                pass
+        return plot_points_x, plot_points_y
+
 
 class ChiSquare:
     def __init__(self, plain_text):
@@ -385,6 +407,30 @@ class ChiSquare:
         self.chi = [self.CheckLetter(getattr(checkIC, x), len(self.plain_text), x) for x in alphabet]
         self.chi_result = sum([x.result for x in self.chi])
         # print(self.chi_result)
+
+    def normalisation(self):
+        import sys
+
+        corpus = self.plain_text
+        characters = [corpus[i:i + 10] for i in range(0, len(corpus), 10)]
+        character_count = 0
+        checked_corpus = ''
+        plot_points_x = []
+        plot_points_y = []
+        for character in characters:
+            character_count += 10
+            checked_corpus += character
+            try:
+                sys.stdout.write(character)
+            except:
+                pass
+            try:
+                plot_points_x.append(character_count)
+                plot_points_y.append(ChiSquare(checked_corpus).chi_result)
+
+            except:
+                pass
+        return plot_points_x, plot_points_y
 
     def output(self):
         return self.chi_result
@@ -521,6 +567,52 @@ class ChiSquare:
                 self.expected_frequency = 0.0006
 
 
+class TwinIndex:
+    def __init__(self, corpus_text):
+
+        self.corpus_text = ''.join([x.upper() for x in corpus_text if x.isalpha()])
+        self.diagrams = [self.corpus_text[i:i + 2] for i in range(0, len(self.corpus_text), 1)]
+        self.alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        self.twin_alpha = [x+x for x in self.alpha]
+        self.total_twin = None
+        self.twin_index = None
+        self.twin_frequency = None
+
+    def run_normalisation(self):
+        ''' find how long a corpus must be for twin index to normalise'''
+        twin_count = 0
+        diagram_count = 0
+        plot_points = []
+        plot_points_x = []
+        plot_points_y = []
+        for diagram in self.diagrams:
+            diagram_count += 1
+            if diagram in self.twin_alpha:
+                twin_count += 1
+                twin_index = (twin_count/(diagram_count))*26
+                plot_points.append((diagram_count, twin_index))
+                plot_points_x.append(diagram_count)
+                plot_points_y.append(twin_index)
+        return plot_points_x, plot_points_y
+
+    def run_total(self):
+        for each_twin in self.twin_alpha:
+            setattr(self, each_twin, self.diagrams.count(each_twin))
+
+        twin_diagrams = [(x, getattr(self, x)) for x in self.twin_alpha]
+
+        self.total_twin = sum([x[1] for x in twin_diagrams])
+        self.twin_frequency = self.total_twin / (len(self.corpus_text) - 1)
+        self.twin_index = self.twin_frequency * 26
+
+    def output(self):
+        print(self.diagrams)
+        # for each_twin in self.twin_alpha:
+        #     print('%s: %s' % (str(each_twin), str(getattr(self, each_twin))))
+        # return [(x, getattr(self, x)) for x in self.twin_alpha]
+
+
+
 class Dia:
     '''
     A Pre-analysis for transposition ciphers that tries to predict the cypher by using
@@ -583,7 +675,7 @@ class Dia:
         #     print(each.pos1, each.pos2)
         #     print(each.score)
 
-       # Build out the key
+        # Build out the key
         key = [refined_data_set[0].pos1, refined_data_set[0].pos2]
 
         count = 0
@@ -606,6 +698,7 @@ class Dia:
                 break
 
         self.key = key
+
 
     class Data:
         def __init__(self, pos1, pos2, cipher_columns):
@@ -2073,6 +2166,8 @@ class Dia:
                 letter_b = each_column[b]
                 collective_score = self.get_collective_score(letter_a, letter_b)
                 scores.append(collective_score)
+
+
 
             ave_score = reduce(lambda x, y: x+y, scores) / len(scores)
             return ave_score

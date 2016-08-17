@@ -41,26 +41,7 @@ class Quag:
             # print(nth_cypher_text)
             cipher_columns.append(nth_cypher_text)
 
-            ''' for testing '''
-        # print(cipher_columns)
-        # print(self.alpha)
-        # # for each_column in cipher_columns:
-        # quagFrequency = QuagFrequency(cipher_columns[0])
-        # initial_alpha = [5] * 26
-        # print([getattr(quagFrequency, i)[x].letter for x, i in zip(initial_alpha, self.alpha)])
-        # print([str(getattr(quagFrequency, i)[x].actual_count) for x, i in zip(initial_alpha, self.alpha)])
-        #
-        # test_frequency = QuagFrequency.CheckLetter.ExpectedFrequency()
-        # # for each_letter in self.alpha:
-        #     # print('%s: %s' % (each_letter, str(getattr(test_frequency, each_letter)*len(each_column))))
-        # letter_freq = ([(x, float(getattr(test_frequency, x)*len(cipher_columns[1]))) for x in self.alpha])
-        # letter_freq.sort(key= lambda x: x[1])
-        # letter_freq = reversed(letter_freq)
-        # for each in letter_freq:
-        #     print(each)
-        # exit()
-        '''new way '''
-        ''' NEW PLAN! need to link all the collumns in the same analyssi to imporve the ample size'''
+
         # returns the best guess if it is significantly better
         objective_plain_text_columns = []
         objective_keys = []
@@ -78,11 +59,14 @@ class Quag:
             objective_key = [getattr(quagFrequency, i)[x].letter if (getattr(quagFrequency, i)[x].chi*50 < getattr(quagFrequency, i)[x+1].chi) else '.'
                             for x, i in zip(initial_alpha,self.alpha)]
             #
-            # objective_key = [getattr(quagFrequency, i)[x].letter
-            #                 for x, i in zip(initial_alpha, self.alpha)]
+            objective_key = [getattr(quagFrequency, i)[x].letter
+                            for x, i in zip(initial_alpha, self.alpha)]
 
             objective_keys.append(objective_key)
 
+
+        # manually changing the alphabet with letter gleemed from the statistical anaylsis
+        # and anaraming letters close to it
         objective_keys[0][10] = 't'
         objective_keys[1][8]  = 'h'
         objective_keys[2][22] = 'e'
@@ -153,10 +137,18 @@ class Quag:
         objective_keys[3][9] = 'k'
         # e fits
         objective_keys[5][11] = 'd'
+
+        objective_keys[6][21] = 'w'
+        objective_keys[7][6] = 'h'
+        # a fits
+        # t fits
+
         #
-        # objective_keys[6][21] = 'd'
-        # objective_keys[7][6] = 'o'
-        #
+        objective_keys[1][23] = 'd'
+        objective_keys[2][15] = 'o'
+
+        # y fits
+
         # objective_keys[8]
 
 
@@ -217,39 +209,12 @@ class Quag:
             k += 1
 
         derp = (''.join(plain_text))
+
         print([derp[i:i+9] for i in range(0, len(derp), 9)])
+        print(derp)
         exit()
 
-        ''' removing duplicates'''
-            # alphas_to_check = [initial_alpha]
-            # result_alphas = []
-            # done_alpha = []
-            # while len(alphas_to_check) > 0:
-            #
-            #     working_alpha = alphas_to_check.pop()
-            #     # print(working_alpha)
-            #     if len(alphas_to_check) > 50000:
-            #         exit(0)
-            #     if working_alpha in done_alpha:
-            #         pass
-            #
-            #     else:
-            #         # print(working_alpha)
-            #         duplicates = self.list_duplicates_of([getattr(quagFrequency, i)[x].letter for x, i in zip(working_alpha,self.alpha)])
-            #         if len(duplicates) > 0:
-            #             for each_duplicate in duplicates:
-            #                 alphas_to_check.insert(0, [x if y != each_duplicate else x+1 for y, x in enumerate(working_alpha)])
-            #                 done_alpha.append(working_alpha)
-            #                 # print(len(alphas_to_check))
-            #
-            #         else:
-            #             result_alphas.append(working_alpha)
-            #             print(working_alpha)
-            #             print([getattr(quagFrequency, i)[x].letter for x, i in zip(working_alpha, self.alpha)])
-            #             time.sleep(2)
-            #
-            # print(result_alphas)
-            # exit()
+
 
     @staticmethod
     def list_duplicates_of(self, seq):

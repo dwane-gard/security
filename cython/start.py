@@ -397,7 +397,7 @@ QYQAY PBQDM QBQIX VJSQD CFCWE KAFDT TTSIW CQTLV OSTQS UIMPG QXQWP
 VJYPO FTXLU FRQFH NIXNV QVFXH FEQRX FCJ''' if x.isalpha()])
     for each in range(1,20,1):
         print('Poly-alphabetic Key length: %s' % each)
-        # run = Run(each, combination_test_text)
-        run = Run(each, quag)
-        run.start_simple_substitution()
-        # run.start_combination()
+        run = Run(each, combination_test_text)
+        # run = Run(each, quag)
+        # run.start_simple_substitution()
+        run.start_combination()
