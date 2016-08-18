@@ -25,7 +25,7 @@ class CorpusAnalysis:
                         self.twin_data.append(corpusTwinIndex)
 
                         corpusIC = CorpusIC(corpus, title, colour).output()
-                        multiprocessing.Process(target=CorpusIC().output(), args=(corpus, title, colour, plot_points))
+                        # multiprocessing.Process(target=CorpusIC().output(), args=(corpus, title, colour, plot_points))
                         self.ic_data.append(corpusIC)
 
                         corpusCharacterFrequency = CorpusCharacterFrequency(corpus, title, colour).output()
