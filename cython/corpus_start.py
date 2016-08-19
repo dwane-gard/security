@@ -47,7 +47,7 @@ class CorpusAnalysis:
                       )
 
         fig = dict(data=self.ic_data, layout=layout)
-        plotly.offline.plot(fig, filename='twin_index.html')
+        plotly.offline.plot(fig, filename='index_f_coincidence.html')
 
     def output_chi(self):
         layout = dict(title='Chi Square Vs Character Count',
@@ -55,8 +55,8 @@ class CorpusAnalysis:
                       yaxis=dict(title='Chi Square'),
                       )
 
-        fig = dict(data=self.ic_data, layout=layout)
-        plotly.offline.plot(fig, filename='twin_index.html')
+        fig = dict(data=self.chi_data, layout=layout)
+        plotly.offline.plot(fig, filename='chi_square.html')
 
 
 class CorpusIC:

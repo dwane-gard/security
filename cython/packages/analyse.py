@@ -380,7 +380,7 @@ class CheckIC:
             checked_corpus += character
             try:
                 plot_points_x.append(character_count)
-                plot_points_y.append(self.run(checked_corpus))
+                plot_points_y.append(CheckIC().run(checked_corpus))
 
             except:
                 pass

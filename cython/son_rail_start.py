@@ -30,6 +30,8 @@ class RailFence:
                 print(colored('%s: %s' % (str(index), str(object)), 'green'))
             elif object == ' ':
                 print(colored('%s: %s' % (str(index), str(object)), 'blue'))
+            if object == 'B' or object == 'b' or object == 'r':
+                    print(colored('%s: %s' % (str(index), str(object)), 'yellow'))
             else:
                 print('%s: %s' %(str(index), str(object)))
 
@@ -63,4 +65,4 @@ if __name__ == '__main__':
     railFence = RailFence('''S_   ltes e__owesft4ya'h r_ernadinhohn_hstfeamion coo iost  lhrooidskeutsio t,aPeeut_eemlc tmkhegi_wschoool31neOen Cbale4h s tee_  oi_r yjnsr  iat_.>dslu}4 nd asthsnCg\  it_ Misdirection_tCaeesa Oe1elr__firiOR_lelsmk_hlabsfkabM{fbbliuec_p  eiecn P1oaubco a_ite_headm34rebihchtHo4c'''
                           , 'COMP3441{')
     railFence.pre_analyse()
-    # railFence.analyse()
+    railFence.analyse()
