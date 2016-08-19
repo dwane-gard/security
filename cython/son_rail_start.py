@@ -30,7 +30,7 @@ class RailFence:
                 print(colored('%s: %s' % (str(index), str(object)), 'green'))
             elif object == ' ':
                 print(colored('%s: %s' % (str(index), str(object)), 'blue'))
-            if object == 'B' or object == 'b' or object == 'r':
+            if object == 'u':
                     print(colored('%s: %s' % (str(index), str(object)), 'yellow'))
             else:
                 print('%s: %s' %(str(index), str(object)))
