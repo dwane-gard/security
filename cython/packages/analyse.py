@@ -3,8 +3,18 @@ from functools import reduce
 import time
 from packages.pad import Decode
 
+'''
+A collection of anylisis code from analyising difrent parts of ciphers
+'''
+
 class NthMessage:
-    ''' breaks up the cipher text of  vigenere cipher into its parts so it can be treated as a ceaser shift cipher'''
+    '''
+    Breaks up the cipher text of  vigenere cipher into its parts so it can be treated as a ceaser shift cipher,
+    The results are then sorted by their chi square (letter frequncy as compared to english)
+
+    The output is a list of lists of objects containing what shift it used and its various scores.
+
+    '''
     def __init__(self, cipher_text, degree):
 
         self.cipher_text = cipher_text
@@ -39,15 +49,27 @@ class NthMessage:
             # print(result[0].ic)
 
     def output(self):
+        '''
+        Returns the output; a list of lists of objects containing all the information, see EachMessage for variables
+        :return:
+        '''
         return self.plain_texts
 
     def print_output(self):
+        '''
+        Prints out relevent information of the best scored objects for each collumb, this is more for use in
+        troubleshooting and visualizing the data
+        :return:
+        '''
         for each in self.plain_texts:
             print(each.result[0].chi)
             print(each.result[0].shift)
             print(each.result[0].ic)
 
     class EachMessage:
+        '''
+        Holds the data and chooses wich calculation to do (beaufort or 'runner') for each indvidual 'shift'
+        '''
         def __init__(self, shift, Decoder):
             self.shift = shift
 
@@ -84,8 +106,11 @@ class NthMessageQuag:
         for each_column in self.cipher_columns:
             quagFrequency = QuagFrequency(each_column)
 
-
     def output(self):
+        '''
+        Returns an output for other functions
+        :return:
+        '''
         return self.results
 
     class EachMessage:
@@ -101,8 +126,9 @@ class NthMessageQuag:
             self.chiSquare = ChiSquare(self.plain_text)
             self.chi = self.chiSquare.chi_result
             self.ic = self.chiSquare.ic
+
 class WordBuilder:
-    ''' Build a word from possible characters'''
+    ''' Build a word from possible characters '''
     def __init__(self, possible_words):
         self.keys = open('sowpods.txt', 'r').readlines()
         self.keys = [x[0:-1].upper() for x in self.keys]
@@ -122,8 +148,6 @@ class WordBuilder:
                     print('EQ: %s' % possible_word)
 
     def run_in(self):
-
-
         for possible_word in self.possible_words:
             possible_word = ''.join(possible_word)
             for key in self.cut_keys:
@@ -135,11 +159,10 @@ class WordBuilder:
                     print('Part of: %s' % key)
 
 
-
-
-
-
 class QuagFrequency:
+    '''
+    Frequency analysis used for possible quagmire ciphers
+    '''
     def __init__(self, cipher_text):
         self.alphabet = [x for x in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']
 
@@ -181,7 +204,6 @@ class QuagFrequency:
             self.letter = letter
             self.testFrequency = self.ExpectedFrequency()
 
-
             self.A = self.Data('A', actual_count, self.testFrequency, text_count)
             self.B = self.Data('B', actual_count, self.testFrequency, text_count)
             self.C = self.Data('C', actual_count, self.testFrequency, text_count)
@@ -215,9 +237,18 @@ class QuagFrequency:
             # print([str(x.chi) + x.letter for x in self.return_list])
 
         def output(self):
+            '''
+            Returns a possible answer with the most likely but definetly wrong plain text as an answer,
+            as letter frequencies are somewhat bunched and with a small sample size one possible letter will likely
+            equal 2 or more letters
+            :return:
+            '''
             return self.return_list
 
         class Data:
+            '''
+            Holds known data on letter frequncies and computes the chi square score against that data
+            '''
             def __init__(self, letter, actual_count, testFrequency, text_count):
                 self.testFrequency = testFrequency
                 self.actual_count = actual_count
@@ -262,7 +293,11 @@ class QuagFrequency:
                 self.Y = 0.0195
                 self.Z = 0.0006
 
+
 class WordSearch:
+    '''
+    Finds possible words given a list of known letters
+    '''
     def __init__(self):
         self.keys = open('sowpods.txt', 'r').readlines()
         self.keys = [x[0:-1].upper() for x in self.keys]
@@ -270,22 +305,38 @@ class WordSearch:
         # self.keys = [x for x in self.keys if len(x) != 3]
         self.len_plain_text = None
 
-    def run(self, plain_text):
+    def run(self, ze_plain_text):
+        '''
+        Runs the substring search and returns a number representing the amount of the text wich are words,
+        If the text is english or has english in it the number will very well be higher then 1 as smaller words are
+        offten included in longer words for example 'clock' has 'lock' in it
+        :param ze_plain_text:
+        :return:
+        '''
         word_list = []
         for each_key in self.keys:
-            if each_key in plain_text:
+            if each_key in ze_plain_text:
                 word_list.append(each_key)
         if self.len_plain_text is None:
-            self.len_plain_text = len(plain_text)
+            self.len_plain_text = len(ze_plain_text)
         words_list_len = len(''.join(word_list))
         words_len = words_list_len/self.len_plain_text
         return words_len
 
-    def the_check(self, plain_text):
-        the_count = plain_text.count('THE')
+    def the_check(self, ze_plain_text):
+        '''
+        Finds the amount of 'the' in a given text
+        :param plain_text:
+        :return:
+        '''
+        the_count = ze_plain_text.count('THE')
         return the_count
 
+
 class CheckIC:
+    '''
+    Finds the Index of Coincidence of a given text
+    '''
     def __init__(self):
         alphabet = [x for x in'ABCDEFGHIJKLMNOPQRSTUVWXYZ']
         self.text_size = None
@@ -320,6 +371,7 @@ class CheckIC:
         self.ic = 0
 
     def run(self, plain_text):
+
         # Check if we need to do text changes on first operation, using as a case study for the rest
         if self.text_changes is True:
             original_plain_text = plain_text
@@ -370,6 +422,12 @@ class CheckIC:
         return float(self.ic)
 
     def run_normalisation(self, corpus):
+        '''
+        Finds the point in wich the index of coincidence normalises,
+        returns plot points to be graphed
+        :param corpus:
+        :return:
+        '''
         characters = [corpus[i:i + 10] for i in range(0, len(corpus), 10)]
         character_count = 0
         checked_corpus = ''
@@ -388,6 +446,9 @@ class CheckIC:
 
 
 class ChiSquare:
+    '''
+    Does a frequency analysis on text to find how similar it is to english
+    '''
     def __init__(self, plain_text):
         alphabet = [x for x in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']
 
@@ -404,6 +465,10 @@ class ChiSquare:
         # print(self.chi_result)
 
     def normalisation(self):
+        '''
+        Variant that does a frequency check of ever n+10 to find when the chi Square normalises,
+        returns plot points to be graphed
+        '''
         corpus = self.plain_text
         characters = [corpus[i:i + 10] for i in range(0, len(corpus), 10)]
         character_count = 0
@@ -422,13 +487,25 @@ class ChiSquare:
         return plot_points_x, plot_points_y
 
     def output(self):
+        '''
+        Used to return the results
+        :return:
+        '''
         return self.chi_result
 
     def print_output(self):
+        '''
+        Used to print the results
+        :return:
+        '''
         print(self.chi_result)
         print(self.ic)
 
     def frequency_analysis_output(self):
+        '''
+        depritiated
+        :return:
+        '''
         for each in self.chi:
             pass
             # print(each.letter)
@@ -437,6 +514,9 @@ class ChiSquare:
             # return each.letter, each.expected_letter, each.result
 
     class CheckLetter:
+        '''
+        Internaly used to calculate the Chi square of each individual letter in the alphabet
+        '''
         def __init__(self, letter_count, text_count, letter):
             self.letter_count = letter_count
             self.text_count = text_count
@@ -446,15 +526,15 @@ class ChiSquare:
             self.expectedFrequency = self.ExpectedFrequency()
             self.expected_frequency = getattr(self.expectedFrequency, letter)
 
-            # for quag alphabets
-            # self.expected_letter = min(self.expectedFrequency.__dict__.items(), key=lambda k, v: abs(v - self.actual_frequency))
-            # self.expected_letter = min(((key, abs(value - self.actual_frequency)) for key, value in self.expectedFrequency.__dict__.items()), key=lambda v: v[0])[0]
-            # self.expected_letter = self.find_expected_letter(self.actual_frequency)
             self.expected_letter = None
             self.result = self.run()
 
-
         def find_expected_letter(self, frequency):
+            '''
+            Tries to match the frequncy of a given letter with the known frequency of a letter
+            :param frequency:
+            :return:
+            '''
             x = None
             diff = float('inf')
             for key, value in self.expectedFrequency.__dict__.items():
@@ -463,14 +543,20 @@ class ChiSquare:
                     x = key
             return x
 
-
         def run(self):
+            '''
+            Used internaly to run the chi square calculation
+            :return:
+            '''
             expected_count = self.text_count*self.expected_frequency
             result = ((self.letter_count - expected_count)**2) / expected_count
             # print(self.letter, self.letter_count, expected_count, result)
             return result
 
         class ExpectedFrequency:
+            '''
+            Data for known letter frequncy in the english language
+            '''
             def __init__(self):
                 self.A = 0.0821
                 self.B = 0.0150
@@ -498,8 +584,6 @@ class ChiSquare:
                 self.X = 0.0013
                 self.Y = 0.0195
                 self.Z = 0.0006
-
-
 
         def find_expected_frequency(self):
             if self.letter == 'E':
@@ -557,8 +641,10 @@ class ChiSquare:
 
 
 class TwinIndex:
+    '''
+    Makes an index of the probability of a double letter occuring in a given text
+    '''
     def __init__(self, corpus_text):
-
         self.corpus_text = ''.join([x.upper() for x in corpus_text if x.isalpha()])
         self.diagrams = [self.corpus_text[i:i + 2] for i in range(0, len(self.corpus_text), 1)]
         self.alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -568,7 +654,10 @@ class TwinIndex:
         self.twin_frequency = None
 
     def run_normalisation(self):
-        ''' find how long a corpus must be for twin index to normalise'''
+        '''
+        does the calculation finding how long a corpus must be for twin index to normalise
+        '''
+
         twin_count = 0
         diagram_count = 0
         plot_points = []
@@ -585,6 +674,11 @@ class TwinIndex:
         return plot_points_x, plot_points_y
 
     def run_total(self):
+        '''
+        does the calculation finding the absoulte twin index of a given text
+        :return:
+        '''
+
         for each_twin in self.twin_alpha:
             setattr(self, each_twin, self.diagrams.count(each_twin))
 
@@ -595,6 +689,10 @@ class TwinIndex:
         self.twin_index = self.twin_frequency * 26
 
     def output(self):
+        '''
+        returns all the diagrams in the given text, for the actual twin index look for a variables thus named
+        :return:
+        '''
         print(self.diagrams)
         # for each_twin in self.twin_alpha:
         #     print('%s: %s' % (str(each_twin), str(getattr(self, each_twin))))
@@ -627,6 +725,10 @@ class Dia:
         # we appear to need to key to know where to put the nulls, might have to have a seperate dia class to do this
 
     def run(self):
+        '''
+        Do the caulculations placing the diagrams in there most probable spots given the cipher text
+        :return:
+        '''
         # Test the probability of each diagram
         possible_diagrams = itertools.permutations(range(0, self.degree, 1), 2)
         for each in possible_diagrams:
@@ -690,6 +792,9 @@ class Dia:
 
 
     class Data:
+        '''
+        Holds the data of frequncies and scoring of diagrams, returning the score of a given diagram
+        '''
         def __init__(self, pos1, pos2, cipher_columns):
             self.pos1 = pos1
             self.pos2 = pos2
@@ -1407,8 +1512,11 @@ class Dia:
 
         class FrequencyLetters:
             def __init__(self):
-                ''' Letter Frequency per 10000 letters,
-                from a 3.2 million character sample size of english novels'''
+                '''
+                Letter Frequency per 10000 letters,
+                from a 3.2 million character sample size of english novels
+                '''
+
                 self.A = 821
                 self.B = 150
                 self.C = 230
@@ -2146,7 +2254,6 @@ class Dia:
             scores = []
 
             for each_column in self.cipher_columns:
-
                 # If the cipher requires padding disregard the last column
                 if len(each_column) != len(self.cipher_columns[0]):
                     break
@@ -2155,8 +2262,6 @@ class Dia:
                 letter_b = each_column[b]
                 collective_score = self.get_collective_score(letter_a, letter_b)
                 scores.append(collective_score)
-
-
 
             ave_score = reduce(lambda x, y: x+y, scores) / len(scores)
             return ave_score

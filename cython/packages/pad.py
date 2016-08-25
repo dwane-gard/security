@@ -3,6 +3,10 @@ from functools import reduce
 from math import ceil
 import time
 
+'''
+A collection of decoders(and some encoders) for decoding (and encoding) diffrent ciphers
+'''
+
 
 class Encode:
     def __init__(self, plain_text):

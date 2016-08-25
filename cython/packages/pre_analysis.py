@@ -2,6 +2,11 @@ import functools
 from packages.analyse import CheckIC, ChiSquare
 from packages.pad import Decode
 
+'''
+A collection of 'pre-analysis' tools used for discovering the cipher used
+'''
+
+
 class Kasiski:
     '''
     THIS IS NOT JUST KASISKI  but ic examination at the nth character
@@ -49,7 +54,6 @@ class Kasiski:
         return
 
     def finding_the_key(self, key_length=9):
-        from functools import reduce
         '''
         Analyse the cipher text to find repeating strings,
         cipher text is broken for run cipher (vigenere)
