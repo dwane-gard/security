@@ -1,8 +1,9 @@
-from packages.analyse import Dia, CheckIC, ChiSquare,NthMessage
+from packages.analyse import Dia, CheckIC, ChiSquare, NthMessage
 from packages.pre_analysis import Kasiski
 from termcolor import colored
 import itertools
 import multiprocessing
+import time
 
 class RailFence:
     def __init__(self, cipher_text, *args):
@@ -124,8 +125,10 @@ class Redefence:
                 i -= 1
 
         if 'COMP3441{' in plain_text:
+            with open('redefence.txt', 'a') as results_file:
+                results_file.write('%s : %s' % (str(key), plain_text))
             print(plain_text)
-            exit()
+            
 
 
 
@@ -137,6 +140,23 @@ class MorphingRailFence:
         self.structure = [[None] * len(cipher_text) for n in range(key_size)]
         self.plain_text = ''
     # def run(self):
+
+
+def worker(q):
+    while True:
+        if q.empty():
+            time.sleep(1)
+
+        try:
+            obj = q.get(timeout=1)
+            Redefence(obj)
+
+        except:
+            # print('[!] run finished')
+            break
+    # print('ending worker')
+    return
+
 if __name__ == '__main__':
 
     # railFence = RailFence('''
@@ -149,6 +169,25 @@ if __name__ == '__main__':
 
     keys = itertools.permutations(range(0,11,1))
 
+    # Process
+    q = multiprocessing.Queue(maxsize=50)
+    jobs = []
+
+    # Create workers
+    for i in range(0, multiprocessing.cpu_count(), 1):
+        p = multiprocessing.Process(target=worker, args=(q,))
+        p.start()
+        jobs.append(p)
+
+    # Feed items into the queue
+    for each_item in keys:
+        q.put(each_item)
+
+    # Wait for each worker to finish before continueing
+    for each_job in jobs:
+        each_job.join()
+
+    # Pool
     p = multiprocessing.Pool(multiprocessing.cpu_count())
     p.imap(Redefence, keys)
     p.close()
