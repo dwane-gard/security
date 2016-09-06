@@ -325,6 +325,7 @@ class WordSearch:
         self.keys = [x[0:-1].upper() for x in self.keys]
         # self.keys = [x for x in self.keys if len(x) != 2]
         # self.keys = [x for x in self.keys if len(x) != 3]
+        self.word_list = []
         self.len_plain_text = None
 
     def run(self, ze_plain_text):
@@ -335,6 +336,8 @@ class WordSearch:
         :param ze_plain_text: The text to check if words are present in
         :return:
         '''
+        ze_plain_text = ze_plain_text.upper()
+        self.word_list = []
         word_list = []
         for each_key in self.keys:
             if each_key in ze_plain_text:
@@ -343,6 +346,8 @@ class WordSearch:
             self.len_plain_text = len(ze_plain_text)
         words_list_len = len(''.join(word_list))
         words_len = words_list_len/self.len_plain_text
+        self.word_list = word_list
+        self.word_list.sort(key = lambda x: len(x), reverse=True)
         return words_len
 
     def the_check(self, ze_plain_text):
@@ -353,6 +358,8 @@ class WordSearch:
         '''
         the_count = ze_plain_text.count('THE')
         return the_count
+
+
 
 
 class CheckIC:
