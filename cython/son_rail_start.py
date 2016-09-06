@@ -2,6 +2,7 @@ from packages.analyse import Dia, CheckIC, ChiSquare,NthMessage
 from packages.pre_analysis import Kasiski
 from termcolor import colored
 import itertools
+import multiprocessing
 
 class RailFence:
     def __init__(self, cipher_text, *args):
@@ -65,7 +66,9 @@ class RailFence:
         #     print(nthMessage.output())
 
 class Redefence:
-    def __init__(self, cipher_text, degree, key):
+    def __init__(self, key):
+        cipher_text = "S_   ltes e__owesft4ya'h r_ernadinhohn_hstfeamion coo iost  lhrooidskeutsio t,aPeeut_eemlc tmkhegi_wschoool31neOen Cbale4h s tee_  oi_r yjnsr  iat_.>dslu}4 nd asthsnCg\  it_ Misdirection_tCaeesa Oe1elr__firiOR_lelsmk_hlabsfkabM{fbbliuec_p  eiecn P1oaubco a_ite_headm34rebihchtHo4c"
+        degree = 15
         key = key + (11,12,13,14)
         print(key)
         self.cipher_text = [x for x in cipher_text]
@@ -144,11 +147,13 @@ if __name__ == '__main__':
     # railFence.analyse()
     #
 
+    keys = itertools.permutations(range(0,11,1))
 
-    for each_key in itertools.permutations(range(0,11,1)):
+    p = multiprocessing.Pool(multiprocessing.cpu_count())
+    p.imap(Redefence, keys)
+    p.close()
+    p.join()
 
-        redfence = Redefence("S_   ltes e__owesft4ya'h r_ernadinhohn_hstfeamion coo iost  lhrooidskeutsio t,aPeeut_eemlc tmkhegi_wschoool31neOen Cbale4h s tee_  oi_r yjnsr  iat_.>dslu}4 nd asthsnCg\  it_ Misdirection_tCaeesa Oe1elr__firiOR_lelsmk_hlabsfkabM{fbbliuec_p  eiecn P1oaubco a_ite_headm34rebihchtHo4c",
-                            degree=15, key=each_key)
 # known plain texts
 # lbubble
 # licious
