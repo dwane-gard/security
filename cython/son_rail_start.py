@@ -70,8 +70,9 @@ class Redefence:
     def __init__(self, key):
         cipher_text = "S_   ltes e__owesft4ya'h r_ernadinhohn_hstfeamion coo iost  lhrooidskeutsio t,aPeeut_eemlc tmkhegi_wschoool31neOen Cbale4h s tee_  oi_r yjnsr  iat_.>dslu}4 nd asthsnCg\  it_ Misdirection_tCaeesa Oe1elr__firiOR_lelsmk_hlabsfkabM{fbbliuec_p  eiecn P1oaubco a_ite_headm34rebihchtHo4c"
         degree = 15
-        key = key + (11,12,13,14)
+        # key = key + (11,12,13,14)
         print(key)
+
         self.cipher_text = [x for x in cipher_text]
 
         standard_list_len = int(len(cipher_text) / (degree-1))
@@ -126,9 +127,9 @@ class Redefence:
 
         if 'COMP3441{' in plain_text:
             with open('redefence.txt', 'a') as results_file:
-                results_file.write('%s : %s' % (str(key), plain_text))
+                results_file.write('%s : %s\n' % (str(key), plain_text))
             print(plain_text)
-
+            time.sleep(10)
 
 
 
@@ -157,6 +158,23 @@ def worker(q):
     # print('ending worker')
     return
 
+def npermuatations(amount_of_numbers, length_of_set):
+    ''' Discover the number of permutations'''
+    n = range(1, amount_of_numbers+1 , 1)
+    r = range(1, (amount_of_numbers+1 - length_of_set+1), 1)
+
+    running_answer = 1
+    for each in n:
+        running_answer = each * running_answer
+    n = running_answer
+
+    running_answer = 1
+    for each in r:
+        running_answer = each * running_answer
+    r = running_answer
+
+    return int(n/r)
+
 if __name__ == '__main__':
 
     # railFence = RailFence('''
@@ -167,31 +185,24 @@ if __name__ == '__main__':
     # railFence.analyse()
     #
 
-    keys = itertools.permutations(range(0,11,1))
+    keys = itertools.permutations(range(0, 15, 1))
+    number_of_permutations = npermuatations(15, 15)
 
-    # Process
-    q = multiprocessing.Queue(maxsize=50)
-    jobs = []
+    count = 0
 
-    # Create workers
-    for i in range(0, multiprocessing.cpu_count()-1, 1):
-        p = multiprocessing.Process(target=worker, args=(q,))
-        p.start()
-        jobs.append(p)
+    for each in range(0, number_of_permutations, 100000):
+        current_keys = itertools.islice(keys, count, each)
+        count = each
 
-    # Feed items into the queue
-    for each_item in keys:
-        q.put(each_item)
+        # Pool
+        chunksize = (20 * multiprocessing.cpu_count())
+        p = multiprocessing.Pool(multiprocessing.cpu_count())
+        p.map_async(Redefence, current_keys, chunksize=chunksize)
+        p.close()
+        p.join()
 
-    # Wait for each worker to finish before continueing
-    for each_job in jobs:
-        each_job.join()
 
-    # Pool
-    # p = multiprocessing.Pool(multiprocessing.cpu_count())
-    # p.imap(Redefence, keys)
-    # p.close()
-    # p.join()
+
 
 # known plain texts
 # lbubble
