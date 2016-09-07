@@ -128,7 +128,7 @@ class Redefence:
             with open('redefence.txt', 'a') as results_file:
                 results_file.write('%s : %s' % (str(key), plain_text))
             print(plain_text)
-            
+
 
 
 
@@ -174,7 +174,7 @@ if __name__ == '__main__':
     jobs = []
 
     # Create workers
-    for i in range(0, multiprocessing.cpu_count(), 1):
+    for i in range(0, multiprocessing.cpu_count()-1, 1):
         p = multiprocessing.Process(target=worker, args=(q,))
         p.start()
         jobs.append(p)
@@ -188,10 +188,10 @@ if __name__ == '__main__':
         each_job.join()
 
     # Pool
-    p = multiprocessing.Pool(multiprocessing.cpu_count())
-    p.imap(Redefence, keys)
-    p.close()
-    p.join()
+    # p = multiprocessing.Pool(multiprocessing.cpu_count())
+    # p.imap(Redefence, keys)
+    # p.close()
+    # p.join()
 
 # known plain texts
 # lbubble
