@@ -772,6 +772,9 @@ class Dia:
 
         # we appear to need to key to know where to put the nulls, might have to have a seperate dia class to do this
 
+    def redefence(self):
+        pass
+
     def run(self):
         '''
         Do the caulculations placing the diagrams in there most probable spots given the cipher text
