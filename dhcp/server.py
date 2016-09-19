@@ -2,8 +2,6 @@ import socket
 import select
 from binascii import hexlify
 
-dhcpServer = DhcpServer()
-client_list = []
 
 
 class listener():
@@ -181,13 +179,11 @@ class DhcpServer:
         self.server_ip = None
         self.server_name = None
 
-        self.client_ip_available = []
+        self.client_ip_available = [('c0', 'a8', '00', '01'),('c0', 'a8', '00', '02')]
+        self.client_subnet = ['ff', 'ff', 'ff', '00']
 
     def get_next_ip(self):
         return None
-
-
-
 
 
 class PacketFrameHex:
@@ -344,6 +340,7 @@ def saver():
 # UI
 def main():
     dhcpServer = DhcpServer()
+    client_list = []
 
     # a samoke dhcp_discover frame with ehternet header
     dhcp_discover = '''
