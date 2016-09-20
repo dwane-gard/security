@@ -123,7 +123,7 @@ class Redefence:
     def __init__(self, key, cipher_text, degree):
         cipher_text = "S_   ltes e__owesft4ya'h r_ernadinhohn_hstfeamion coo iost  lhrooidskeutsio t,aPeeut_eemlc tmkhegi_wschoool31neOen Cbale4h s tee_  oi_r yjnsr  iat_.>dslu}4 nd asthsnCg\  it_ Misdirection_tCaeesa Oe1elr__firiOR_lelsmk_hlabsfkabM{fbbliuec_p  eiecn P1oaubco a_ite_headm34rebihchtHo4c"
         degree = 15
-        # key = key + (11,12,13,14)
+        # key = key + (11,12,13,14) 1
 
 
         self.cipher_text = [x for x in cipher_text]
