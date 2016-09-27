@@ -55,7 +55,7 @@ class Listener:
                 if any(x.xid == dhcpPacket.xid for x in self.current_discovery):
                     print('[+] Crafting ACK')
                     ack = dhcpPacket.craft_ack()
-                    self.dhcp_socket.sendto(ack, ('127.0.0.1', 67))
+                    self.dhcp_socket.sendto(ack, ('255.255.255.255', 67))
                     self.client_list.append(x)
                     print(self.current_discovery)
                     for each in self.current_discovery:
@@ -67,7 +67,7 @@ class Listener:
                     self.current_discovery.append(dhcpPacket)
                     offer = dhcpPacket.craft_offer()
                     print(offer)
-                    self.dhcp_socket.sendto(offer, ('127.0.0.1', 67))
+                    self.dhcp_socket.sendto(offer, ('255.255.255.255', 67))
 
 
 
