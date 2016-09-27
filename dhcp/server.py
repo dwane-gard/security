@@ -197,6 +197,8 @@ class DhcpPacket:
         magic_cookie = [b'\x63', b'\x82', b'\x53', b'\x63']
         options = [b'\x35', b'\x01', b'\x05',  # DHCP, len, Offer
                    b'\x01', b'\x04', dhcpServer.client_subnet,  # subnetmask flag on, len=4, subnetmask
+                   b'\x03', b'\x04', dhcpServer.router_ip,
+                   b'\x06', b'\x05', dhcpServer.primary_dns,
                    b'\x3a', b'\x04', b'\x00', b'\x00', b'\x07', b'\x08',  # Renewel time
                    b'\x3b', b'\x04', b'\x00', b'\x00', b'\x07', b'\x08',  # rebind time value
                    b'\x33', b'\x04', b'\x00', b'\x00', b'\x0e', b'\x10',  # lease time
@@ -272,7 +274,8 @@ class DhcpServer:
     def __init__(self):
         self.server_ip = (b'\xc0', b'\xa8', b'\x00', b'\x17')
         self.server_name = (b'\x6c', b'\x61', b'\x70', b'\x70', b'\x79')
-
+        self.router_ip = (b'\xc0', b'\xa8', b'\x00', b'\x17')
+        self.primary_dns =  (b'\xc0', b'\xa8', b'\x00', b'\x17')
         self.client_ip_available = [(b'\xc0', b'\xa8', b'\x00', b'\x01'), (b'\xc0', b'\xa8', b'\x00', b'\x02')]
         self.client_subnet = (b'\xff', b'\xff', b'\xff', b'\x00')
 
