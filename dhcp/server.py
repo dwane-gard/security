@@ -270,7 +270,7 @@ class Client:
 
 class DhcpServer:
     def __init__(self):
-        self.server_ip = (b'\xc0', b'\xa8', b'\x6e', b'\x17')
+        self.server_ip = (b'\xc0', b'\xa8', b'\x00', b'\x17')
         self.server_name = (b'\x6c', b'\x61', b'\x70', b'\x70', b'\x79')
 
         self.client_ip_available = [(b'\xc0', b'\xa8', b'\x00', b'\x01'), (b'\xc0', b'\xa8', b'\x00', b'\x02')]
