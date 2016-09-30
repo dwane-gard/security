@@ -125,11 +125,12 @@ if __name__ == '__main__':
     alpha_tog = options.a
     beta_tog = options.b
 
+    # any number larger then 2 bytes is too large to be workable
     size = 2
 
     if alpha_tog is True:
 
-        a = get_random(size)
+        a = get_random(size+1)
         # a = 6
         p = get_random(size)
         # p = 23
@@ -139,7 +140,7 @@ if __name__ == '__main__':
         alpha.exchange()
 
     elif beta_tog is True:
-        b = get_random(size)
+        b = get_random(size+1)
         # b = 15
         beta = Beta(b)
         beta.exchange()
