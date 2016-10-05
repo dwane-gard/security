@@ -1,17 +1,7 @@
-import socket
 import select
+import socket
 import optparse
-import os
-import time
 from Crypto.Util.number import getStrongPrime, getRandomInteger
-
-def get_random(size):
-    # Get (size) amount of random bytes
-    rand = os.urandom(size)
-    # Covert bytes to a integer
-    output = int.from_bytes(rand, byteorder='big')
-    return output
-
 
 class Alpha:
     '''
@@ -27,11 +17,9 @@ class Alpha:
     def __init__(self, p, g, a, verbose):
         self.verbose = verbose
         self.alpha_secret = a
-
-        self.alpha_mod_secret = 0
-        self.mod_beta_secret = 0
-
-        self.shared_secret = 0
+        self.alpha_mod_secret = None
+        self.mod_beta_secret = None
+        self.shared_secret = None
         self.p = p
         self.g = g
 
@@ -45,7 +33,8 @@ class Alpha:
         self.ze_socket.bind(('', 100))
 
         # Create the mod of Alpha's secret
-        self.alpha_mod_secret = (g ** self.alpha_secret) % p
+        # self.alpha_mod_secret = (self.g ** self.alpha_secret) % self.p
+        self.alpha_mod_secret = pow(self.g, self.alpha_secret, self.p)
 
         print('[+] Ready to receive')
 
@@ -84,7 +73,8 @@ class Alpha:
                     self.mod_beta_secret = int(self.mod_beta_secret)
 
                     # Create the shared secret using Beta and Alphas mod of their secrets
-                    self.shared_secret = (self.mod_beta_secret ** self.alpha_secret) % self.p
+                    # self.shared_secret = (self.mod_beta_secret ** self.alpha_secret) % self.p
+                    self.shared_secret = pow(self.mod_beta_secret, self.alpha_secret, self.p)
 
     def output(self):
         print('''|------------||   Output   ||------------|''')
@@ -107,11 +97,11 @@ class Beta:
     def __init__(self, b, verbose):
         self.verbose = verbose
         self.beta_secret = b
-        self.p = 0
-        self.g = 0
-        self.mod_beta_secret = 0
-        self.shared_secret = 0
-        self.alpha_mod_secret = 0
+        self.p = None
+        self.g = None
+        self.mod_beta_secret = None
+        self.shared_secret = None
+        self.alpha_mod_secret = None
 
         # Configure the socket to listen on UDP
         self.ze_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -122,6 +112,7 @@ class Beta:
         # Configure the socket to listen on port 101
         self.ze_socket.bind(('', 101))
 
+        # Broadcast an 'i am ready' message, asking for 'p' and 'b' numbers
         self.ze_socket.sendto(b'iamready', ('255.255.255.255', 100))
 
         # If shared secret is not yet computed be ready to recieve data
@@ -143,7 +134,8 @@ class Beta:
                     self.g = int(g)
 
                     # Create a mod of Beta secret
-                    self.mod_beta_secret = (self.g**self.beta_secret) % self.p
+                    # self.mod_beta_secret = (self.g**self.beta_secret) % self.p
+                    self.mod_beta_secret = pow(self.g, self.beta_secret, self.p)
 
                     # Send Alpha the mod of Betas secret
                     if self.verbose is True:
@@ -159,7 +151,8 @@ class Beta:
                 if self.alpha_mod_secret != 0:
 
                     # Create the shared secret using Beta and Alphas mod of their secrets
-                    self.shared_secret = (self.alpha_mod_secret**self.beta_secret) % self.p
+                    # self.shared_secret = (self.alpha_mod_secret**self.beta_secret) % self.p
+                    self.shared_secret = pow(self.alpha_mod_secret, self.beta_secret, self.p)
 
     def output(self):
         print('''|------------||   Output   ||------------|''')
@@ -179,30 +172,33 @@ if __name__ == '__main__':
     parser.add_option('-a', '--alpha', action='store_true', default=False, help='Set client as alpha.')
     parser.add_option('-b', '--beta', action='store_true', default=False, help='Set client as beta.')
     parser.add_option('-v', '--verbose', action='store_true', default=False, help='Print status.')
-    parser.add_option('-s', '--size', dest='size', default=2, help='Set how many bytes long the keys will be,'
-                                                                   ' [default=2]')
+    parser.add_option('-s', '--size', dest='size', default=2048, help='Set how many bits long the prime and base'
+                                                                      ' numbers will be, [default=2048]')
+    parser.add_option('-e', '--secret', dest='secret', default=512, help='Set how many bits long the secret number will'
+                                                                        ' be [default=512]')
     options, args = parser.parse_args()
     alpha_tog = options.alpha
     beta_tog = options.beta
     verbose = options.verbose
     size = int(options.size)
+    secret = int(options.secret)
 
     if alpha_tog is True and beta_tog is True:
         print("[!] Error: can't set both alpha and beta use one per instance")
         exit(1)
     try:
         if alpha_tog is True:
-            # a = getRandomInteger(512)
-            a = get_random(size)
-            p = getStrongPrime(512)
-            g = getStrongPrime(512)
+            a = getRandomInteger(secret) # This needs to be large, at least 512bit
+            p = getStrongPrime(size)
+            g = getStrongPrime(size)
+
             alpha = Alpha(p, g, a, verbose)
             alpha.exchange()
             alpha.output()
             exit()
         elif beta_tog is True:
-            b = get_random(size)
-            # b = getRandomInteger(512)
+            # b = get_random(size)
+            b = getRandomInteger(secret) # This needs to be large, at least 512bit
             beta = Beta(b, verbose)
             beta.exchange()
             beta.output()
@@ -210,9 +206,6 @@ if __name__ == '__main__':
     except PermissionError:
         print("[!] Error: you must have sudo permissions in order to broadcast")
         exit(1)
-
-
-
 
 
 
