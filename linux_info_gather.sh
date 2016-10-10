@@ -49,8 +49,6 @@ find / -type f -perm -u=s -o -type f -perm -g=s \
 
 
 echo writable files outside HOME
-mount -l find / -path "$HOME" -prube -o -path "/proc" -prune -o \( ~ -type l
-\) \( -user 'id -u' -perm -u=w -o -group 'id -g' -perm -g=w -o -perm -o=w
-\) -ls 2>/dev/null
+mount -l find / -path "$HOME" -prune -o -path "/proc" -prune -o \( ~ -type l \) \( -user 'id -u' -perm -u=w -o -group 'id -g' -perm -g=w -o -perm -o=w \) -ls 2>/dev/null
 
 
