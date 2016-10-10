@@ -18,7 +18,7 @@ which gcc
 which g++
 which python
 
-echo Installed  packages (debian derivitive)
+echo Installed  packages - debian derivitive -
 dpkg -l
 
 echo Services
