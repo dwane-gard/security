@@ -20,18 +20,10 @@ class NthMessage:
         self.cipher_text = cipher_text
         self.cipher_columns = []
         self.plain_texts = []
-
-        j = 0
-        while j < degree:
-            i = j
-            nth_cypher_text = ''
-            while i < len(self.cipher_text):
-                nth_cypher_text += self.cipher_text[i]
-                i += degree
-            j += 1
-            # print(nth_cypher_text)
-            self.cipher_columns.append(nth_cypher_text)
-
+        
+        # Get lists of every nth character in the cipher text
+        self.cipher_columns = [cipher_text[x::degree] for x in range(0, degree, 1)]
+        
         for each_column in self.cipher_columns:
             Decoder = Decode(each_column)
             result = []
