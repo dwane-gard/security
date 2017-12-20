@@ -1,0 +1,8 @@
+A very simple DHCP server.
+THIS SHOULD NOT BE USED IN A PRODUCTION ENVIRONMENT UNDER ANY CIRCUMSTANCES
+
+# client.py
+This script will send a request for a ip address but will not apply it, it is for testing the server.
+
+# server.py
+This file will listen for a DHCP request and send back an IP address.
